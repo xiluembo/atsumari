@@ -190,8 +190,3 @@ QString TwitchAuthFlow::token() const
 {
     return m_token;
 }
-
-void TwitchAuthFlow::setToken(const QString &newToken)
-{
-    m_token = newToken;
-}

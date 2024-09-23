@@ -32,7 +32,6 @@ public:
     void parseToken(QUrl newUrl);
 
     QString token() const;
-    void setToken(const QString &newToken);
 
 signals:
     void tokenFetched();
