@@ -1,5 +1,5 @@
 # Atsumari: Roll your Twitch Chat Emotes and Emojis in a ball
-# Copyright (C) 2024 andriusmao@gmail.com
+# Copyright (C) 2024 - Andrius da Costa Ribas <andriusmao@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
