@@ -92,6 +92,9 @@ SetupWidget::SetupWidget(QWidget *parent)
     connect(ui->btnDevConsole, &QPushButton::clicked, this, &SetupWidget::openDevConsole);
     connect(ui->btnForceAuth, &QPushButton::clicked, this, &SetupWidget::resetAuth);
 
+    // About
+    connect(ui->btnAboutQt, &QPushButton::clicked, this, &SetupWidget::aboutQt);
+
     // Actions
     connect(ui->btnSaveSettings, &QPushButton::clicked, this, &SetupWidget::saveSettings);
     connect(ui->btnClose, &QPushButton::clicked, this, &SetupWidget::checkClose);
@@ -318,6 +321,11 @@ void SetupWidget::resetAuth()
     settings.setValue(CFG_TOKEN, "");
 
     QMessageBox::information(this, tr("Success"), tr("Authentication token has been reset! Twitch login will be required on next startup."));
+}
+
+void SetupWidget::aboutQt()
+{
+    QMessageBox::aboutQt(this, tr("About Qt"));
 }
 
 void SetupWidget::addToExcludeList()
