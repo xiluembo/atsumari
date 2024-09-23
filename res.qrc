@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>test_emotes/kata_deco.png</file>
+        <file>emoji/emojis.json</file>
+    </qresource>
+</RCC>
