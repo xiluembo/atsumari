@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>833</width>
-    <height>477</height>
+    <width>850</width>
+    <height>487</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -649,7 +649,11 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="edtClientId"/>
+                <widget class="QLineEdit" name="edtClientId">
+                 <property name="echoMode">
+                  <enum>QLineEdit::EchoMode::Password</enum>
+                 </property>
+                </widget>
                </item>
                <item>
                 <widget class="QPushButton" name="btnDevConsole">

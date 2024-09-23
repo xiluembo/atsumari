@@ -70,7 +70,7 @@ void TwitchAuthFlow::requestTokenValidation()
 
     QNetworkRequest req((QUrl(requestUrl)));
     req.setRawHeader("Authorization", QString("Bearer %1").arg(m_token).toUtf8());
-    req.setRawHeader("Client-Id", settings.value(CFG_CLIENT_ID).toString().toUtf8() );
+    req.setRawHeader("Client-Id", settings.value(CFG_CLIENT_ID, DEFAULT_CLIENT_ID).toString().toUtf8() );
 
     QNetworkReply *reply = m_nam.get(req);
 
@@ -103,7 +103,7 @@ void TwitchAuthFlow::requestUserinfo()
 
     QNetworkRequest req((QUrl(requestUrl)));
     req.setRawHeader("Authorization", QString("Bearer %1").arg(m_token).toUtf8());
-    req.setRawHeader("Client-Id", settings.value(CFG_CLIENT_ID).toString().toUtf8() );
+    req.setRawHeader("Client-Id", settings.value(CFG_CLIENT_ID, DEFAULT_CLIENT_ID).toString().toUtf8() );
 
     QNetworkReply *reply = m_nam.get(req);
 
@@ -173,7 +173,7 @@ void TwitchAuthFlow::startAuthFlow()
 
     // Parameters
     QUrlQuery parms;
-    parms.addQueryItem("client_id", settings.value(CFG_CLIENT_ID).toString());
+    parms.addQueryItem("client_id", settings.value(CFG_CLIENT_ID, DEFAULT_CLIENT_ID).toString());
     parms.addQueryItem("scope", "user:read:email chat:read chat:edit");
     parms.addQueryItem("redirect_uri", "http://localhost:6876/");
     parms.addQueryItem("response_type", "token");

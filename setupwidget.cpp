@@ -195,7 +195,7 @@ void SetupWidget::loadSettings()
     // Twitch
     ui->lstExcludeChat->clear();
     ui->lstExcludeChat->addItems(settings.value(CFG_EXCLUDE_CHAT).toStringList());
-    ui->edtClientId->setText(settings.value(CFG_CLIENT_ID, "").toString());
+    ui->edtClientId->setText(settings.value(CFG_CLIENT_ID, DEFAULT_CLIENT_ID).toString());
 
     // Directories
     ui->edtEmojiDir->setText(settings.value(CFG_EMOJI_DIR, DEFAULT_EMOJI_DIR).toString());
@@ -256,7 +256,7 @@ void SetupWidget::checkClose()
 {
     QSettings settings;
 
-    QString clientId = settings.value(CFG_CLIENT_ID, "").toString();
+    QString clientId = settings.value(CFG_CLIENT_ID, DEFAULT_CLIENT_ID).toString();
 
     if ( clientId.isEmpty() ) {
         QMessageBox::critical(this, tr("Empty ClientId"), tr("Twitch Client Id is empty, you'll be not able to connect to your chat, use the Twitch Dev Console button to create a Client on Twitch."));

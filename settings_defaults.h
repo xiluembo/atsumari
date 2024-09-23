@@ -48,6 +48,10 @@
 #define DEFAULT_ITERATION_TIME 3
 #define DEFAULT_DECORATION_PATH ":/test_emotes/kata_deco.png"
 
+// This client id is set as public, but please don't use it for other purposes
+// Creating a new application on Twitch dev Console is easy and free
+#define DEFAULT_CLIENT_ID "3x2mzlmm9mz8qpml51m5mxc8dbdk4d"
+
 #ifdef Q_OS_WIN
 # define DEFAULT_EMOJI_DIR QString("%1/%2").arg(qApp->applicationDirPath(), "emoteInfo")
 # define DEFAULT_EMOTE_DIR QString("%1/%2").arg(qApp->applicationDirPath(), "emojiInfo")
