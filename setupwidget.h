@@ -33,7 +33,7 @@ class SetupWidget : public QWidget
     Q_OBJECT
 
 public:
-    SetupWidget(QWidget *parent = nullptr);
+    explicit SetupWidget(QWidget *parent = nullptr);
     ~SetupWidget();
 
 private:

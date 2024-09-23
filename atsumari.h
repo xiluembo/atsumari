@@ -26,7 +26,7 @@
 class Atsumari : public Qt3DCore::QEntity {
     Q_OBJECT
 public:
-    Atsumari(Qt3DCore::QEntity *parent = nullptr);
+    explicit Atsumari(Qt3DCore::QEntity *parent = nullptr);
 
     void updateRandomRotation();
 

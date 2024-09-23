@@ -29,13 +29,13 @@ class EmoteWriter : public QObject {
     Q_OBJECT
 
 public:
-    EmoteWriter(QObject *parent = nullptr);
+    explicit EmoteWriter(QObject *parent = nullptr);
 
 public slots:
     void saveEmote(const QString &id);
     void saveBigEmote(const QString &id);
 
-    void saveEmoji(const QString &slug, const QString emojiData);
+    void saveEmoji(const QString &slug, const QString &emojiData);
 private slots:
     void handleNetworkReply(QNetworkReply *reply);
 

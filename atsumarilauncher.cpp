@@ -86,15 +86,15 @@ AtsumariLauncher::AtsumariLauncher()
     m_twFlow = new TwitchAuthFlow(QString("a123%1").arg(QRandomGenerator64::global()->generate()));
     m_emw = new EmoteWriter();
 
-    QObject::connect(m_twFlow, &TwitchAuthFlow::loginFetched, m_twFlow, [&](QString a) {
+    QObject::connect(m_twFlow, &TwitchAuthFlow::loginFetched, m_twFlow, [&](const QString& a) {
         m_tReader = new TwitchChatReader("ws://irc-ws.chat.twitch.tv:80/", m_twFlow->token(), a);
 
-        QObject::connect(m_tReader, &TwitchChatReader::emoteSent, m_emw, [=](QString id, QString emoName) {
+        QObject::connect(m_tReader, &TwitchChatReader::emoteSent, m_emw, [=](const QString& id, const QString& emoName) {
             Q_UNUSED(emoName);
             m_emw->saveEmote(id);
         });
 
-        QObject::connect(m_tReader, &TwitchChatReader::bigEmoteSent, m_emw, [=](QString id, QString emoName) {
+        QObject::connect(m_tReader, &TwitchChatReader::bigEmoteSent, m_emw, [=](const QString& id, const QString& emoName) {
             Q_UNUSED(emoName);
             m_emw->saveBigEmote(id);
         });

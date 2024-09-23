@@ -71,7 +71,7 @@ void EmoteWriter::saveBigEmote(const QString &id) {
     }
 }
 
-void EmoteWriter::saveEmoji(const QString &slug, const QString emojiData)
+void EmoteWriter::saveEmoji(const QString &slug, const QString& emojiData)
 {
     QSettings settings;
     // Check if the emoji is already saved
@@ -131,7 +131,6 @@ void EmoteWriter::handleNetworkReply(QNetworkReply *reply) {
             }
             pendingEmotes.remove(id);
         }
+        reply->deleteLater();
     }
-
-    reply->deleteLater();
 }

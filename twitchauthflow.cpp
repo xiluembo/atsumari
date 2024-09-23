@@ -82,7 +82,7 @@ void TwitchAuthFlow::parseToken(QUrl newUrl)
     if (newUrl.host() == "localhost") {
         QString fragment = newUrl.fragment();
         QStringList parms = fragment.split("&");
-        foreach(const QString kv, parms) {
+        foreach(const QString& kv, parms) {
             QString k = kv.split("=")[0];
             if ( k == "access_token" ) {
                 m_token = kv.split("=")[1];
