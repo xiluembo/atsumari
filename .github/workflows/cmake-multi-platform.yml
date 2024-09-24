@@ -50,7 +50,7 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
-        version: '6.7.*'
+        version: '6.7.0'
         modules: 'qt3d qtwebview qtwebsockets'
 
     - name: Set reusable strings
