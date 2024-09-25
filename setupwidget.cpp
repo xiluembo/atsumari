@@ -272,7 +272,7 @@ void SetupWidget::selectColor(QString *colorEnv, QFrame *frame)
 {
     QColorDialog* dlg = new QColorDialog(QColor(*colorEnv), this);
 
-    //dlg->setWindowIcon(QIcon(":/icons/TODO.png"));
+    dlg->setWindowIcon(QIcon(":/icons/atsumari.svg"));
 
     connect(dlg, &QColorDialog::colorSelected, this, [=](const QColor& color) {
         *colorEnv = color.name();
@@ -288,7 +288,7 @@ void SetupWidget::selectDecoration()
 {
     QFileDialog* dlg = new QFileDialog(this, tr("Select decoration file"), QString(), tr("Image Files (*.png *.jpg *.bmp)"));
 
-    //dlg->setWindowIcon(QIcon(":/icons/TODO.png"));
+    dlg->setWindowIcon(QIcon(":/icons/atsumari.svg"));
 
     connect(dlg, &QFileDialog::fileSelected, this, [=](const QString& file) {
         m_decorationPath = file;

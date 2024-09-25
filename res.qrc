@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>test_emotes/kata_deco.png</file>
         <file>emoji/emojis.json</file>
+        <file>icons/atsumari.svg</file>
     </qresource>
 </RCC>
