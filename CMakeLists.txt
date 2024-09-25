@@ -15,7 +15,7 @@
 
 cmake_minimum_required(VERSION 3.5)
 
-project(Atsumari VERSION 1.0 LANGUAGES CXX RC)
+project(Atsumari VERSION 1.0 LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -41,6 +41,7 @@ set(PROJECT_SOURCES
 )
 
 if(WIN32)
+    enable_language(RC)
     set(PROJECT_SOURCES ${PROJECT_SOURCES} icons/appicon.rc)
 endif()
 
