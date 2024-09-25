@@ -15,7 +15,7 @@
 
 cmake_minimum_required(VERSION 3.5)
 
-project(Atsumari VERSION 1.0 LANGUAGES CXX)
+project(Atsumari VERSION 1.0 LANGUAGES CXX RC)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -39,6 +39,10 @@ set(PROJECT_SOURCES
         emotewriter.h emotewriter.cpp
         emojimapper.h emojimapper.cpp
 )
+
+if(WIN32)
+    set(PROJECT_SOURCES ${PROJECT_SOURCES} icons/appicon.rc)
+endif()
 
 qt_add_executable(Atsumari
     MANUAL_FINALIZATION
