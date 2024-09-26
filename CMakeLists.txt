@@ -42,7 +42,7 @@ set(PROJECT_SOURCES
 
 if(WIN32)
     enable_language(RC)
-    set(PROJECT_SOURCES ${PROJECT_SOURCES} icons/appicon.rc)
+    set(PROJECT_SOURCES ${PROJECT_SOURCES} appicon/appicon.rc)
 endif()
 
 qt_add_executable(Atsumari
