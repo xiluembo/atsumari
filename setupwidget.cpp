@@ -100,7 +100,12 @@ SetupWidget::SetupWidget(QWidget *parent)
         if ( index == 3 ) {
             // Workaround as big labels may get incorrect size
             ui->lblAtsuLicense->adjustSize();
+#ifdef Q_OS_WIN
             ui->lblBreezeLicense->adjustSize();
+#else
+            ui->lblBreezeLicense->hide();
+            ui->hlBreeze->hide();
+#endif
             ui->scrollAreaWidgetContents->layout()->update();
         }
     } );

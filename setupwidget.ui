@@ -717,7 +717,7 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>0</y>
+            <y>-222</y>
             <width>794</width>
             <height>603</height>
            </rect>
@@ -790,7 +790,7 @@
             </layout>
            </item>
            <item>
-            <widget class="Line" name="line">
+            <widget class="Line" name="hlBreeze">
              <property name="orientation">
               <enum>Qt::Orientation::Horizontal</enum>
              </property>
