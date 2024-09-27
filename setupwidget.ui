@@ -673,7 +673,7 @@
                <item>
                 <widget class="QPushButton" name="btnForceAuth">
                  <property name="text">
-                  <string>Force Twitch Authentication on next startup</string>
+                  <string>Force Twitch authentication on next startup</string>
                  </property>
                 </widget>
                </item>
