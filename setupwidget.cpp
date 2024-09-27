@@ -24,6 +24,7 @@
 #include <QFileDialog>
 #include <QDesktopServices>
 #include <QMessageBox>
+#include <QStyleHints>
 
 #include <Qt3DExtras/Qt3DWindow>
 #include <Qt3DCore/QEntity>
@@ -44,6 +45,7 @@ SetupWidget::SetupWidget(QWidget *parent)
     , ui(new Ui::SetupWidget)
 {
     ui->setupUi(this);
+    setIcons();
     loadSettings();
 
     // Appearance tab
@@ -94,6 +96,14 @@ SetupWidget::SetupWidget(QWidget *parent)
 
     // About
     connect(ui->btnAboutQt, &QPushButton::clicked, this, &SetupWidget::aboutQt);
+    connect(ui->tabWidget, &QTabWidget::currentChanged, this, [=](int index) {
+        if ( index == 3 ) {
+            // Workaround as big labels may get incorrect size
+            ui->lblAtsuLicense->adjustSize();
+            ui->lblBreezeLicense->adjustSize();
+            ui->scrollAreaWidgetContents->layout()->update();
+        }
+    } );
 
     // Actions
     connect(ui->btnSaveSettings, &QPushButton::clicked, this, &SetupWidget::saveSettings);
@@ -272,7 +282,7 @@ void SetupWidget::selectColor(QString *colorEnv, QFrame *frame)
 {
     QColorDialog* dlg = new QColorDialog(QColor(*colorEnv), this);
 
-    dlg->setWindowIcon(QIcon(":/icons/atsumari.svg"));
+    dlg->setWindowIcon(QIcon(":/appicon/atsumari.svg"));
 
     connect(dlg, &QColorDialog::colorSelected, this, [=](const QColor& color) {
         *colorEnv = color.name();
@@ -288,7 +298,7 @@ void SetupWidget::selectDecoration()
 {
     QFileDialog* dlg = new QFileDialog(this, tr("Select decoration file"), QString(), tr("Image Files (*.png *.jpg *.bmp)"));
 
-    dlg->setWindowIcon(QIcon(":/icons/atsumari.svg"));
+    dlg->setWindowIcon(QIcon(":/appicon/atsumari.svg"));
 
     connect(dlg, &QFileDialog::fileSelected, this, [=](const QString& file) {
         m_decorationPath = file;
@@ -321,6 +331,37 @@ void SetupWidget::resetAuth()
     settings.setValue(CFG_TOKEN, "");
 
     QMessageBox::information(this, tr("Success"), tr("Authentication token has been reset! Twitch login will be required on next startup."));
+}
+
+void SetupWidget::setIcons()
+{
+#ifdef Q_OS_WIN
+    const auto scheme = QGuiApplication::styleHints()->colorScheme();
+    if ( scheme == Qt::ColorScheme::Dark ) {
+        QIcon::setThemeName("breeze-dark");
+    } else {
+        QIcon::setThemeName("breeze");
+    }
+#endif
+    ui->btnSelectDiffuse->setIcon(QIcon::fromTheme("color-picker"));
+    ui->btnSelectSpecular->setIcon(QIcon::fromTheme("color-picker"));
+    ui->btnSelectAmbient->setIcon(QIcon::fromTheme("color-picker"));
+    ui->btnSelectLight->setIcon(QIcon::fromTheme("color-picker"));
+    ui->btnResetDecoration->setIcon(QIcon::fromTheme("edit-undo"));
+    ui->btnSelectDecoration->setIcon(QIcon::fromTheme("document-open"));
+    ui->btnAddExcludeChat->setIcon(QIcon::fromTheme("list-add"));
+    ui->btnRemoveExcludeChat->setIcon(QIcon::fromTheme("list-remove"));
+    ui->btnSaveSettings->setIcon(QIcon::fromTheme("document-save"));
+    ui->btnClose->setIcon(QIcon::fromTheme("window-close"));
+    ui->btnEmojiPath->setIcon(QIcon::fromTheme("folder-open"));
+    ui->btnEmotePath->setIcon(QIcon::fromTheme("folder-open"));
+    ui->btnDevConsole->setIcon(QIcon::fromTheme("applications-development"));
+    ui->btnForceAuth->setIcon(QIcon::fromTheme("security-high"));
+    ui->btnAboutQt->setIcon(QIcon::fromTheme("help-about"));
+    ui->tabWidget->setTabIcon(0, QIcon::fromTheme("configure"));
+    ui->tabWidget->setTabIcon(1, QIcon::fromTheme("folder"));
+    ui->tabWidget->setTabIcon(2, QIcon::fromTheme("computer"));
+    ui->tabWidget->setTabIcon(3, QIcon::fromTheme("help-about"));
 }
 
 void SetupWidget::aboutQt()

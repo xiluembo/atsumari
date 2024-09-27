@@ -40,7 +40,7 @@ AtsumariLauncher::AtsumariLauncher()
     m_window.setWidth(300);
     m_window.setHeight(300);
     m_window.defaultFrameGraph()->setClearColor(QColor(Qt::black));
-    m_window.setIcon(QIcon(":/icons/atsumari.svg"));
+    m_window.setIcon(QIcon(":/appicon/atsumari.svg"));
 
     // Root Entity
     Qt3DCore::QEntity *rootEntity = new Qt3DCore::QEntity();

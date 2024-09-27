@@ -50,6 +50,7 @@ private:
     void selectEmotePath();
     void selectEmojiPath();
     void resetAuth();
+    void setIcons();
     void aboutQt();
 
     QString m_diffuse;
