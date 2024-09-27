@@ -516,14 +516,14 @@
        <item row="0" column="2">
         <widget class="QPushButton" name="btnEmojiPath">
          <property name="text">
-          <string>Select Path...</string>
+          <string>Select Directory...</string>
          </property>
         </widget>
        </item>
        <item row="1" column="2">
         <widget class="QPushButton" name="btnEmotePath">
          <property name="text">
-          <string>Select Path...</string>
+          <string>Select Directory...</string>
          </property>
         </widget>
        </item>
