@@ -357,7 +357,7 @@ void SetupWidget::setIcons()
     ui->btnAddExcludeChat->setIcon(QIcon::fromTheme("list-add"));
     ui->btnRemoveExcludeChat->setIcon(QIcon::fromTheme("list-remove"));
     ui->btnSaveSettings->setIcon(QIcon::fromTheme("document-save"));
-    ui->btnClose->setIcon(QIcon::fromTheme("window-close"));
+    ui->btnClose->setIcon(QIcon::fromTheme("system-run"));
     ui->btnEmojiPath->setIcon(QIcon::fromTheme("folder-open"));
     ui->btnEmotePath->setIcon(QIcon::fromTheme("folder-open"));
     ui->btnDevConsole->setIcon(QIcon::fromTheme("applications-development"));

@@ -717,7 +717,7 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-255</y>
+            <y>0</y>
             <width>794</width>
             <height>640</height>
            </rect>
@@ -885,7 +885,7 @@
         <locale language="English" country="UnitedStates"/>
        </property>
        <property name="text">
-        <string>Close Without Saving</string>
+        <string>Close this dialog and run</string>
        </property>
       </widget>
      </item>
