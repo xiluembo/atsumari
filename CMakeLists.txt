@@ -24,8 +24,10 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets 3DCore 3DExtras WebSockets WebEngineWidgets Gui)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets 3DCore 3DExtras WebSockets WebEngineWidgets Gui)
+find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets 3DCore 3DExtras WebSockets WebEngineWidgets Gui LinguistTools)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets 3DCore 3DExtras WebSockets WebEngineWidgets Gui LinguistTools)
+
+qt_standard_project_setup(I18N_TRANSLATED_LANGUAGES pt_BR)
 
 set(PROJECT_SOURCES
         main.cpp
@@ -47,6 +49,11 @@ if(WIN32)
         appicon/appicon.rc
     )
 endif()
+
+qt_add_translations(Atsumari
+    QM_FILES_OUTPUT_VARIABLE qm_files
+    TS_FILE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/i18n
+)
 
 qt_add_executable(Atsumari
     MANUAL_FINALIZATION
@@ -79,5 +86,7 @@ install(TARGETS Atsumari
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+
+install(FILES ${qm_files} DESTINATION i18n)
 
 qt_finalize_executable(Atsumari)

@@ -18,6 +18,9 @@
 #include <QApplication>
 #include <QResource>
 #include <QStyleHints>
+#include <QTranslator>
+#include <QLocale>
+#include <QString>
 
 #include "setupwidget.h"
 
@@ -26,6 +29,14 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     QApplication::setOrganizationName("Push X!");
     QApplication::setApplicationName("Atsumari");
+
+    auto locale = QLocale::system();
+    QTranslator translator;
+    qDebug() << locale;
+    if (translator.load(locale, QString::fromLatin1("Atsumari"), QString::fromLatin1("_"), ":/i18n")) {
+        app.installTranslator(&translator);
+    }
+
 #ifdef Q_OS_WIN
     const auto scheme = QGuiApplication::styleHints()->colorScheme();
     if ( scheme == Qt::ColorScheme::Dark ) {
