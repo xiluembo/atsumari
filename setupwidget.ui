@@ -41,7 +41,7 @@
               <locale language="English" country="UnitedStates"/>
              </property>
              <property name="text">
-              <string>Atsumari Shininess:</string>
+              <string>Shininess:</string>
              </property>
             </widget>
            </item>
@@ -126,7 +126,7 @@
               <locale language="English" country="UnitedStates"/>
              </property>
              <property name="text">
-              <string>Atsumari Specular Color:</string>
+              <string>Specular Color:</string>
              </property>
             </widget>
            </item>
@@ -178,7 +178,7 @@
               <locale language="English" country="UnitedStates"/>
              </property>
              <property name="text">
-              <string>Atsumari Rings:</string>
+              <string>Sphere Rings:</string>
              </property>
             </widget>
            </item>
@@ -260,7 +260,7 @@
               <locale language="English" country="UnitedStates"/>
              </property>
              <property name="text">
-              <string>Atsumari Diffuse Color:</string>
+              <string>Diffuse Color:</string>
              </property>
             </widget>
            </item>
@@ -378,7 +378,7 @@
               <locale language="English" country="UnitedStates"/>
              </property>
              <property name="text">
-              <string>Atsumari Slices:</string>
+              <string>Sphere Slices:</string>
              </property>
             </widget>
            </item>
