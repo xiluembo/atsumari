@@ -719,7 +719,7 @@
             <x>0</x>
             <y>0</y>
             <width>794</width>
-            <height>640</height>
+            <height>618</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -783,7 +783,7 @@
                 </sizepolicy>
                </property>
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;h3 style=&quot; margin-top:14px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:700;&quot;&gt;Breeze Icons&lt;/span&gt;&lt;/h3&gt;&lt;p&gt;Copyright (C) 2014 Uri Herrera &amp;lt;uri_herrera@nitrux.in&amp;gt; and others&lt;br/&gt;Breeze Icon Theme has been developed by The KDE Visual Design Group.&lt;br/&gt;&lt;br/&gt;This library is free software; you can redistribute it and/or&lt;br/&gt;modify it under the terms of the GNU Lesser General Public&lt;br/&gt;License as published by the Free Software Foundation; either&lt;br/&gt;version 3 of the License, or (at your option) any later version.&lt;br/&gt;&lt;br/&gt;This library is distributed in the hope that it will be useful,&lt;br/&gt;but WITHOUT ANY WARRANTY; without even the implied warranty of&lt;br/&gt;MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU&lt;br/&gt;Lesser General Public License for more details.&lt;br/&gt;&lt;br/&gt;You should have received a copy of the GNU Lesser General Public&lt;br/&gt;License along with this library. If not, see &amp;lt;&lt;a href=&quot;http://www.gnu.org/licenses/&quot;&gt;&lt;span style=&quot; font-size:8pt; text-decoration: underline; color:#007af4;&quot;&gt;http://www.gnu.org/licenses/&lt;/span&gt;&lt;/a&gt;&amp;gt;.&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;h3 style=&quot; margin-top:14px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:700;&quot;&gt;Breeze Icons&lt;/span&gt;&lt;/h3&gt;&lt;p&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Copyright (C) 2014 Uri Herrera &amp;lt;uri_herrera@nitrux.in&amp;gt; and others&lt;br/&gt;Breeze Icon Theme has been developed by The KDE Visual Design Group.&lt;br/&gt;&lt;br/&gt;This library is free software; you can redistribute it and/or&lt;br/&gt;modify it under the terms of the GNU Lesser General Public&lt;br/&gt;License as published by the Free Software Foundation; either&lt;br/&gt;version 3 of the License, or (at your option) any later version.&lt;br/&gt;&lt;br/&gt;This library is distributed in the hope that it will be useful,&lt;br/&gt;but WITHOUT ANY WARRANTY; without even the implied warranty of&lt;br/&gt;MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU&lt;br/&gt;Lesser General Public License for more details.&lt;br/&gt;&lt;br/&gt;You should have received a copy of the GNU Lesser General Public&lt;br/&gt;License along with this library. If not, see &amp;lt;&lt;/span&gt;&lt;a href=&quot;http://www.gnu.org/licenses/&quot;&gt;&lt;span style=&quot; font-size:8pt; text-decoration: underline; color:#007af4;&quot;&gt;http://www.gnu.org/licenses/&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;&amp;gt;.&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
