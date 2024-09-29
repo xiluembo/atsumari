@@ -51,7 +51,6 @@ if(WIN32)
 endif()
 
 qt_add_translations(Atsumari
-    QM_FILES_OUTPUT_VARIABLE qm_files
     TS_FILE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/i18n
 )
 
@@ -61,6 +60,7 @@ qt_add_executable(Atsumari
 
     settings_defaults.h
     atsumarilauncher.h atsumarilauncher.cpp
+    localehelper.h localehelper.cpp
 )
 
 target_link_libraries(Atsumari PRIVATE
@@ -86,7 +86,5 @@ install(TARGETS Atsumari
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
-
-install(FILES ${qm_files} DESTINATION i18n)
 
 qt_finalize_executable(Atsumari)
