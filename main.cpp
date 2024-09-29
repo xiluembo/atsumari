@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     QApplication::setOrganizationName("Push X!");
     QApplication::setApplicationName("Atsumari");
 
-    LocaleHelper::loadBestTranslation("Atsumari", ":/i18n");
+    LocaleHelper::loadBestTranslation();
 
 #ifdef Q_OS_WIN
     const auto scheme = QGuiApplication::styleHints()->colorScheme();
