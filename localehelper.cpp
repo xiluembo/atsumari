@@ -8,6 +8,7 @@ QTranslator* LocaleHelper::loadBestTranslation(const QString &baseName, const QS
     QTranslator* translator = new QTranslator;
     QLocale bestLocale = findBestLocale(baseName, directory);
     bool result = translator->load(bestLocale, baseName, "_", directory);
+    Q_UNUSED(result);
     return translator;
 }
 
