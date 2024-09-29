@@ -18,6 +18,8 @@
 #include "setupwidget.h"
 #include "./ui_setupwidget.h"
 
+#include <algorithm>
+
 #include <QSettings>
 #include <QColorDialog>
 #include <QResizeEvent>
@@ -39,6 +41,7 @@
 #include "atsumari.h"
 #include "settings_defaults.h"
 #include "atsumarilauncher.h"
+#include "localehelper.h"
 
 SetupWidget::SetupWidget(QWidget *parent)
     : QWidget(parent)
@@ -46,6 +49,7 @@ SetupWidget::SetupWidget(QWidget *parent)
 {
     ui->setupUi(this);
     setIcons();
+    populateLanguages();
     loadSettings();
 
     // Appearance tab
@@ -63,6 +67,10 @@ SetupWidget::SetupWidget(QWidget *parent)
 
     connect(ui->btnSelectLight, &QPushButton::clicked, this, [=]() {
         selectColor(&m_light, ui->frmLightColor);
+    });
+
+    connect(ui->cboLanguage, &QComboBox::currentIndexChanged, this, [=]() {
+        QMessageBox::information(this, tr("Changing Language"), tr("Language changes only take effect after saving settings and then restarting the app"));
     });
 
     // any of those values changing may trigger a preview update
@@ -187,6 +195,12 @@ void SetupWidget::loadSettings()
     QSettings settings;
 
     // Appearance & Behavior
+    QLocale defaultLocale = settings.value(CFG_LANGUAGE, LocaleHelper::findBestLocale()).toLocale();
+    int langIndex = ui->cboLanguage->findData(defaultLocale);
+    if ( langIndex == -1 ) {
+        langIndex = ui->cboLanguage->findData(LocaleHelper::findBestLocale());
+    }
+    ui->cboLanguage->setCurrentIndex(langIndex);
     m_diffuse = settings.value(CFG_COLORS_DIFFUSE, DEFAULT_COLORS_DIFFUSE).toString();
     m_specular = settings.value(CFG_COLORS_SPECULAR, DEFAULT_COLORS_SPECULAR).toString();
     m_ambient = settings.value(CFG_COLORS_AMBIENT, DEFAULT_COLORS_AMBIENT).toString();
@@ -220,6 +234,7 @@ void SetupWidget::loadSettings()
 void SetupWidget::saveSettings()
 {
     QSettings settings;
+    settings.setValue(CFG_LANGUAGE, ui->cboLanguage->currentData());
 
     settings.setValue(CFG_COLORS_DIFFUSE, m_diffuse);
     settings.setValue(CFG_COLORS_SPECULAR, m_specular);
@@ -367,6 +382,20 @@ void SetupWidget::setIcons()
     ui->tabWidget->setTabIcon(1, QIcon::fromTheme("folder"));
     ui->tabWidget->setTabIcon(2, QIcon::fromTheme("computer"));
     ui->tabWidget->setTabIcon(3, QIcon::fromTheme("help-about"));
+}
+
+void SetupWidget::populateLanguages()
+{
+    ui->cboLanguage->clear();
+
+    QSettings settings;
+
+    QList<QLocale> availableLocales = LocaleHelper::availableLocales();
+    std::sort(availableLocales.begin(), availableLocales.end(), [=](QLocale l1, QLocale l2) { return l1.nativeLanguageName() < l2.nativeLanguageName(); });
+
+    for(const QLocale& l: availableLocales) {
+        ui->cboLanguage->addItem(l.nativeLanguageName(), l);
+    }
 }
 
 void SetupWidget::aboutQt()

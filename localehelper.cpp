@@ -3,12 +3,18 @@
 #include <QDir>
 #include <QRegularExpression>
 #include <QApplication>
+#include <QSettings>
+
+#include "settings_defaults.h"
 
 QTranslator LocaleHelper::translator;
 
 void LocaleHelper::loadBestTranslation(const QString &baseName, const QString &directory)
 {
-    QLocale bestLocale = findBestLocale(baseName, directory);
+    QSettings settings;
+    QLocale locale = settings.value(CFG_LANGUAGE, LocaleHelper::findBestLocale()).toLocale();
+
+    QLocale bestLocale = findBestLocale(locale, baseName, directory);
     bool result = translator.load(bestLocale, baseName, "_", directory);
     if(result) {
         qApp->installTranslator(&translator);
@@ -16,28 +22,34 @@ void LocaleHelper::loadBestTranslation(const QString &baseName, const QString &d
     return;
 }
 
-QLocale LocaleHelper::findBestLocale(const QString &baseName, const QString &directory)
+QLocale LocaleHelper::findBestLocale(const QLocale &locale, const QString &baseName, const QString &directory)
 {
-    QLocale locale = QLocale::system();
     QList<QLocale> lcls = availableLocales(baseName, directory);
+
+    qDebug() << "finding best locale for " << locale;
 
     // Try an exact match
     if (lcls.contains(locale)) {
+        qDebug() << "exact match for " << locale;
         return locale;
     }
 
     // Try matching the generic language
     QLocale genericLocale(locale.language());
     if (lcls.contains(genericLocale)) {
+        qDebug() << "generic match " << genericLocale;
         return genericLocale;
     }
 
     // Try variants from the same language
     for (const QLocale &variant : lcls) {
         if (variant.language() == locale.language()) {
+            qDebug() << "variant match " << variant;
             return variant;
         }
     }
+
+    qDebug() << "DEFAULTING LOCALE";
 
     // Use English as default, if no match is found
     return QLocale::English;
@@ -47,6 +59,9 @@ QList<QLocale> LocaleHelper::availableLocales(const QString &baseName, const QSt
 {
     QList<QLocale> locales;
     QDir dir(directory);
+
+    // Base Language
+    locales << QLocale(QLocale::English, QLocale::UnitedStates);
 
     QStringList filters;
     filters << baseName + "_*.qm";  // Filter .qm files
@@ -66,3 +81,4 @@ QList<QLocale> LocaleHelper::availableLocales(const QString &baseName, const QSt
 
     return locales;
 }
+

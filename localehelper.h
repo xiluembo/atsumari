@@ -8,7 +8,7 @@ class LocaleHelper
 {
 public:
     static void loadBestTranslation(const QString &baseName = "Atsumari", const QString &directory = ":/i18n");
-    static QLocale findBestLocale(const QString &baseName = "Atsumari", const QString &directory = ":/i18n");
+    static QLocale findBestLocale(const QLocale &locale = QLocale::system(), const QString &baseName = "Atsumari", const QString &directory = ":/i18n");
     static QList<QLocale> availableLocales(const QString &baseName = "Atsumari", const QString &directory = ":/i18n");
 
 private:

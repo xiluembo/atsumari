@@ -51,6 +51,7 @@ private:
     void selectEmojiPath();
     void resetAuth();
     void setIcons();
+    void populateLanguages();
     void aboutQt();
 
     QString m_diffuse;

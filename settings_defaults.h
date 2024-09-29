@@ -36,6 +36,7 @@
 #define CFG_EMOJI_DIR "dirs/emoji"
 #define CFG_EMOTE_DIR "dirs/emotes"
 #define CFG_EMOJI_FONT "emoji_font"
+#define CFG_LANGUAGE "language"
 
 #define DEFAULT_COLORS_DIFFUSE "#5a4584"
 #define DEFAULT_COLORS_SPECULAR "#5a4584"
