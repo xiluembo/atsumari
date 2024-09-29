@@ -52,6 +52,7 @@ endif()
 
 qt_add_translations(Atsumari
     TS_FILE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/i18n
+    NO_GENERATE_PLURALS_TS_FILE
 )
 
 qt_add_executable(Atsumari
