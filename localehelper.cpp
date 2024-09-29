@@ -2,14 +2,18 @@
 
 #include <QDir>
 #include <QRegularExpression>
+#include <QApplication>
 
-QTranslator* LocaleHelper::loadBestTranslation(const QString &baseName, const QString &directory)
+QTranslator LocaleHelper::translator;
+
+void LocaleHelper::loadBestTranslation(const QString &baseName, const QString &directory)
 {
-    QTranslator* translator = new QTranslator;
     QLocale bestLocale = findBestLocale(baseName, directory);
-    bool result = translator->load(bestLocale, baseName, "_", directory);
-    Q_UNUSED(result);
-    return translator;
+    bool result = translator.load(bestLocale, baseName, "_", directory);
+    if(result) {
+        qApp->installTranslator(&translator);
+    }
+    return;
 }
 
 QLocale LocaleHelper::findBestLocale(const QString &baseName, const QString &directory)
