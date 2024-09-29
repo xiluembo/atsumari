@@ -48,7 +48,7 @@ QList<QLocale> LocaleHelper::availableLocales(const QString &baseName, const QSt
     filters << baseName + "_*.qm";  // Filter .qm files
     dir.setNameFilters(filters);
 
-    // Regex para extrair o código de localidade do nome do arquivo
+    // Regex to extract locale code from filename
     QRegularExpression re(baseName + "_([a-zA-Z_]+)\\.qm");
 
     for (const QString &fileName : dir.entryList()) {
