@@ -44,11 +44,6 @@ QList<QLocale> LocaleHelper::availableLocales(const QString &baseName, const QSt
     QList<QLocale> locales;
     QDir dir(directory);
 
-    if (!dir.exists()) {
-        qDebug() << "Translation directory does not exist:" << directory;
-        return locales;
-    }
-
     QStringList filters;
     filters << baseName + "_*.qm";  // Filter .qm files
     dir.setNameFilters(filters);
