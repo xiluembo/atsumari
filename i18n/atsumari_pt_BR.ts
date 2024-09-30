@@ -213,7 +213,7 @@
     </message>
     <message>
         <location filename="../setupwidget.cpp" line="253"/>
-        <location filename="../setupwidget.cpp" line="325"/>
+        <location filename="../setupwidget.cpp" line="326"/>
         <source>Success</source>
         <translation>Sucesso</translation>
     </message>
@@ -223,12 +223,12 @@
         <translation>Configurações salvas com sucesso!</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="291"/>
+        <location filename="../setupwidget.cpp" line="292"/>
         <source>Select decoration file</source>
         <translation>Selecione o arquivo de decoração</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="291"/>
+        <location filename="../setupwidget.cpp" line="292"/>
         <source>Image Files (*.svg *.png *.jpg *.bmp)</source>
         <translation>Arquivos de Imagem (*.svg *.png *.jpg *.bmp)</translation>
     </message>
@@ -237,24 +237,32 @@
         <translation type="vanished">Arquivos de Imagem (*.png *.jpg *.bmp)</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="312"/>
+        <location filename="../setupwidget.cpp" line="313"/>
         <source>Select emotes directory</source>
         <translation>Selecionar o diretório de emotes</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="317"/>
+        <location filename="../setupwidget.cpp" line="318"/>
         <source>Select emojis directory</source>
         <translation>Selecionar o diretório de emojis</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="325"/>
+        <location filename="../setupwidget.cpp" line="326"/>
         <source>Authentication token has been reset! Twitch login will be required on next startup.</source>
         <translation>O token de autenticação foi redefinido! Será necessário logar na Twitch na próxima inicialização.</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="422"/>
+        <location filename="../setupwidget.cpp" line="423"/>
         <source>About Qt</source>
         <translation>Sobre o Qt</translation>
+    </message>
+</context>
+<context>
+    <name>TwitchAuthFlow</name>
+    <message>
+        <location filename="../twitchauthflow.cpp" line="185"/>
+        <source>Twitch Authorization</source>
+        <translation>Autorização na Twitch</translation>
     </message>
 </context>
 </TS>
