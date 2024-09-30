@@ -288,7 +288,7 @@ void SetupWidget::selectColor(QString *colorEnv, QFrame *frame)
 
 void SetupWidget::selectDecoration()
 {
-    QFileDialog* dlg = new QFileDialog(this, tr("Select decoration file"), QString(), tr("Image Files (*.png *.jpg *.bmp)"));
+    QFileDialog* dlg = new QFileDialog(this, tr("Select decoration file"), QString(), tr("Image Files (*.svg *.png *.jpg *.bmp)"));
 
     dlg->setWindowIcon(QIcon(":/appicon/atsumari.svg"));
 
