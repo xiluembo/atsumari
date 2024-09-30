@@ -182,7 +182,7 @@ void TwitchAuthFlow::startAuthFlow()
     authorizeUrl.setQuery(parms);
 
     m_webView->setWindowIcon(QIcon(":/decoration/kata_deco.png"));
-    m_webView->setWindowTitle("Autorização na Twitch");
+    m_webView->setWindowTitle(tr("Twitch Authorization"));
     m_webView->load(authorizeUrl);
 }
 
