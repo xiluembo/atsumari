@@ -70,7 +70,8 @@ SetupWidget::SetupWidget(QWidget *parent)
     });
 
     connect(ui->cboLanguage, &QComboBox::currentIndexChanged, this, [=]() {
-        QMessageBox::information(this, tr("Changing Language"), tr("Language changes only take effect after saving settings and then restarting the app"));
+        LocaleHelper::loadTranslation(ui->cboLanguage->currentData().toLocale());
+        ui->retranslateUi(this);
     });
 
     // any of those values changing may trigger a preview update
@@ -388,13 +389,23 @@ void SetupWidget::populateLanguages()
 {
     ui->cboLanguage->clear();
 
-    QSettings settings;
-
     QList<QLocale> availableLocales = LocaleHelper::availableLocales();
-    std::sort(availableLocales.begin(), availableLocales.end(), [=](QLocale l1, QLocale l2) { return l1.nativeLanguageName() < l2.nativeLanguageName(); });
+    std::sort(availableLocales.begin(), availableLocales.end(), [=](QLocale l1, QLocale l2) {
+        QString s1 = l1.nativeLanguageName();
+        s1.front() = s1.front().toUpper();
+        s1 = QString("%1 (%2)").arg(s1, l1.nativeTerritoryName());
+
+        QString s2 = l2.nativeLanguageName();
+        s2.front() = s2.front().toUpper();
+        s2 = QString("%1 (%2)").arg(s2, l2.nativeTerritoryName());
+        return s1 < s2;
+    });
 
     for(const QLocale& l: availableLocales) {
-        ui->cboLanguage->addItem(l.nativeLanguageName(), l);
+        QString s = l.nativeLanguageName();
+        s.front() = s.front().toUpper();
+        s = QString("%1 (%2)").arg(s, l.nativeTerritoryName());
+        ui->cboLanguage->addItem(s, l);
     }
 }
 
