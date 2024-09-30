@@ -81,11 +81,17 @@ set_target_properties(atsumari PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
-include(GNUInstallDirs)
+qt_generate_deploy_app_script(
+    TARGET atsumari
+    OUTPUT_SCRIPT deploy_script
+    NO_UNSUPPORTED_PLATFORM_ERROR
+)
+
 install(TARGETS atsumari
     BUNDLE DESTINATION .
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+
+install(SCRIPT ${deploy_script})
 
 qt_finalize_executable(atsumari)
