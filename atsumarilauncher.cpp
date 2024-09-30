@@ -33,6 +33,13 @@
 
 
 AtsumariLauncher::AtsumariLauncher()
+    : m_twFlow(new TwitchAuthFlow(QString("a123%1").arg(QRandomGenerator64::global()->generate())))
+    , m_emw(new EmoteWriter())
+    , m_tReader(nullptr)
+    , m_window()
+{ }
+
+void AtsumariLauncher::launch()
 {
     QSettings settings;
 
@@ -82,10 +89,6 @@ AtsumariLauncher::AtsumariLauncher()
     lightTransform->setTranslation(camera->position());
     lightEntity->addComponent(light);
     lightEntity->addComponent(lightTransform);
-
-    // Set up Twitch authentication flow, Emote Writer and Chat Reader.
-    m_twFlow = new TwitchAuthFlow(QString("a123%1").arg(QRandomGenerator64::global()->generate()));
-    m_emw = new EmoteWriter();
 
     QObject::connect(m_twFlow, &TwitchAuthFlow::loginFetched, m_twFlow, [&](const QString& a) {
         m_tReader = new TwitchChatReader("ws://irc-ws.chat.twitch.tv:80/", m_twFlow->token(), a);

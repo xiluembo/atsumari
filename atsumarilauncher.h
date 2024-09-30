@@ -30,6 +30,7 @@ public:
     AtsumariLauncher();
     AtsumariLauncher(const AtsumariLauncher&) = delete;
     AtsumariLauncher& operator=(const AtsumariLauncher&) = delete;
+    void launch();
 
 private:
     TwitchAuthFlow* m_twFlow;

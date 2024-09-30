@@ -266,7 +266,8 @@ void SetupWidget::checkClose()
     }
 
     this->setEnabled(false);
-    const AtsumariLauncher* launcher = new AtsumariLauncher;
+    AtsumariLauncher* launcher = new AtsumariLauncher;
+    launcher->launch();
     QTimer::singleShot(1000, this, [=]() { this->deleteLater(); } );
 }
 
