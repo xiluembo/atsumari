@@ -15,7 +15,7 @@
 
 cmake_minimum_required(VERSION 3.5)
 
-project(Atsumari VERSION 1.0 LANGUAGES CXX)
+project(atsumari VERSION 1.0 LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -50,12 +50,12 @@ if(WIN32)
     )
 endif()
 
-qt_add_translations(Atsumari
+qt_add_translations(atsumari
     TS_FILE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/i18n
     NO_GENERATE_PLURALS_TS_FILE
 )
 
-qt_add_executable(Atsumari
+qt_add_executable(atsumari
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES}
 
@@ -64,7 +64,7 @@ qt_add_executable(Atsumari
     localehelper.h localehelper.cpp
 )
 
-target_link_libraries(Atsumari PRIVATE
+target_link_libraries(atsumari PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::3DCore
     Qt${QT_VERSION_MAJOR}::3DExtras
@@ -73,7 +73,7 @@ target_link_libraries(Atsumari PRIVATE
     Qt${QT_VERSION_MAJOR}::Gui
 )
 
-set_target_properties(Atsumari PROPERTIES
+set_target_properties(atsumari PROPERTIES
     ${BUNDLE_ID_OPTION}
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
@@ -82,10 +82,10 @@ set_target_properties(Atsumari PROPERTIES
 )
 
 include(GNUInstallDirs)
-install(TARGETS Atsumari
+install(TARGETS atsumari
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-qt_finalize_executable(Atsumari)
+qt_finalize_executable(atsumari)
