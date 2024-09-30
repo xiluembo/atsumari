@@ -15,6 +15,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef ATSUMARI_H
+#define ATSUMARI_H
+
 #include <Qt3DCore/QEntity>
 #include <Qt3DExtras/QPhongMaterial>
 #include <Qt3DExtras/QSphereMesh>
@@ -37,13 +40,17 @@ public:
     void setAmbient(QString ambientColor);
     void setShininess(int shininess);
     void setIterationInterval(double seconds);
-
-public slots:
     void addEmote(const QUrl &emote, float theta = -1.0f, float phi = -1.0f, float emoteSize = 0.4f);
+    void clearEmotes();
+
 private:
     Qt3DCore::QTransform *m_transform;
     QPropertyAnimation *m_rotationAnimation;
 
     Qt3DExtras::QSphereMesh *m_sphereMesh;
     Qt3DExtras::QPhongMaterial *m_material;
+
+    QList<Qt3DCore::QEntity*> m_emotes;
 };
+
+#endif // ATSUMARI_H

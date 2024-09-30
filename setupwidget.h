@@ -21,6 +21,11 @@
 #include <QWidget>
 #include <QFrame>
 #include <Qt3DExtras/Qt3DWindow>
+#include <Qt3DCore/QEntity>
+#include <Qt3DExtras/QOrbitCameraController>
+#include <Qt3DRender/QPointLight>
+
+#include "atsumari.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -52,14 +57,23 @@ private:
     void resetAuth();
     void setIcons();
     void populateLanguages();
+    void setupPreview();
     void aboutQt();
 
-    QString m_diffuse;
-    QString m_specular;
-    QString m_ambient;
-    QString m_light;
+    QString m_diffuseColor;
+    QString m_specularColor;
+    QString m_ambientColor;
+    QString m_lightColor;
     QString m_decorationPath;
+
     Qt3DExtras::Qt3DWindow* m_previewWindow;
+    Qt3DRender::QCamera *m_camera;
+    Qt3DCore::QEntity *m_rootEntity;
+    Qt3DExtras::QOrbitCameraController *m_cameraController;
+    Atsumari *m_previewEntity;
+    Qt3DCore::QEntity *m_lightEntity;
+    Qt3DRender::QPointLight *m_light;
+    Qt3DCore::QTransform *m_lightTransform;
 
     Ui::SetupWidget *ui;
 

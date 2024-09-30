@@ -28,17 +28,9 @@
 #include <QMessageBox>
 #include <QStyleHints>
 
-#include <Qt3DExtras/Qt3DWindow>
-#include <Qt3DCore/QEntity>
 #include <Qt3DRender/QCamera>
-#include <Qt3DCore/QTransform>
-#include <Qt3DExtras/QOrbitCameraController>
-#include <Qt3DExtras/QPhongMaterial>
-#include <Qt3DExtras/QSphereMesh>
 #include <Qt3DExtras/QForwardRenderer>
-#include <Qt3DRender/QPointLight>
 
-#include "atsumari.h"
 #include "settings_defaults.h"
 #include "atsumarilauncher.h"
 #include "localehelper.h"
@@ -54,19 +46,19 @@ SetupWidget::SetupWidget(QWidget *parent)
 
     // Appearance tab
     connect(ui->btnSelectDiffuse, &QPushButton::clicked, this, [=]() {
-        selectColor(&m_diffuse, ui->frmDiffuseColor);
+        selectColor(&m_diffuseColor, ui->frmDiffuseColor);
     });
 
     connect(ui->btnSelectSpecular, &QPushButton::clicked, this, [=]() {
-        selectColor(&m_specular, ui->frmSpecularColor);
+        selectColor(&m_specularColor, ui->frmSpecularColor);
     });
 
     connect(ui->btnSelectAmbient, &QPushButton::clicked, this, [=]() {
-        selectColor(&m_ambient, ui->frmAmbientColor);
+        selectColor(&m_ambientColor, ui->frmAmbientColor);
     });
 
     connect(ui->btnSelectLight, &QPushButton::clicked, this, [=]() {
-        selectColor(&m_light, ui->frmLightColor);
+        selectColor(&m_lightColor, ui->frmLightColor);
     });
 
     connect(ui->cboLanguage, &QComboBox::currentIndexChanged, this, [=]() {
@@ -84,13 +76,7 @@ SetupWidget::SetupWidget(QWidget *parent)
     connect(ui->btnResetDecoration, &QPushButton::clicked, this, &SetupWidget::resetDecoration);
     connect(ui->btnSelectDecoration, &QPushButton::clicked, this, &SetupWidget::selectDecoration);
 
-    // preview window
-    m_previewWindow = new Qt3DExtras::Qt3DWindow;
-    m_previewWindow->defaultFrameGraph()->setClearColor(QColor(Qt::black));
-
-    ui->grpPreview->layout()->addWidget(QWidget::createWindowContainer(m_previewWindow));
-    m_previewWindow->show();
-
+    setupPreview();
     runPreview();
 
     // Directories tab
@@ -127,61 +113,46 @@ SetupWidget::SetupWidget(QWidget *parent)
 SetupWidget::~SetupWidget()
 {
     delete ui;
-    delete m_previewWindow;
+    m_lightTransform->deleteLater();
+    m_light->deleteLater();
+    m_lightEntity->deleteLater();
+    m_previewEntity->deleteLater();
+    m_cameraController->deleteLater();
+    m_rootEntity->deleteLater();
+    m_camera->deleteLater();
+    m_previewWindow->deleteLater();
 }
 
 void SetupWidget::runPreview()
 {
-    // Root Entity
-    Qt3DCore::QEntity *rootEntity = new Qt3DCore::QEntity();
-
-    // Setting up Camera
-    Qt3DRender::QCamera *camera = m_previewWindow->camera();
-    camera->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 0.1f, 1000.0f);
-    camera->setPosition(QVector3D(0, 0, 3.0));
-    camera->setViewCenter(QVector3D(0, 0, 0));
-
-    // Camera Controller
-    Qt3DExtras::QOrbitCameraController *cameraController = new Qt3DExtras::QOrbitCameraController(rootEntity);
-    cameraController->setCamera(camera);
-
-    // Adding Atsumari
-    Atsumari *previewEntity = new Atsumari(rootEntity);
-    previewEntity->setSlices(ui->spnSlices->value());
-    previewEntity->setRings(ui->spnRings->value());
-    previewEntity->setDiffuse(m_diffuse);
-    previewEntity->setSpecular(m_specular);
-    previewEntity->setAmbient(m_ambient);
-    previewEntity->setShininess(ui->sldShininess->value());
-    previewEntity->setIterationInterval(ui->spnIteration->value());
+    m_previewEntity->setSlices(ui->spnSlices->value());
+    m_previewEntity->setRings(ui->spnRings->value());
+    m_previewEntity->setDiffuse(m_diffuseColor);
+    m_previewEntity->setSpecular(m_specularColor);
+    m_previewEntity->setAmbient(m_ambientColor);
+    m_previewEntity->setShininess(ui->sldShininess->value());
+    m_previewEntity->setIterationInterval(ui->spnIteration->value());
 
     QUrl kata_deco = QUrl::fromLocalFile(m_decorationPath);
 
-    previewEntity->addEmote(kata_deco, 0.00f, 0.00f, 0.35f);
-    previewEntity->addEmote(kata_deco, 0.00f, 180.00f, 0.35f);
-    previewEntity->addEmote(kata_deco, 0.00f, 63.435f, 0.35f);
-    previewEntity->addEmote(kata_deco, 72.0f, 63.435f, 0.35f);
-    previewEntity->addEmote(kata_deco, 144.0f, 63.435f, 0.35f);
-    previewEntity->addEmote(kata_deco, 216.0f, 63.435f, 0.35f);
-    previewEntity->addEmote(kata_deco, 288.0f, 63.435f, 0.35f);
-    previewEntity->addEmote(kata_deco, 36.0f, 116.565f, 0.35f);
-    previewEntity->addEmote(kata_deco, 108.0f, 116.565f, 0.35f);
-    previewEntity->addEmote(kata_deco, 180.0f, 116.565f, 0.35f);
-    previewEntity->addEmote(kata_deco, 252.0f, 116.565f, 0.35f);
-    previewEntity->addEmote(kata_deco, 324.0f, 116.565f, 0.35f);
+    m_previewEntity->clearEmotes();
 
-    // Add Lighting
-    auto *lightEntity = new Qt3DCore::QEntity(rootEntity);
-    auto *light = new Qt3DRender::QPointLight(lightEntity);
-    light->setColor(m_light);
-    light->setIntensity(ui->sldLightIntensity->value() / 100.0f);
-    auto *lightTransform = new Qt3DCore::QTransform(lightEntity);
-    lightTransform->setTranslation(camera->position());
-    lightEntity->addComponent(light);
-    lightEntity->addComponent(lightTransform);
+    m_previewEntity->addEmote(kata_deco, 0.00f, 0.00f, 0.35f);
+    m_previewEntity->addEmote(kata_deco, 0.00f, 180.00f, 0.35f);
+    m_previewEntity->addEmote(kata_deco, 0.00f, 63.435f, 0.35f);
+    m_previewEntity->addEmote(kata_deco, 72.0f, 63.435f, 0.35f);
+    m_previewEntity->addEmote(kata_deco, 144.0f, 63.435f, 0.35f);
+    m_previewEntity->addEmote(kata_deco, 216.0f, 63.435f, 0.35f);
+    m_previewEntity->addEmote(kata_deco, 288.0f, 63.435f, 0.35f);
+    m_previewEntity->addEmote(kata_deco, 36.0f, 116.565f, 0.35f);
+    m_previewEntity->addEmote(kata_deco, 108.0f, 116.565f, 0.35f);
+    m_previewEntity->addEmote(kata_deco, 180.0f, 116.565f, 0.35f);
+    m_previewEntity->addEmote(kata_deco, 252.0f, 116.565f, 0.35f);
+    m_previewEntity->addEmote(kata_deco, 324.0f, 116.565f, 0.35f);
 
-    m_previewWindow->setRootEntity(rootEntity);
-
+    // lighting
+    m_light->setColor(m_lightColor);
+    m_light->setIntensity(ui->sldLightIntensity->value() / 100.0f);
 }
 
 void SetupWidget::resetDecoration()
@@ -202,16 +173,16 @@ void SetupWidget::loadSettings()
         langIndex = ui->cboLanguage->findData(LocaleHelper::findBestLocale());
     }
     ui->cboLanguage->setCurrentIndex(langIndex);
-    m_diffuse = settings.value(CFG_COLORS_DIFFUSE, DEFAULT_COLORS_DIFFUSE).toString();
-    m_specular = settings.value(CFG_COLORS_SPECULAR, DEFAULT_COLORS_SPECULAR).toString();
-    m_ambient = settings.value(CFG_COLORS_AMBIENT, DEFAULT_COLORS_AMBIENT).toString();
-    m_light = settings.value(CFG_COLORS_LIGHT, DEFAULT_COLORS_LIGHT).toString();
+    m_diffuseColor = settings.value(CFG_COLORS_DIFFUSE, DEFAULT_COLORS_DIFFUSE).toString();
+    m_specularColor = settings.value(CFG_COLORS_SPECULAR, DEFAULT_COLORS_SPECULAR).toString();
+    m_ambientColor = settings.value(CFG_COLORS_AMBIENT, DEFAULT_COLORS_AMBIENT).toString();
+    m_lightColor = settings.value(CFG_COLORS_LIGHT, DEFAULT_COLORS_LIGHT).toString();
     m_decorationPath = settings.value(CFG_DECORATION_PATH, DEFAULT_DECORATION_PATH).toString();
 
-    ui->frmDiffuseColor->setStyleSheet(QString("background-color: %1;").arg(m_diffuse));
-    ui->frmSpecularColor->setStyleSheet(QString("background-color: %1;").arg(m_specular));
-    ui->frmAmbientColor->setStyleSheet(QString("background-color: %1;").arg(m_ambient));
-    ui->frmLightColor->setStyleSheet(QString("background-color: %1;").arg(m_light));
+    ui->frmDiffuseColor->setStyleSheet(QString("background-color: %1;").arg(m_diffuseColor));
+    ui->frmSpecularColor->setStyleSheet(QString("background-color: %1;").arg(m_specularColor));
+    ui->frmAmbientColor->setStyleSheet(QString("background-color: %1;").arg(m_ambientColor));
+    ui->frmLightColor->setStyleSheet(QString("background-color: %1;").arg(m_lightColor));
     ui->lblDecoration->setPixmap(m_decorationPath);
 
     ui->sldLightIntensity->setValue(settings.value(CFG_LIGHT_INTENSITY, DEFAULT_LIGHT_INTENSITY).toInt());
@@ -237,10 +208,10 @@ void SetupWidget::saveSettings()
     QSettings settings;
     settings.setValue(CFG_LANGUAGE, ui->cboLanguage->currentData());
 
-    settings.setValue(CFG_COLORS_DIFFUSE, m_diffuse);
-    settings.setValue(CFG_COLORS_SPECULAR, m_specular);
-    settings.setValue(CFG_COLORS_AMBIENT, m_ambient);
-    settings.setValue(CFG_COLORS_LIGHT, m_light);
+    settings.setValue(CFG_COLORS_DIFFUSE, m_diffuseColor);
+    settings.setValue(CFG_COLORS_SPECULAR, m_specularColor);
+    settings.setValue(CFG_COLORS_AMBIENT, m_ambientColor);
+    settings.setValue(CFG_COLORS_LIGHT, m_lightColor);
     settings.setValue(CFG_LIGHT_INTENSITY, ui->sldLightIntensity->value());
     settings.setValue(CFG_SLICES, ui->spnSlices->value());
     settings.setValue(CFG_RINGS, ui->spnRings->value());
@@ -407,6 +378,43 @@ void SetupWidget::populateLanguages()
         s = QString("%1 (%2)").arg(s, l.nativeTerritoryName());
         ui->cboLanguage->addItem(s, l);
     }
+}
+
+void SetupWidget::setupPreview()
+{
+    // preview window
+    m_previewWindow = new Qt3DExtras::Qt3DWindow;
+    m_previewWindow->defaultFrameGraph()->setClearColor(QColor(Qt::black));
+
+    ui->grpPreview->layout()->addWidget(QWidget::createWindowContainer(m_previewWindow));
+    m_previewWindow->show();
+
+    // Setting up Camera
+    m_camera = m_previewWindow->camera();
+    m_camera->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 0.1f, 1000.0f);
+    m_camera->setPosition(QVector3D(0, 0, 3.0));
+    m_camera->setViewCenter(QVector3D(0, 0, 0));
+
+    // Root Entity
+    m_rootEntity = new Qt3DCore::QEntity();
+
+    // Adding Atsumari
+    m_previewEntity = new Atsumari(m_rootEntity);
+
+    // Camera Controller
+    m_cameraController = new Qt3DExtras::QOrbitCameraController(m_rootEntity);
+    m_cameraController->setCamera(m_camera);
+
+    // Add Lighting
+    m_lightEntity = new Qt3DCore::QEntity(m_rootEntity);
+    m_light = new Qt3DRender::QPointLight(m_lightEntity);
+    m_lightTransform = new Qt3DCore::QTransform(m_lightEntity);
+
+    m_lightTransform->setTranslation(m_camera->position());
+    m_lightEntity->addComponent(m_light);
+    m_lightEntity->addComponent(m_lightTransform);
+
+    m_previewWindow->setRootEntity(m_rootEntity);
 }
 
 void SetupWidget::aboutQt()

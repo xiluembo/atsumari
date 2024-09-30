@@ -186,5 +186,15 @@ void Atsumari::addEmote(const QUrl &emote, float theta, float phi, float emoteSi
     emoteEntity2->addComponent(material);
     emoteEntity2->addComponent(transform2);
 
+    m_emotes.append(emoteEntity);
+    m_emotes.append(emoteEntity2);
+}
+
+void Atsumari::clearEmotes()
+{
+    for(Qt3DCore::QEntity* entity : m_emotes) {
+        entity->deleteLater();
+    }
+    m_emotes.clear();
 }
 
