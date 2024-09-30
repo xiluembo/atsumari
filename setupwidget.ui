@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>850</width>
-    <height>507</height>
+    <width>758</width>
+    <height>518</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -481,14 +481,14 @@
          <item alignment="Qt::AlignmentFlag::AlignTop">
           <widget class="QGroupBox" name="grpPreview">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
            <property name="minimumSize">
             <size>
-             <width>400</width>
+             <width>250</width>
              <height>250</height>
             </size>
            </property>
@@ -728,8 +728,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>794</width>
-            <height>598</height>
+            <width>702</width>
+            <height>618</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_8">
