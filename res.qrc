@@ -1,9 +1,9 @@
 <RCC>
     <qresource prefix="/">
-        <file>test_emotes/kata_deco.png</file>
         <file>emoji/emojis.json</file>
         <file>appicon/atsumari.svg</file>
         <file>3rdparty/breeze-icons.rcc</file>
         <file>3rdparty/breeze-icons-dark.rcc</file>
+        <file>decoration/kata_deco.png</file>
     </qresource>
 </RCC>
