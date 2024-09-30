@@ -190,65 +190,69 @@
         <translation>Fechar este diálogo e executar</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="255"/>
+        <location filename="../setupwidget.cpp" line="226"/>
         <source>Changing default font</source>
         <translation>Alterando a fonte padrão</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="256"/>
+        <location filename="../setupwidget.cpp" line="227"/>
         <source>Changing default font is not advised. SVG Based fonts may not work correctly on Windows, and non-SVG Based fonts may also fail to render correctly on other platforms</source>
         <translation>Não é aconselhado alterar a fonte padrão. Fontes baseadas em SVG podem não funcionar corretamente no Windows, e fontes que não são baseadas em SVG também podem não ser exibidas corretamente em outras plataformas</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="278"/>
-        <location filename="../setupwidget.cpp" line="293"/>
+        <location filename="../setupwidget.cpp" line="249"/>
+        <location filename="../setupwidget.cpp" line="264"/>
         <source>Empty ClientId</source>
         <translation>ClientId vazio</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="278"/>
-        <location filename="../setupwidget.cpp" line="293"/>
+        <location filename="../setupwidget.cpp" line="249"/>
+        <location filename="../setupwidget.cpp" line="264"/>
         <source>Twitch Client Id is empty, you&apos;ll be not able to connect to your chat, use the Twitch Dev Console button to create a Client on Twitch.</source>
         <translation>O Client Id da Twitch está vazio, não será possível conectar ao seu chat, utilize o botão Console Dev da Twitch para criar um Client na Twitch.</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="282"/>
-        <location filename="../setupwidget.cpp" line="354"/>
+        <location filename="../setupwidget.cpp" line="253"/>
+        <location filename="../setupwidget.cpp" line="325"/>
         <source>Success</source>
         <translation>Sucesso</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="282"/>
+        <location filename="../setupwidget.cpp" line="253"/>
         <source>Settings saved successfully!</source>
         <translation>Configurações salvas com sucesso!</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="320"/>
+        <location filename="../setupwidget.cpp" line="291"/>
         <source>Select decoration file</source>
         <translation>Selecione o arquivo de decoração</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="320"/>
-        <source>Image Files (*.png *.jpg *.bmp)</source>
-        <translation>Arquivos de Imagem (*.png *.jpg *.bmp)</translation>
+        <location filename="../setupwidget.cpp" line="291"/>
+        <source>Image Files (*.svg *.png *.jpg *.bmp)</source>
+        <translation>Arquivos de Imagem (*.svg *.png *.jpg *.bmp)</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="341"/>
+        <source>Image Files (*.png *.jpg *.bmp)</source>
+        <translation type="vanished">Arquivos de Imagem (*.png *.jpg *.bmp)</translation>
+    </message>
+    <message>
+        <location filename="../setupwidget.cpp" line="312"/>
         <source>Select emotes directory</source>
         <translation>Selecionar o diretório de emotes</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="346"/>
+        <location filename="../setupwidget.cpp" line="317"/>
         <source>Select emojis directory</source>
         <translation>Selecionar o diretório de emojis</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="354"/>
+        <location filename="../setupwidget.cpp" line="325"/>
         <source>Authentication token has been reset! Twitch login will be required on next startup.</source>
         <translation>O token de autenticação foi redefinido! Será necessário logar na Twitch na próxima inicialização.</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="404"/>
+        <location filename="../setupwidget.cpp" line="422"/>
         <source>About Qt</source>
         <translation>Sobre o Qt</translation>
     </message>
