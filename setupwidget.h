@@ -19,6 +19,7 @@
 #define SETUPWIDGET_H
 
 #include <QWidget>
+#include <QLineEdit>
 #include <QFrame>
 #include <Qt3DExtras/Qt3DWindow>
 #include <Qt3DCore/QEntity>
@@ -58,6 +59,7 @@ private:
     void setIcons();
     void populateLanguages();
     void setupPreview();
+    void validatePaths(QLineEdit* edt);
     void aboutQt();
 
     QString m_diffuseColor;

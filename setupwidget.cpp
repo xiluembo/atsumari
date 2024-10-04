@@ -27,6 +27,7 @@
 #include <QDesktopServices>
 #include <QMessageBox>
 #include <QStyleHints>
+#include <QFileInfo>
 
 #include <Qt3DRender/QCamera>
 #include <Qt3DExtras/QForwardRenderer>
@@ -82,6 +83,8 @@ SetupWidget::SetupWidget(QWidget *parent)
     // Directories tab
     connect(ui->btnEmojiPath, &QPushButton::clicked, this, &SetupWidget::selectEmojiPath);
     connect(ui->btnEmotePath, &QPushButton::clicked, this, &SetupWidget::selectEmotePath);
+    connect(ui->edtEmojiDir, &QLineEdit::textChanged, this, [=]() { validatePaths(ui->edtEmojiDir); });
+    connect(ui->edtEmoteDir, &QLineEdit::textChanged, this, [=]() { validatePaths(ui->edtEmoteDir); });
 
     // Twitch Tab
     connect(ui->btnAddExcludeChat, &QPushButton::clicked, this, &SetupWidget::addToExcludeList);
@@ -416,6 +419,27 @@ void SetupWidget::setupPreview()
     m_lightEntity->addComponent(m_lightTransform);
 
     m_previewWindow->setRootEntity(m_rootEntity);
+}
+
+void SetupWidget::validatePaths(QLineEdit *edt)
+{
+    QString path = edt->text();
+
+    QFileInfo fi(path);
+
+    if(fi.isRelative()) {
+        edt->setStyleSheet("color: red");
+    } else {
+        if(fi.exists()) {
+            if(fi.isDir()) {
+                edt->setStyleSheet(QString());
+            } else {
+                edt->setStyleSheet("color: red");
+            }
+        } else {
+            edt->setStyleSheet("color: green");
+        }
+    }
 }
 
 void SetupWidget::aboutQt()
