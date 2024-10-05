@@ -19,6 +19,9 @@
 
 #include <QRegularExpression>
 #include <QTimer>
+#include <QSettings>
+
+#include "settings_defaults.h"
 
 TwitchChatReader::TwitchChatReader(const QString &url, const QString &token, const QString &channel, QObject *parent)
     : QObject(parent), m_webSocket(new QWebSocket), m_channel(channel) {
@@ -76,9 +79,8 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs) {
         static QRegularExpression displayNameRegex("display.name=([^;\\s]+)");
         QRegularExpressionMatch nameMatch = displayNameRegex.match(metadata);
         if (nameMatch.hasMatch()) {
-            QStringList exceptNames;
-            exceptNames << "araxbird";
-            exceptNames << "notrotom";
+            QSettings settings;
+            QStringList exceptNames = settings.value(CFG_EXCLUDE_CHAT).toStringList();
 
             QString nameData = nameMatch.captured(1).toLower();
             if(exceptNames.contains(nameData)) {
