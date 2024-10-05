@@ -28,14 +28,7 @@ class TwitchChatReader : public QObject {
     Q_OBJECT
 public:
     TwitchChatReader(const QString& url, const QString& token, const QString& channel, QObject* parent = nullptr);
-
     ~TwitchChatReader();
-
-    void startPingTimer();
-
-private slots:
-    void onConnected();
-    void onTextMessageReceived(const QString& allMsgs);
 
 signals:
     void emoteSent(QString emoteId, QString emoteName);
@@ -43,6 +36,10 @@ signals:
     void emojiSent(QString slug, QString emojiData);
 
 private:
+    void onConnected();
+    void onTextMessageReceived(const QString& allMsgs);
+    void startPingTimer();
+
     QWebSocket* m_webSocket;
     QString m_token;
     QString m_channel;

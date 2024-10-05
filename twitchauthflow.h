@@ -28,9 +28,6 @@ class TwitchAuthFlow : public QObject
     Q_OBJECT
 public:
     explicit TwitchAuthFlow(const QString& state, QObject *parent = nullptr);
-
-    void parseToken(QUrl newUrl);
-
     QString token() const;
 
 signals:
@@ -38,13 +35,12 @@ signals:
     void tokenValidated();
     void loginFetched(QString login);
 
-private slots:
+private:
+    void parseToken(QUrl newUrl);
     void requestUserinfo();
     void onUserinfoReply(QNetworkReply* reply);
     void requestTokenValidation();
     void onValidateReply(QNetworkReply* reply);
-
-private:
     void startAuthFlow();
 
     QNetworkAccessManager m_nam;

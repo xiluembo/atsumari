@@ -31,8 +31,6 @@ class Atsumari : public Qt3DCore::QEntity {
 public:
     explicit Atsumari(Qt3DCore::QEntity *parent = nullptr);
 
-    void updateRandomRotation();
-
     void setSlices(int slices);
     void setRings(int rings);
     void setDiffuse(QString diffuseColor);
@@ -44,12 +42,12 @@ public:
     void clearEmotes();
 
 private:
+    void updateRandomRotation();
+
     Qt3DCore::QTransform *m_transform;
     QPropertyAnimation *m_rotationAnimation;
-
     Qt3DExtras::QSphereMesh *m_sphereMesh;
     Qt3DExtras::QPhongMaterial *m_material;
-
     QList<Qt3DCore::QEntity*> m_emotes;
 };
 

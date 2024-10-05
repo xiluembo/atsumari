@@ -30,20 +30,17 @@ class EmoteWriter : public QObject {
 
 public:
     explicit EmoteWriter(QObject *parent = nullptr);
-
-public slots:
     void saveEmote(const QString &id);
     void saveBigEmote(const QString &id);
-
-    void saveEmoji(const QString &slug, const QString &emojiData);
-private slots:
-    void handleNetworkReply(QNetworkReply *reply);
+    void saveEmoji(const QString &slug, const QString &emojiData);   
 
 signals:
     void emoteWritten(QString path);
     void bigEmoteWritten(QString path);
 
 private:
+    void handleNetworkReply(QNetworkReply *reply);
+
     QNetworkAccessManager *networkManager;
     QMap<QString, QString> m_emotes;
     QMap<QString, QString> pendingEmotes; // To track emotes being downloaded

@@ -29,16 +29,14 @@
 class EmojiMapper {
 public:
     EmojiMapper();
-
-    void loadEmojis(const QString& filePath);
-
     QPair<QString, QString> findBestMatch(const QString& text) const;
 
 private:
+    void loadEmojis(const QString& filePath);
+    void addEmoji(const QJsonObject& obj);
+
     QMap<QString, QString> emojiMap;
     int maxLen;
-
-    void addEmoji(const QJsonObject& obj);
 };
 
 
