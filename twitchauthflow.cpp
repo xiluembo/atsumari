@@ -146,7 +146,6 @@ void TwitchAuthFlow::onValidateReply(QNetworkReply *reply)
             QJsonObject jsonObj = jsonDoc.object();
 
             if (jsonObj.value("status").toInt(200) != 200) {
-                qDebug() << "Invalid Token:: " << jsonObj.value("message").toString();
                 startAuthFlow();
             } else {
                 int expirySecs = jsonObj.value("expires_in").toInt();
@@ -159,7 +158,6 @@ void TwitchAuthFlow::onValidateReply(QNetworkReply *reply)
             }
         }
     } else {
-        qDebug() << "Validation error:: " << (reply ? reply->errorString() : QString("No Reply"));
         startAuthFlow();
     }
 

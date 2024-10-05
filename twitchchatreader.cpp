@@ -25,12 +25,8 @@ TwitchChatReader::TwitchChatReader(const QString &url, const QString &token, con
 
     connect(m_webSocket, &QWebSocket::connected, this, &TwitchChatReader::onConnected);
     connect(m_webSocket, &QWebSocket::textMessageReceived, this, &TwitchChatReader::onTextMessageReceived);
-    connect(m_webSocket, &QWebSocket::pong, this, &TwitchChatReader::onPongReceived);
-    connect(m_webSocket, &QWebSocket::errorOccurred, this, &TwitchChatReader::onErrorOccurred);
 
-    qDebug() << "CHATREADER " << url << " // " << token << " // " << channel;
     connect(m_webSocket, &QWebSocket::disconnected, this, [=] {
-        qDebug() << "RECONNECTING...";
         m_webSocket->open(QUrl(url + "?oauth_token=" + token));
     });
 
@@ -46,7 +42,6 @@ TwitchChatReader::~TwitchChatReader() {
 }
 
 void TwitchChatReader::onConnected() {
-    qDebug() << "CONNECTED!!!";
     // Send required IRC commands
     m_webSocket->sendTextMessage(QStringLiteral("PASS oauth:") + m_token);
     m_webSocket->sendTextMessage(QStringLiteral("CAP REQ :twitch.tv/commands twitch.tv/tags twitch.tv/membership"));
@@ -56,13 +51,11 @@ void TwitchChatReader::onConnected() {
 
 void TwitchChatReader::onTextMessageReceived(const QString &allMsgs) {    
     for(const QString& message: allMsgs.split("\n")) {
-        qDebug() << "Message received:" << message;
 
         if (message.startsWith("PING")) {
             // Send an equivalent PONG
             QString response = message;
             response.replace("PING", "PONG");
-            qDebug() << "PONG sent!";
             m_webSocket->sendTextMessage(response);
             return;  // Don't further process the message
         }
@@ -72,7 +65,6 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs) {
         if (privmsgIndex == -1) {
             // It's just their pong, don't process further
             if (message.contains("PONG")) {
-                qDebug() << "PONG received";
             }
             return;
         }
@@ -100,8 +92,6 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs) {
         // Find emotes in the metadata
         static QRegularExpression emoteRegex("emotes=([^;\\s]+)");
         QRegularExpressionMatch match = emoteRegex.match(metadata);
-
-        qDebug() << "is gigantic :" << isGigantifiedEmoteMessage;
 
         if (match.hasMatch()) {
             QString emotesData = match.captured(1);
@@ -135,14 +125,11 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs) {
 
                 //emit emoteSent(emoteId, emoteName.trimmed()); // Emit signal with ID and emote name
                 processedEmotes[emoteId] = emoteName.trimmed();
-
-                qDebug() << "EMOTEINFO:: " << emoteId << " :: " << emoteName.trimmed();
             }
 
             // Emit bigEmoteSent for the last emote if it's a gigantified emote message
             if (isGigantifiedEmoteMessage && !lastEmoteId.isEmpty()) {
                 emit bigEmoteSent(lastEmoteId, lastEmoteName.trimmed());
-                qDebug() << "BIG EMOTE SENT:: " << lastEmoteId << " :: " << lastEmoteName.trimmed();
                 processedEmotes.remove(lastEmoteId);
             }
 
@@ -153,15 +140,12 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs) {
 
         // Identify emoji in the contents
         QMap<QString, QString> emojisFound;
-        qDebug() << "content:: " << content;
         while (!content.isEmpty()) {
             QPair<QString, QString> emojidata = m_emojiMapper.findBestMatch(content);
             QString emojiStr = emojidata.first;
             QString emojiSlug = emojidata.second;
             if (!emojiStr.isEmpty()) {
                 emojisFound[emojiSlug] = emojiStr;
-                qDebug() << "content:: " << content;
-                qDebug() << "Emoji found:" << emojiSlug;
                 // Remove the matched part from the content
                 content.remove(0, emojiStr.length());
             } else {
@@ -182,12 +166,4 @@ void TwitchChatReader::startPingTimer() {
         m_webSocket->sendTextMessage("PING");
     });
     pingTimer->start(180000); // Send a PING every 3 minutes
-}
-
-void TwitchChatReader::onPongReceived(quint64 elapsedTime, const QByteArray& payload) {
-    qDebug() << "Pong received, latency:" << elapsedTime << "ms, payload:" << payload;
-}
-
-void TwitchChatReader::onErrorOccurred(QAbstractSocket::SocketError error) {
-    qDebug() << "WebSocket error:" << m_webSocket->errorString();
 }

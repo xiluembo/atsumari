@@ -33,10 +33,6 @@ public:
 
     void startPingTimer();
 
-public slots:
-    void onPongReceived(quint64 elapsedTime, const QByteArray &payload);
-    void onErrorOccurred(QAbstractSocket::SocketError error);
-
 private slots:
     void onConnected();
     void onTextMessageReceived(const QString& allMsgs);
