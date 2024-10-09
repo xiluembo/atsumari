@@ -719,7 +719,7 @@ void SetupWidget::deleteProfile()
         ui->cboProfile->addItem(pd->profileName());
     }
     m_rebuildingCombo = false;
-    ui->cboProfile->setCurrentIndex(qMin(0, m_currentProfile - 1));
+    ui->cboProfile->setCurrentIndex(qMax(0, m_currentProfile - 1));
     populateCurrentProfileControls();
 
     m_shouldSave = true;
