@@ -325,7 +325,7 @@ void SetupWidget::saveSettings()
         settings.setValue(CFG_ITERATION_TIME, m_profiles[i]->iteration());
         settings.setValue(CFG_DECORATION_PATH, m_profiles[i]->decorationPath());
 
-        QString newFont = ui->cboEmojiFont->currentFont().family();
+        QString newFont = m_profiles[i]->font();
         QString previousFont = settings.value(CFG_EMOJI_FONT, DEFAULT_EMOJI_FONT).toString();
         if ( newFont != previousFont && newFont != DEFAULT_EMOJI_FONT) {
             fontWarn = true;
