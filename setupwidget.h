@@ -68,6 +68,7 @@ private:
     void duplicateProfile();
     void renameProfile();
     void deleteProfile();
+    void createProfileMenus();
     void populateCurrentProfileControls();
     void aboutQt();
 
@@ -85,6 +86,8 @@ private:
 
     bool m_shouldSave;
     bool m_rebuildingCombo;
+
+    QMenu* m_profileMenu;
     QAction* m_newProfileAction;
     QAction* m_duplicateProfileAction;
     QAction* m_renameProfileAction;

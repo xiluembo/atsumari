@@ -41,6 +41,11 @@ SetupWidget::SetupWidget(QWidget *parent)
     : QWidget(parent)
     , m_shouldSave(false)
     , m_rebuildingCombo(false)
+    , m_profileMenu(nullptr)
+    , m_newProfileAction(nullptr)
+    , m_duplicateProfileAction(nullptr)
+    , m_renameProfileAction(nullptr)
+    , m_deleteProfileAction(nullptr)
     , ui(new Ui::SetupWidget)
 {
     ui->setupUi(this);
@@ -56,21 +61,7 @@ SetupWidget::SetupWidget(QWidget *parent)
         runPreview();
     });
 
-    QMenu* profileMenu = new QMenu(this);
-    m_newProfileAction = profileMenu->addAction(QIcon::fromTheme("document-new"), tr("New Profile..."));
-    m_duplicateProfileAction = profileMenu->addAction(QIcon::fromTheme("document-new-from-template"), tr("Duplicate this profile..."));
-    m_renameProfileAction = profileMenu->addAction(QIcon::fromTheme("document-edit"), tr("Rename this Profile"));
-    m_deleteProfileAction = profileMenu->addAction(QIcon::fromTheme("edit-delete"), tr("Delete this Profile"));
-    ui->btnProfileActions->setMenu(profileMenu);
-
-    connect(m_newProfileAction, &QAction::triggered, this, &SetupWidget::newProfile);
-    connect(m_duplicateProfileAction, &QAction::triggered, this, &SetupWidget::duplicateProfile);
-    connect(m_renameProfileAction, &QAction::triggered, this, &SetupWidget::renameProfile);
-    connect(m_deleteProfileAction, &QAction::triggered, this, &SetupWidget::deleteProfile);
-
-    if ( m_profiles.size() == 1 ) {
-        m_deleteProfileAction->setEnabled(false);
-    }
+    createProfileMenus();
 
     connect(ui->btnSelectDiffuse, &QPushButton::clicked, this, [=]() {
         selectColor(&ProfileData::diffuseColor, &ProfileData::setDiffuseColor, ui->frmDiffuseColor);
@@ -93,6 +84,9 @@ SetupWidget::SetupWidget(QWidget *parent)
         m_shouldSave = true;
         ui->btnSaveSettings->setEnabled(true);
         ui->retranslateUi(this);
+
+        // Menus are not retranslated, let's recreate them
+        createProfileMenus();
     });
 
     connect(ui->cboEmojiFont, &QComboBox::currentIndexChanged, this, [=]() {
@@ -731,6 +725,42 @@ void SetupWidget::deleteProfile()
     m_shouldSave = true;
     ui->btnSaveSettings->setEnabled(true);
     runPreview();
+}
+
+void SetupWidget::createProfileMenus()
+{
+    // delete previous entries if not already deleted
+    if ( m_newProfileAction ) {
+        m_newProfileAction->deleteLater();
+    }
+    if ( m_duplicateProfileAction ) {
+        m_duplicateProfileAction->deleteLater();
+    }
+    if ( m_renameProfileAction ) {
+        m_renameProfileAction->deleteLater();
+    }
+    if ( m_deleteProfileAction ) {
+        m_deleteProfileAction->deleteLater();
+    }
+    if ( m_profileMenu ) {
+        m_profileMenu->deleteLater();
+    }
+
+    m_profileMenu = new QMenu(ui->btnProfileActions);
+    m_newProfileAction = m_profileMenu->addAction(QIcon::fromTheme("document-new"), tr("New Profile..."));
+    m_duplicateProfileAction = m_profileMenu->addAction(QIcon::fromTheme("document-new-from-template"), tr("Duplicate this profile..."));
+    m_renameProfileAction = m_profileMenu->addAction(QIcon::fromTheme("document-edit"), tr("Rename this Profile"));
+    m_deleteProfileAction = m_profileMenu->addAction(QIcon::fromTheme("edit-delete"), tr("Delete this Profile"));
+    ui->btnProfileActions->setMenu(m_profileMenu);
+
+    connect(m_newProfileAction, &QAction::triggered, this, &SetupWidget::newProfile);
+    connect(m_duplicateProfileAction, &QAction::triggered, this, &SetupWidget::duplicateProfile);
+    connect(m_renameProfileAction, &QAction::triggered, this, &SetupWidget::renameProfile);
+    connect(m_deleteProfileAction, &QAction::triggered, this, &SetupWidget::deleteProfile);
+
+    if ( m_profiles.size() == 1 ) {
+        m_deleteProfileAction->setEnabled(false);
+    }
 }
 
 void SetupWidget::populateCurrentProfileControls()
