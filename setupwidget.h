@@ -27,12 +27,16 @@
 #include <Qt3DRender/QPointLight>
 
 #include "atsumari.h"
+#include "profiledata.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class SetupWidget;
 }
 QT_END_NAMESPACE
+
+// setColor functions for ProfileData
+typedef  void (ProfileData::*SetColorFn)(const QString&);
 
 class SetupWidget : public QWidget
 {
@@ -46,7 +50,7 @@ private:
     void loadSettings();
     void saveSettings();
     void checkClose();
-    void selectColor(QString* colorEnv, QFrame* frame);
+    void selectColor(QString(ProfileData::*getter)() const, void (ProfileData::*setter)(const QString&), QFrame *frame);
     void addToExcludeList();
     void removeFromExcludeList();
     void runPreview();
@@ -60,13 +64,15 @@ private:
     void populateLanguages();
     void setupPreview();
     void validatePaths(QLineEdit* edt);
+    void newProfile();
+    void duplicateProfile();
+    void renameProfile();
+    void deleteProfile();
+    void populateCurrentProfileControls();
     void aboutQt();
 
-    QString m_diffuseColor;
-    QString m_specularColor;
-    QString m_ambientColor;
-    QString m_lightColor;
-    QString m_decorationPath;
+    QList<ProfileData*> m_profiles;
+    int m_currentProfile;
 
     Qt3DExtras::Qt3DWindow* m_previewWindow;
     Qt3DRender::QCamera *m_camera;
@@ -76,6 +82,13 @@ private:
     Qt3DCore::QEntity *m_lightEntity;
     Qt3DRender::QPointLight *m_light;
     Qt3DCore::QTransform *m_lightTransform;
+
+    bool m_shouldSave;
+    bool m_rebuildingCombo;
+    QAction* m_newProfileAction;
+    QAction* m_duplicateProfileAction;
+    QAction* m_renameProfileAction;
+    QAction* m_deleteProfileAction;
 
     Ui::SetupWidget *ui;
 

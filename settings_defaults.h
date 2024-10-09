@@ -37,6 +37,9 @@
 #define CFG_EMOTE_DIR "dirs/emotes"
 #define CFG_EMOJI_FONT "emoji_font"
 #define CFG_LANGUAGE "language"
+#define CFG_PROFILES "profiles"
+#define CFG_PROFILE_NAME "profile_name"
+#define CFG_CURRENT_PROFILE "current_profile"
 
 #define DEFAULT_COLORS_DIFFUSE "#5a4584"
 #define DEFAULT_COLORS_SPECULAR "#5a4584"
@@ -48,6 +51,7 @@
 #define DEFAULT_SHININESS 40
 #define DEFAULT_ITERATION_TIME 3
 #define DEFAULT_DECORATION_PATH ":/decoration/kata_deco.png"
+#define DEFAULT_CURRENT_PROFILE 1
 
 // This client id is set as public, but please don't use it for other purposes
 // Creating a new application on Twitch dev Console is easy and free

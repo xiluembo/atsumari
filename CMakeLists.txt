@@ -62,6 +62,7 @@ qt_add_executable(atsumari
     settings_defaults.h
     atsumarilauncher.h atsumarilauncher.cpp
     localehelper.h localehelper.cpp
+    profiledata.h profiledata.cpp
 )
 
 target_link_libraries(atsumari PRIVATE
