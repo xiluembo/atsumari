@@ -575,7 +575,7 @@ void SetupWidget::newProfile()
                                             tr("Profile"), &ok);
 
         if ( !ok ) {
-            break;
+            return;
         }
 
         if (existingProfiles.contains(profileName)) {
