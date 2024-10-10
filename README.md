@@ -64,7 +64,7 @@ Then, inside the build directory, run:
 cmake --build . --target=update_translations
 ```
 
-A file named after the language identifier will be placed under the i18n folder. This file can be edited using Qt Linguist. After all strings are updated and validated, you can build the project once again and verify the new language is displayed correctly. Then, submit a merge request to have the language file added to the project.
+A file named after the language identifier will be placed under the i18n folder. This file can be edited using Qt Linguist. After all strings are updated and validated, you can build the project once again and verify the new language is displayed correctly. Then, submit a pull request to have the language file added to the project.
 
 
 
