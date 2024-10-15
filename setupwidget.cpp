@@ -769,7 +769,8 @@ void SetupWidget::populateCurrentProfileControls()
         return;
     }
 
-    m_currentProfile = ui->cboProfile->currentIndex();
+    m_currentProfile = qMax(0, ui->cboProfile->currentIndex());
+
     const ProfileData* p = m_profiles[m_currentProfile];
 
     ui->frmDiffuseColor->setStyleSheet(QString("background-color: %1;").arg(p->diffuseColor()));
