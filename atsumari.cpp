@@ -32,6 +32,10 @@
 Atsumari::Atsumari(QEntity *parent) : Qt3DCore::QEntity(parent) {
     QSettings settings;
 
+    int currentProfile = settings.value(CFG_CURRENT_PROFILE, DEFAULT_CURRENT_PROFILE).toInt();
+    settings.beginReadArray(CFG_PROFILES);
+    settings.setArrayIndex(currentProfile);
+
     m_sphereMesh = new Qt3DExtras::QSphereMesh();
     m_sphereMesh->setRadius(0.97f);
     m_sphereMesh->setSlices(settings.value(CFG_SLICES, DEFAULT_SLICES).toInt());
@@ -58,6 +62,7 @@ Atsumari::Atsumari(QEntity *parent) : Qt3DCore::QEntity(parent) {
     // Update random Rotation
     connect(m_rotationAnimation, &QPropertyAnimation::finished, this, &Atsumari::updateRandomRotation);
     updateRandomRotation();
+    settings.endArray();
 }
 
 void Atsumari::updateRandomRotation() {

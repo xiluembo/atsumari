@@ -43,6 +43,10 @@ void AtsumariLauncher::launch()
 {
     QSettings settings;
 
+    int currentProfile = settings.value(CFG_CURRENT_PROFILE, DEFAULT_CURRENT_PROFILE).toInt();
+    settings.beginReadArray(CFG_PROFILES);
+    settings.setArrayIndex(currentProfile);
+
     // View window
     m_window.setWidth(300);
     m_window.setHeight(300);
@@ -113,6 +117,8 @@ void AtsumariLauncher::launch()
     QObject::connect(m_emw, &EmoteWriter::bigEmoteWritten, atsumari, [=](QString path) {
         atsumari->addEmote(QUrl::fromLocalFile(path), -1.0f, -1.0f, 0.70f);
     });
+
+    settings.endArray();
 
     // Setting up the root entity into the Window
     m_window.setRootEntity(rootEntity);
