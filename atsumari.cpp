@@ -141,14 +141,20 @@ void Atsumari::addEmote(const QUrl &emote, float theta, float phi, float emoteSi
     QVector3D position(x, y, z);
     QVector3D normal = position.normalized(); // Sphere surface normal
 
-    // Set up "up" vector
+    // Ensure the emote is facing outward
     QVector3D up(0, 1, 0);
+    if (qFuzzyCompare(normal.y(), 1.0f) || qFuzzyCompare(normal.y(), -1.0f)) {
+        up = QVector3D(1, 0, 0);
+    }
+    QVector3D right = QVector3D::crossProduct(up, normal).normalized();
+    QVector3D correctedUp = QVector3D::crossProduct(normal, right).normalized();
 
-    QVector3D right = QVector3D::crossProduct(normal, up).normalized();
-    QVector3D correctedUp = QVector3D::crossProduct(right, normal).normalized();
+    // Create a rotation that aligns the emote with the surface
+    QQuaternion rotation = QQuaternion::fromAxes(right, correctedUp, normal);
 
-    // Rotate to make it parallel to the surface
-    QQuaternion rotation = QQuaternion::fromDirection(normal, correctedUp);
+    // Apply a fixed offset to ensure consistent orientation
+    QQuaternion fixedOffset = QQuaternion::fromEulerAngles(90, 0, 0);
+    rotation = rotation * fixedOffset;
 
     // Create Emote entity
     Qt3DCore::QEntity *emoteEntity = new Qt3DCore::QEntity(this);
@@ -158,41 +164,15 @@ void Atsumari::addEmote(const QUrl &emote, float theta, float phi, float emoteSi
 
     Qt3DCore::QTransform *transform = new Qt3DCore::QTransform();
     transform->setTranslation(position);
-    // Make it parallel to the surface
-    transform->setRotation(rotation * QQuaternion::fromEulerAngles(90, 0, 0));
+    transform->setRotation(rotation);
 
     // Add components to emoteEntity
     emoteEntity->addComponent(planeMesh);
     emoteEntity->addComponent(material);
     emoteEntity->addComponent(transform);
 
-    // -------------- Reverse Emote
-
-    // Convert to cartesian coordinates
-    float x2 = 0.98f * sin(qDegreesToRadians(phi)) * cos(qDegreesToRadians(theta));
-    float y2 = 0.98f * sin(qDegreesToRadians(phi)) * sin(qDegreesToRadians(theta));
-    float z2 = 0.98f * cos(qDegreesToRadians(phi));
-
-    QVector3D position2(x2, y2, z2);
-
-    // Create Emote entity
-    Qt3DCore::QEntity *emoteEntity2 = new Qt3DCore::QEntity(this);
-    Qt3DExtras::QPlaneMesh *planeMesh2 = new Qt3DExtras::QPlaneMesh();
-    planeMesh2->setWidth(emoteSize);  // Emote Size
-    planeMesh2->setHeight(emoteSize);
-
-    Qt3DCore::QTransform *transform2 = new Qt3DCore::QTransform();
-    transform2->setTranslation(position2);
-    // Make it parallel to the surface
-    transform2->setRotation(rotation * QQuaternion::fromEulerAngles(-90, 0, 0));
-
-    // add components to emoteEntity2
-    emoteEntity2->addComponent(planeMesh2);
-    emoteEntity2->addComponent(material);
-    emoteEntity2->addComponent(transform2);
-
+    // Append entity to the list of emotes
     m_emotes.append(emoteEntity);
-    m_emotes.append(emoteEntity2);
 }
 
 void Atsumari::clearEmotes()
@@ -202,4 +182,3 @@ void Atsumari::clearEmotes()
     }
     m_emotes.clear();
 }
-
