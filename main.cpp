@@ -26,6 +26,7 @@
 
 int main(int argc, char *argv[])
 {
+    qputenv("QT3D_RENDERER", "opengl");
     QApplication app(argc, argv);
     QApplication::setOrganizationName("Push X!");
     QApplication::setApplicationName("Atsumari");
