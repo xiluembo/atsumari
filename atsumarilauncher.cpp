@@ -29,6 +29,7 @@
 #include <QSettings>
 #include <QMainWindow>
 #include <QVBoxLayout>
+#include <QGuiApplication>
 
 #include "settings_defaults.h"
 #include "atsumari.h"
@@ -135,4 +136,7 @@ void AtsumariLauncher::launch()
     });
 
     settings.endArray();
+
+    // now we can close the app if the window is closed
+    qGuiApp->setQuitOnLastWindowClosed(true);
 }

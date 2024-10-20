@@ -380,9 +380,13 @@ void SetupWidget::checkClose()
     }
 
     this->setEnabled(false);
-    AtsumariLauncher* launcher = new AtsumariLauncher;
-    launcher->launch();
-    QTimer::singleShot(1000, this, [=]() { this->deleteLater(); } );
+
+    // It's only safe to launch a new 3D Window when the previous one was destroyed
+    connect(m_previewWindow, &Qt3DExtras::Qt3DWindow::destroyed, [=]() {
+        AtsumariLauncher* launcher = new AtsumariLauncher;
+        launcher->launch();
+    } );
+    this->deleteLater();
 }
 
 void SetupWidget::selectColor(QString(ProfileData::*getter)() const, void (ProfileData::*setter)(const QString&), QFrame *frame)
@@ -785,6 +789,11 @@ void SetupWidget::populateCurrentProfileControls()
     ui->sldShininess->setValue(p->shininess());
     ui->spnIteration->setValue(p->iteration());
     ui->cboEmojiFont->setCurrentFont(QFont(p->font(), -1));
+}
+
+void SetupWidget::closeEvent(QCloseEvent *event)
+{
+    qGuiApp->quit();
 }
 
 void SetupWidget::aboutQt()

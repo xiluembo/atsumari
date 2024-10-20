@@ -70,6 +70,7 @@ private:
     void deleteProfile();
     void createProfileMenus();
     void populateCurrentProfileControls();
+    void closeEvent(QCloseEvent* event);
     void aboutQt();
 
     QList<ProfileData*> m_profiles;
