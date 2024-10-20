@@ -138,7 +138,7 @@ void AtsumariLauncher::launch()
     });
 
     QObject::connect(m_emw, &EmoteWriter::bigEmoteWritten, atsumari, [=](QString path) {
-        atsumari->addEmote(QUrl::fromLocalFile(path), -1.0f, -1.0f, 0.70f);
+        atsumari->addEmote(QUrl::fromLocalFile(path), -1.0f, -1.0f, 0.7f);
     });
 
     settings.endArray();
