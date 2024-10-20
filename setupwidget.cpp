@@ -29,6 +29,7 @@
 #include <QStyleHints>
 #include <QFileInfo>
 #include <QMenu>
+#include <QCloseEvent>
 
 #include <Qt3DRender/QCamera>
 #include <Qt3DExtras/QForwardRenderer>
@@ -365,11 +366,23 @@ void SetupWidget::saveSettings()
     m_shouldSave = false;
 
     QMessageBox::information(this, tr("Success"), tr("Settings saved successfully!"));
-
 }
 
 void SetupWidget::checkClose()
 {
+    if ( m_shouldSave ) {
+        int ret = QMessageBox::question(this, tr("There are unsaved changes"),
+                                        tr("Do you want to save changes before running?"),
+                                        QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel,
+                                        QMessageBox::Yes);
+
+        if(ret == QMessageBox::Yes) {
+            saveSettings();
+        } else if (ret == QMessageBox::Cancel) {
+            return;
+        }
+    }
+
     QSettings settings;
 
     QString clientId = settings.value(CFG_CLIENT_ID, DEFAULT_CLIENT_ID).toString();
@@ -793,6 +806,24 @@ void SetupWidget::populateCurrentProfileControls()
 
 void SetupWidget::closeEvent(QCloseEvent *event)
 {
+    if ( m_shouldSave ) {
+        int ret = QMessageBox::question(this, tr("There are unsaved changes"),
+                                        tr("Do you want to save changes before closing?"),
+                                        QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel,
+                                        QMessageBox::Cancel);
+
+        if(ret == QMessageBox::No) {
+            event->accept();
+            return;
+        } else if(ret == QMessageBox::Yes) {
+            saveSettings();
+            event->accept();
+            return;
+        } else {
+            event->ignore();
+        }
+    }
+
     qGuiApp->quit();
 }
 
