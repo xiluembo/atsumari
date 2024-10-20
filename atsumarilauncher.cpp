@@ -27,7 +27,6 @@
 #include <QUrl>
 #include <QRandomGenerator64>
 #include <QSettings>
-#include <QMainWindow>
 #include <QVBoxLayout>
 #include <QGuiApplication>
 
@@ -40,7 +39,15 @@ AtsumariLauncher::AtsumariLauncher()
     , m_emw(new EmoteWriter())
     , m_tReader(nullptr)
     , m_window()
+    , m_mw(new QMainWindow)
+    , m_container(new QWidget)
 { }
+
+AtsumariLauncher::~AtsumariLauncher()
+{
+    m_container->deleteLater();
+    m_mw->deleteLater();
+}
 
 void AtsumariLauncher::launch()
 {
@@ -50,14 +57,14 @@ void AtsumariLauncher::launch()
     settings.beginReadArray(CFG_PROFILES);
     settings.setArrayIndex(currentProfile);
 
-    QMainWindow* mw = new QMainWindow;
-    QWidget* container = new QWidget;
-    mw->resize(300,300);
-    container->setLayout(new QVBoxLayout);
-    container->layout()->setContentsMargins(0, 0, 0, 0);
-    container->layout()->addWidget(QWidget::createWindowContainer(&m_window));
-    mw->setCentralWidget(container);
-    mw->show();
+    m_mw = new QMainWindow;
+    m_container = new QWidget;
+    m_mw->resize(300,300);
+    m_container->setLayout(new QVBoxLayout);
+    m_container->layout()->setContentsMargins(0, 0, 0, 0);
+    m_container->layout()->addWidget(QWidget::createWindowContainer(&m_window));
+    m_mw->setCentralWidget(m_container);
+    m_mw->show();
 
     // View window
     // m_window.setWidth(300);
@@ -94,7 +101,6 @@ void AtsumariLauncher::launch()
 
     // Setting up the root entity into the Window
     m_window.setRootEntity(rootEntity);
-    m_window.resize(301,301);
 
     QUrl kata_deco = QUrl::fromLocalFile(settings.value(CFG_DECORATION_PATH, DEFAULT_DECORATION_PATH).toString());
 

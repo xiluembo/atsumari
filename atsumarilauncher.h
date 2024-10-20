@@ -19,6 +19,7 @@
 #define ATSUMARILAUNCHER_H
 
 #include <Qt3DExtras/Qt3DWindow>
+#include <QMainWindow>
 
 #include "twitchauthflow.h"
 #include "twitchchatreader.h"
@@ -28,6 +29,7 @@ class AtsumariLauncher
 {
 public:
     AtsumariLauncher();
+    ~AtsumariLauncher();
     AtsumariLauncher(const AtsumariLauncher&) = delete;
     AtsumariLauncher& operator=(const AtsumariLauncher&) = delete;
     void launch();
@@ -37,6 +39,8 @@ private:
     EmoteWriter* m_emw;
     TwitchChatReader* m_tReader;
     Qt3DExtras::Qt3DWindow m_window;
+    QMainWindow* m_mw = new QMainWindow;
+    QWidget* m_container = new QWidget;
 };
 
 #endif // ATSUMARILAUNCHER_H
