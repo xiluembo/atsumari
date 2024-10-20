@@ -814,13 +814,12 @@ void SetupWidget::closeEvent(QCloseEvent *event)
 
         if(ret == QMessageBox::No) {
             event->accept();
-            return;
         } else if(ret == QMessageBox::Yes) {
             saveSettings();
             event->accept();
-            return;
         } else {
             event->ignore();
+            return;
         }
     }
 
