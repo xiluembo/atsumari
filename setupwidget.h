@@ -21,13 +21,13 @@
 #include <QWidget>
 #include <QLineEdit>
 #include <QFrame>
-#include <Qt3DExtras/Qt3DWindow>
 #include <Qt3DCore/QEntity>
 #include <Qt3DExtras/QOrbitCameraController>
 #include <Qt3DRender/QPointLight>
 
 #include "atsumari.h"
 #include "profiledata.h"
+#include "atsumariwindow.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -76,7 +76,7 @@ private:
     QList<ProfileData*> m_profiles;
     int m_currentProfile;
 
-    Qt3DExtras::Qt3DWindow* m_previewWindow;
+    AtsumariWindow* m_previewWindow;
     Qt3DRender::QCamera *m_camera;
     Qt3DCore::QEntity *m_rootEntity;
     Qt3DExtras::QOrbitCameraController *m_cameraController;

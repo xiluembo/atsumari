@@ -67,9 +67,6 @@ void AtsumariLauncher::launch()
     m_mw->show();
 
     // View window
-    // m_window.setWidth(300);
-    // m_window.setHeight(300);
-    m_window.defaultFrameGraph()->setClearColor(QColor(Qt::black));
     m_window.setIcon(QIcon(":/appicon/atsumari.svg"));
     m_window.show();
 
@@ -80,7 +77,7 @@ void AtsumariLauncher::launch()
     camera->setViewCenter(QVector3D(0, 0, 0));
 
     // Root Entity
-    Qt3DCore::QEntity *rootEntity = new Qt3DCore::QEntity();
+    Qt3DCore::QEntity *rootEntity = m_window.createScene();
 
     // Adding Atsumari
     Atsumari *atsumari = new Atsumari(rootEntity);

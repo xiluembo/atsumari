@@ -40,6 +40,7 @@ set(PROJECT_SOURCES
         twitchauthflow.h twitchauthflow.cpp
         emotewriter.h emotewriter.cpp
         emojimapper.h emojimapper.cpp
+        atsumariwindow.h atsumariwindow.cpp
 )
 
 if(WIN32)

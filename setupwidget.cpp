@@ -521,7 +521,7 @@ void SetupWidget::populateLanguages()
 void SetupWidget::setupPreview()
 {
     // preview window
-    m_previewWindow = new Qt3DExtras::Qt3DWindow;
+    m_previewWindow = new AtsumariWindow;
     m_previewWindow->defaultFrameGraph()->setClearColor(QColor(Qt::black));
 
     ui->grpPreview->layout()->addWidget(QWidget::createWindowContainer(m_previewWindow));
@@ -534,7 +534,7 @@ void SetupWidget::setupPreview()
     m_camera->setViewCenter(QVector3D(0, 0, 0));
 
     // Root Entity
-    m_rootEntity = new Qt3DCore::QEntity();
+    m_rootEntity = m_previewWindow->createScene();
 
     // Adding Atsumari
     m_previewEntity = new Atsumari(m_rootEntity);

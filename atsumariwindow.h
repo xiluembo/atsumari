@@ -15,32 +15,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ATSUMARILAUNCHER_H
-#define ATSUMARILAUNCHER_H
+#ifndef ATSUMARIWINDOW_H
+#define ATSUMARIWINDOW_H
 
-#include <QMainWindow>
+#include <Qt3DExtras/Qt3DWindow>
+#include <Qt3DCore/QEntity>
+#include <Qt3DCore/QTransform>
 
-#include "twitchauthflow.h"
-#include "twitchchatreader.h"
-#include "emotewriter.h"
-#include "atsumariwindow.h"
-
-class AtsumariLauncher
-{
+class AtsumariWindow : public Qt3DExtras::Qt3DWindow {
 public:
-    AtsumariLauncher();
-    ~AtsumariLauncher();
-    AtsumariLauncher(const AtsumariLauncher&) = delete;
-    AtsumariLauncher& operator=(const AtsumariLauncher&) = delete;
-    void launch();
+    AtsumariWindow();
 
-private:
-    TwitchAuthFlow* m_twFlow;
-    EmoteWriter* m_emw;
-    TwitchChatReader* m_tReader;
-    AtsumariWindow m_window;
-    QMainWindow* m_mw = new QMainWindow;
-    QWidget* m_container = new QWidget;
+public:
+    Qt3DCore::QEntity *createScene();
+    Qt3DCore::QTransform *planeTransform;
 };
 
-#endif // ATSUMARILAUNCHER_H
+#endif // ATSUMARIWINDOW_H
