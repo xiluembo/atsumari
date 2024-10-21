@@ -41,6 +41,10 @@ set(PROJECT_SOURCES
         emotewriter.h emotewriter.cpp
         emojimapper.h emojimapper.cpp
         atsumariwindow.h atsumariwindow.cpp
+        settings_defaults.h
+        atsumarilauncher.h atsumarilauncher.cpp
+        localehelper.h localehelper.cpp
+        profiledata.h profiledata.cpp
 )
 
 if(WIN32)
@@ -59,11 +63,6 @@ qt_add_translations(atsumari
 qt_add_executable(atsumari
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES}
-
-    settings_defaults.h
-    atsumarilauncher.h atsumarilauncher.cpp
-    localehelper.h localehelper.cpp
-    profiledata.h profiledata.cpp
 )
 
 target_link_libraries(atsumari PRIVATE
