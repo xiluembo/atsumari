@@ -34,15 +34,6 @@ int main(int argc, char *argv[])
 
     LocaleHelper::loadBestTranslation();
 
-#ifdef Q_OS_WIN
-    const auto scheme = QGuiApplication::styleHints()->colorScheme();
-    if ( scheme == Qt::ColorScheme::Dark ) {
-        QResource::registerResource(":/3rdparty/breeze-icons-dark.rcc", "/icons/breeze-dark");
-    } else {
-        QResource::registerResource(":/3rdparty/breeze-icons.rcc", "/icons/breeze");
-    }
-#endif
-
     SetupWidget* setupw = new SetupWidget();
     setupw->show();
 

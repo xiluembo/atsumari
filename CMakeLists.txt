@@ -52,6 +52,7 @@ if(WIN32)
     set(PROJECT_SOURCES
         ${PROJECT_SOURCES}
         appicon/appicon.rc
+        3rdparty/breeze-icons.qrc
     )
 endif()
 
