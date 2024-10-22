@@ -60,17 +60,5 @@ AtsumariWindow::AtsumariWindow() : Qt3DExtras::Qt3DWindow() {
 
 Qt3DCore::QEntity* AtsumariWindow::createScene() { // Root entity
     Qt3DCore::QEntity *rootEntity = new Qt3DCore::QEntity;
-
-    Qt3DCore::QEntity *planeEntity = new Qt3DCore::QEntity(rootEntity);
-    Qt3DRender::QMaterial *meshMaterial = new Qt3DExtras::QGoochMaterial;
-    Qt3DExtras::QPlaneMesh *planeMesh = new Qt3DExtras::QPlaneMesh;
-    planeMesh->setHeight(10);
-    planeMesh->setWidth(10);
-    planeTransform = new Qt3DCore::QTransform;
-
-    planeEntity->addComponent(planeTransform);
-    planeEntity->addComponent(planeMesh);
-    planeEntity->addComponent(meshMaterial);
-
     return rootEntity;
 }
