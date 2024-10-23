@@ -20,8 +20,7 @@
 
 #include <QString>
 
-class ProfileData
-{
+class ProfileData {
 public:
     ProfileData();
 

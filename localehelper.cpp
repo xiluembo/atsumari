@@ -33,7 +33,7 @@ void LocaleHelper::loadBestTranslation(const QString &baseName, const QString &d
 
     QLocale bestLocale = findBestLocale(locale, baseName, directory);
     bool result = translator.load(bestLocale, baseName, "_", directory);
-    if(result) {
+    if (result) {
         qApp->installTranslator(&translator);
     }
     return;
@@ -43,7 +43,7 @@ void LocaleHelper::loadTranslation(const QLocale &locale, const QString &baseNam
 {
     QLocale bestLocale = findBestLocale(locale, baseName, directory);
     bool result = translator.load(bestLocale, baseName, "_", directory);
-    if(result) {
+    if (result) {
         qApp->installTranslator(&translator);
     }
     return;
@@ -84,7 +84,7 @@ QList<QLocale> LocaleHelper::availableLocales(const QString &baseName, const QSt
     locales << QLocale(QLocale::English, QLocale::UnitedStates);
 
     QStringList filters;
-    filters << baseName + "_*.qm";  // Filter .qm files
+    filters << baseName + "_*.qm"; // Filter .qm files
     dir.setNameFilters(filters);
 
     // Regex to extract locale code from filename

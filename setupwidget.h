@@ -36,10 +36,9 @@ class SetupWidget;
 QT_END_NAMESPACE
 
 // setColor functions for ProfileData
-typedef  void (ProfileData::*SetColorFn)(const QString&);
+typedef void (ProfileData::*SetColorFn)(const QString&);
 
-class SetupWidget : public QWidget
-{
+class SetupWidget : public QWidget {
     Q_OBJECT
 
 public:

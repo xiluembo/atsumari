@@ -32,7 +32,7 @@ public:
     explicit EmoteWriter(QObject *parent = nullptr);
     void saveEmote(const QString &id);
     void saveBigEmote(const QString &id);
-    void saveEmoji(const QString &slug, const QString &emojiData);   
+    void saveEmoji(const QString &slug, const QString &emojiData);
 
 signals:
     void emoteWritten(QString path);

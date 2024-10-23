@@ -45,12 +45,12 @@ TwitchAuthFlow::TwitchAuthFlow(const QString& state, QObject *parent)
     m_webView = new QWebEngineView();
 
     m_token = settings.value(CFG_TOKEN, "").toString();
-    if(m_token == "") {
+    if (m_token == "") {
         startAuthFlow();
     } else {
         QDateTime dtNow = QDateTime::currentDateTime();
         QDateTime expiryDate = settings.value(CFG_EXPIRY_TOKEN, dtNow).toDateTime();
-        if ( expiryDate < dtNow ) {
+        if (expiryDate < dtNow) {
             startAuthFlow();
         } else {
             requestTokenValidation();
@@ -70,11 +70,13 @@ void TwitchAuthFlow::requestTokenValidation()
 
     QNetworkRequest req((QUrl(requestUrl)));
     req.setRawHeader("Authorization", QString("Bearer %1").arg(m_token).toUtf8());
-    req.setRawHeader("Client-Id", settings.value(CFG_CLIENT_ID, DEFAULT_CLIENT_ID).toString().toUtf8() );
+    req.setRawHeader("Client-Id", settings.value(CFG_CLIENT_ID, DEFAULT_CLIENT_ID).toString().toUtf8());
 
     QNetworkReply *reply = m_nam.get(req);
 
-    connect(reply, &QNetworkReply::finished, this, [=]() { onValidateReply(reply); });
+    connect(reply, &QNetworkReply::finished, this, [=]() {
+        onValidateReply(reply);
+    });
 }
 
 void TwitchAuthFlow::parseToken(QUrl newUrl)
@@ -82,9 +84,9 @@ void TwitchAuthFlow::parseToken(QUrl newUrl)
     if (newUrl.host() == "localhost") {
         QString fragment = newUrl.fragment();
         QStringList parms = fragment.split("&");
-        foreach(const QString& kv, parms) {
+        foreach (const QString& kv, parms) {
             QString k = kv.split("=")[0];
-            if ( k == "access_token" ) {
+            if (k == "access_token") {
                 m_token = kv.split("=")[1];
                 QSettings settings;
                 settings.setValue(CFG_TOKEN, m_token);
@@ -103,11 +105,13 @@ void TwitchAuthFlow::requestUserinfo()
 
     QNetworkRequest req((QUrl(requestUrl)));
     req.setRawHeader("Authorization", QString("Bearer %1").arg(m_token).toUtf8());
-    req.setRawHeader("Client-Id", settings.value(CFG_CLIENT_ID, DEFAULT_CLIENT_ID).toString().toUtf8() );
+    req.setRawHeader("Client-Id", settings.value(CFG_CLIENT_ID, DEFAULT_CLIENT_ID).toString().toUtf8());
 
     QNetworkReply *reply = m_nam.get(req);
 
-    connect(reply, &QNetworkReply::finished, this, [=]() { onUserinfoReply(reply); });
+    connect(reply, &QNetworkReply::finished, this, [=]() {
+        onUserinfoReply(reply);
+    });
 }
 
 void TwitchAuthFlow::onUserinfoReply(QNetworkReply *reply)
@@ -120,9 +124,9 @@ void TwitchAuthFlow::onUserinfoReply(QNetworkReply *reply)
         if (jsonDoc.isObject()) {
             QJsonObject jsonObj = jsonDoc.object();
 
-            if (jsonObj.contains("data") ) {
+            if (jsonObj.contains("data")) {
                 QJsonArray arr = jsonObj.value("data").toArray();
-                if ( ! arr.isEmpty() ) {
+                if (! arr.isEmpty()) {
                     if (arr.at(0).toObject().contains("login")) {
                         QString login = arr.at(0).toObject().value("login").toString();
                         emit loginFetched(login);
@@ -132,7 +136,7 @@ void TwitchAuthFlow::onUserinfoReply(QNetworkReply *reply)
         }
     }
 
-    if ( reply ) reply->deleteLater();
+    if (reply) reply->deleteLater();
 }
 
 void TwitchAuthFlow::onValidateReply(QNetworkReply *reply)
@@ -161,7 +165,7 @@ void TwitchAuthFlow::onValidateReply(QNetworkReply *reply)
         startAuthFlow();
     }
 
-    if ( reply ) reply->deleteLater();
+    if (reply) reply->deleteLater();
 }
 
 void TwitchAuthFlow::startAuthFlow()

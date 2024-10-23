@@ -24,7 +24,8 @@
 #include "settings_defaults.h"
 
 TwitchChatReader::TwitchChatReader(const QString &url, const QString &token, const QString &channel, QObject *parent)
-    : QObject(parent), m_webSocket(new QWebSocket), m_channel(channel) {
+    : QObject(parent), m_webSocket(new QWebSocket), m_channel(channel)
+{
 
     connect(m_webSocket, &QWebSocket::connected, this, &TwitchChatReader::onConnected);
     connect(m_webSocket, &QWebSocket::textMessageReceived, this, &TwitchChatReader::onTextMessageReceived);
@@ -40,11 +41,13 @@ TwitchChatReader::TwitchChatReader(const QString &url, const QString &token, con
     startPingTimer();
 }
 
-TwitchChatReader::~TwitchChatReader() {
+TwitchChatReader::~TwitchChatReader()
+{
     m_webSocket->close();
 }
 
-void TwitchChatReader::onConnected() {
+void TwitchChatReader::onConnected()
+{
     // Send required IRC commands
     m_webSocket->sendTextMessage(QStringLiteral("PASS oauth:") + m_token);
     m_webSocket->sendTextMessage(QStringLiteral("CAP REQ :twitch.tv/commands twitch.tv/tags twitch.tv/membership"));
@@ -52,15 +55,16 @@ void TwitchChatReader::onConnected() {
     m_webSocket->sendTextMessage(QStringLiteral("JOIN #") + m_channel);
 }
 
-void TwitchChatReader::onTextMessageReceived(const QString &allMsgs) {    
-    for(const QString& message: allMsgs.split("\n")) {
+void TwitchChatReader::onTextMessageReceived(const QString &allMsgs)
+{
+    for (const QString& message: allMsgs.split("\n")) {
 
         if (message.startsWith("PING")) {
             // Send an equivalent PONG
             QString response = message;
             response.replace("PING", "PONG");
             m_webSocket->sendTextMessage(response);
-            return;  // Don't further process the message
+            return; // Don't further process the message
         }
 
         // Extract metadata from the message
@@ -83,7 +87,7 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs) {
             QStringList exceptNames = settings.value(CFG_EXCLUDE_CHAT).toStringList();
 
             QString nameData = nameMatch.captured(1).toLower();
-            if(exceptNames.contains(nameData)) {
+            if (exceptNames.contains(nameData)) {
                 return;
             }
         }
@@ -116,7 +120,7 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs) {
                 if (range.length() != 2) continue;
 
                 int start = range[0].toInt();
-                int end = range[1].toInt() + 1;  // Adjust to QString ranges
+                int end = range[1].toInt() + 1; // Adjust to QString ranges
                 QString emoteName = content.mid(start, end - start);
 
                 if (isGigantifiedEmoteMessage && end > lastEmoteEndPos) {
@@ -135,7 +139,7 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs) {
                 processedEmotes.remove(lastEmoteId);
             }
 
-            for(const QString& emoteId: processedEmotes.keys()) {
+            for (const QString& emoteId: processedEmotes.keys()) {
                 emit emoteSent(emoteId, processedEmotes[emoteId]);
             }
         }
@@ -156,13 +160,14 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs) {
             }
         }
 
-        for(const QString& slug: emojisFound.keys()) {
+        for (const QString& slug: emojisFound.keys()) {
             emit emojiSent(slug, emojisFound[slug]);
         }
     }
 }
 
-void TwitchChatReader::startPingTimer() {
+void TwitchChatReader::startPingTimer()
+{
     QTimer* pingTimer = new QTimer(this);
     connect(pingTimer, &QTimer::timeout, this, [=]() {
         m_webSocket->sendTextMessage("PING");

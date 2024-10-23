@@ -23,8 +23,7 @@
 #include <QNetworkReply>
 #include <QWebEngineView>
 
-class TwitchAuthFlow : public QObject
-{
+class TwitchAuthFlow : public QObject {
     Q_OBJECT
 public:
     explicit TwitchAuthFlow(const QString& state, QObject *parent = nullptr);

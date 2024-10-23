@@ -142,8 +142,12 @@ SetupWidget::SetupWidget(QWidget *parent)
     // Directories tab
     connect(ui->btnEmojiPath, &QPushButton::clicked, this, &SetupWidget::selectEmojiPath);
     connect(ui->btnEmotePath, &QPushButton::clicked, this, &SetupWidget::selectEmotePath);
-    connect(ui->edtEmojiDir, &QLineEdit::textChanged, this, [=]() { validatePaths(ui->edtEmojiDir); });
-    connect(ui->edtEmoteDir, &QLineEdit::textChanged, this, [=]() { validatePaths(ui->edtEmoteDir); });
+    connect(ui->edtEmojiDir, &QLineEdit::textChanged, this, [=]() {
+        validatePaths(ui->edtEmojiDir);
+    });
+    connect(ui->edtEmoteDir, &QLineEdit::textChanged, this, [=]() {
+        validatePaths(ui->edtEmoteDir);
+    });
 
     // Twitch Tab
     connect(ui->btnAddExcludeChat, &QPushButton::clicked, this, &SetupWidget::addToExcludeList);
@@ -154,7 +158,7 @@ SetupWidget::SetupWidget(QWidget *parent)
     // About
     connect(ui->btnAboutQt, &QPushButton::clicked, this, &SetupWidget::aboutQt);
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, [=](int index) {
-        if ( index == 3 ) {
+        if (index == 3) {
             // Workaround as big labels may get incorrect size
             ui->lblAtsuLicense->adjustSize();
 #ifdef Q_OS_WIN
@@ -165,7 +169,7 @@ SetupWidget::SetupWidget(QWidget *parent)
 #endif
             ui->scrollAreaWidgetContents->layout()->update();
         }
-    } );
+    });
 
     // Actions
     connect(ui->btnSaveSettings, &QPushButton::clicked, this, &SetupWidget::saveSettings);
@@ -233,14 +237,14 @@ void SetupWidget::loadSettings()
     // Appearance & Behavior
     QLocale defaultLocale = settings.value(CFG_LANGUAGE, LocaleHelper::findBestLocale()).toLocale();
     int langIndex = ui->cboLanguage->findData(defaultLocale);
-    if ( langIndex == -1 ) {
+    if (langIndex == -1) {
         langIndex = ui->cboLanguage->findData(LocaleHelper::findBestLocale());
     }
     ui->cboLanguage->setCurrentIndex(langIndex);
 
     // profiles
     int size = settings.beginReadArray(CFG_PROFILES);
-    if ( size == 0 ) {
+    if (size == 0) {
         settings.endArray();
 
         // populate default profile
@@ -264,7 +268,7 @@ void SetupWidget::loadSettings()
 
         ui->cboProfile->addItem(defaultProfileName);
     } else {
-        for(qsizetype i = 0; i < size; ++i) {
+        for (qsizetype i = 0; i < size; ++i) {
             settings.setArrayIndex(i);
             ProfileData* profileData = new ProfileData;
             QString profileName = settings.value(CFG_PROFILE_NAME).toString();
@@ -312,7 +316,7 @@ void SetupWidget::saveSettings()
     settings.setValue(CFG_LANGUAGE, ui->cboLanguage->currentData());
 
     settings.beginWriteArray(CFG_PROFILES, m_profiles.size());
-    for(qsizetype i = 0; i < m_profiles.size(); ++i) {
+    for (qsizetype i = 0; i < m_profiles.size(); ++i) {
         settings.setArrayIndex(i);
         settings.setValue(CFG_PROFILE_NAME, m_profiles[i]->profileName());
         settings.setValue(CFG_COLORS_DIFFUSE, m_profiles[i]->diffuseColor());
@@ -328,7 +332,7 @@ void SetupWidget::saveSettings()
 
         QString newFont = m_profiles[i]->font();
         QString previousFont = settings.value(CFG_EMOJI_FONT, DEFAULT_EMOJI_FONT).toString();
-        if ( newFont != previousFont && newFont != DEFAULT_EMOJI_FONT) {
+        if (newFont != previousFont && newFont != DEFAULT_EMOJI_FONT) {
             fontWarn = true;
         }
 
@@ -336,7 +340,7 @@ void SetupWidget::saveSettings()
     }
     settings.endArray();
 
-    if ( fontWarn ) {
+    if (fontWarn) {
         QMessageBox::warning(this, tr("Changing default font"),
                              tr("Changing default font is not advised. SVG Based fonts may not work correctly on Windows, and non-SVG Based fonts may also fail to render correctly on other platforms"));
     }
@@ -348,7 +352,7 @@ void SetupWidget::saveSettings()
     // Twitch
     QStringList excludeChat;
 
-    for(int i = 0; i < ui->lstExcludeChat->count(); ++i){
+    for (int i = 0; i < ui->lstExcludeChat->count(); ++i) {
         excludeChat << (ui->lstExcludeChat->item(i)->text());
     }
 
@@ -357,7 +361,7 @@ void SetupWidget::saveSettings()
     settings.setValue(CFG_EXCLUDE_CHAT, excludeChat);
 
     QString clientId = ui->edtClientId->text();
-    if ( clientId.isEmpty() ) {
+    if (clientId.isEmpty()) {
         QMessageBox::warning(this, tr("Empty ClientId"), tr("Twitch Client Id is empty, you'll be not able to connect to your chat, use the Twitch Dev Console button to create a Client on Twitch."));
     }
     settings.setValue(CFG_CLIENT_ID, ui->edtClientId->text());
@@ -370,13 +374,13 @@ void SetupWidget::saveSettings()
 
 void SetupWidget::checkClose()
 {
-    if ( m_shouldSave ) {
+    if (m_shouldSave) {
         int ret = QMessageBox::question(this, tr("There are unsaved changes"),
                                         tr("Do you want to save changes before running?"),
                                         QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel,
                                         QMessageBox::Yes);
 
-        if(ret == QMessageBox::Yes) {
+        if (ret == QMessageBox::Yes) {
             saveSettings();
         } else if (ret == QMessageBox::Cancel) {
             return;
@@ -387,7 +391,7 @@ void SetupWidget::checkClose()
 
     QString clientId = settings.value(CFG_CLIENT_ID, DEFAULT_CLIENT_ID).toString();
 
-    if ( clientId.isEmpty() ) {
+    if (clientId.isEmpty()) {
         QMessageBox::critical(this, tr("Empty ClientId"), tr("Twitch Client Id is empty, you'll be not able to connect to your chat, use the Twitch Dev Console button to create a Client on Twitch."));
         return;
     }
@@ -398,7 +402,7 @@ void SetupWidget::checkClose()
     connect(m_previewWindow, &Qt3DExtras::Qt3DWindow::destroyed, [=]() {
         AtsumariLauncher* launcher = new AtsumariLauncher;
         launcher->launch();
-    } );
+    });
     this->deleteLater();
 }
 
@@ -466,7 +470,7 @@ void SetupWidget::setIcons()
 {
 #ifdef Q_OS_WIN
     const auto scheme = QGuiApplication::styleHints()->colorScheme();
-    if ( scheme == Qt::ColorScheme::Dark ) {
+    if (scheme == Qt::ColorScheme::Dark) {
         QIcon::setThemeName("breeze-dark");
     } else {
         QIcon::setThemeName("breeze");
@@ -510,7 +514,7 @@ void SetupWidget::populateLanguages()
         return s1 < s2;
     });
 
-    for(const QLocale& l: availableLocales) {
+    for (const QLocale& l: availableLocales) {
         QString s = l.nativeLanguageName();
         s.front() = s.front().toUpper();
         s = QString("%1 (%2)").arg(s, l.nativeTerritoryName());
@@ -561,11 +565,11 @@ void SetupWidget::validatePaths(QLineEdit *edt)
 
     QFileInfo fi(path);
 
-    if(fi.isRelative()) {
+    if (fi.isRelative()) {
         edt->setStyleSheet("color: red");
     } else {
-        if(fi.exists()) {
-            if(fi.isDir()) {
+        if (fi.exists()) {
+            if (fi.isDir()) {
                 edt->setStyleSheet(QString());
             } else {
                 edt->setStyleSheet("color: red");
@@ -582,7 +586,7 @@ void SetupWidget::newProfile()
     QString profileName;
     QStringList existingProfiles;
 
-    for(const ProfileData* pd: m_profiles) {
+    for (const ProfileData* pd: m_profiles) {
         existingProfiles << pd->profileName();
     }
 
@@ -591,14 +595,14 @@ void SetupWidget::newProfile()
                                             tr("Profile name:"), QLineEdit::Normal,
                                             tr("Profile"), &ok);
 
-        if ( !ok ) {
+        if (!ok) {
             return;
         }
 
         if (existingProfiles.contains(profileName)) {
             QMessageBox::critical(this, tr("Profile already exists!"), tr("A profile named '%1' already exists. Try a different name.").arg(profileName));
         }
-    } while(existingProfiles.contains(profileName));
+    } while (existingProfiles.contains(profileName));
 
     ProfileData* profile = new ProfileData;
     profile->setProfileName(profileName);
@@ -632,7 +636,7 @@ void SetupWidget::duplicateProfile()
     ProfileData* currentProfile = m_profiles[m_currentProfile];
     QString currentName = currentProfile->profileName();
 
-    for(const ProfileData* pd: m_profiles) {
+    for (const ProfileData* pd: m_profiles) {
         existingProfiles << pd->profileName();
     }
 
@@ -642,14 +646,14 @@ void SetupWidget::duplicateProfile()
                                             tr("Profile name:"), QLineEdit::Normal,
                                             tr("Copy of %1").arg(currentName), &ok);
 
-        if ( !ok ) {
+        if (!ok) {
             return;
         }
 
         if (existingProfiles.contains(profileName)) {
             QMessageBox::critical(this, tr("Profile already exists!"), tr("A profile named '%1' already exists. Try a different name.").arg(profileName));
         }
-    } while(existingProfiles.contains(profileName));
+    } while (existingProfiles.contains(profileName));
 
     ProfileData* profile = new ProfileData(*currentProfile);
     profile->setProfileName(profileName);
@@ -672,7 +676,7 @@ void SetupWidget::renameProfile()
     ProfileData* currentProfile = m_profiles[m_currentProfile];
     QString currentName = currentProfile->profileName();
 
-    for(const ProfileData* pd: m_profiles) {
+    for (const ProfileData* pd: m_profiles) {
         existingProfiles << pd->profileName();
     }
 
@@ -681,20 +685,20 @@ void SetupWidget::renameProfile()
                                             tr("Profile name:"), QLineEdit::Normal,
                                             currentName, &ok);
 
-        if ( !ok || (profileName == currentName) ) {
+        if (!ok || (profileName == currentName)) {
             return;
         }
 
         if (existingProfiles.contains(profileName)) {
             QMessageBox::critical(this, tr("Profile already exists!"), tr("A profile named '%1' already exists. Try a different name.").arg(profileName));
         }
-    } while(existingProfiles.contains(profileName));
+    } while (existingProfiles.contains(profileName));
 
     currentProfile->setProfileName(profileName);
 
     m_rebuildingCombo = true;
     ui->cboProfile->clear();
-    for(const ProfileData* pd: m_profiles) {
+    for (const ProfileData* pd: m_profiles) {
         ui->cboProfile->addItem(pd->profileName());
     }
     ui->cboProfile->setCurrentIndex(m_currentProfile);
@@ -708,7 +712,7 @@ void SetupWidget::renameProfile()
 
 void SetupWidget::deleteProfile()
 {
-    if ( m_profiles.size() == 1 ) {
+    if (m_profiles.size() == 1) {
         QMessageBox::critical(this, tr("Cannot delete profile"),
                               tr("Cannot delete the only remaining profile."));
         return;
@@ -718,21 +722,21 @@ void SetupWidget::deleteProfile()
     QString currentName = currentProfile->profileName();
 
     int ret = QMessageBox::question(this, tr("Delete Profile"),
-                                   tr("Are you sure you want to delete profile '%1'?").arg(currentName));
+                                    tr("Are you sure you want to delete profile '%1'?").arg(currentName));
 
-    if(ret == QMessageBox::Yes) {
+    if (ret == QMessageBox::Yes) {
         m_profiles.removeAt(m_currentProfile);
         delete currentProfile;
     }
     m_currentProfile = 0;
 
-    if ( m_profiles.size() == 1 ) {
+    if (m_profiles.size() == 1) {
         m_deleteProfileAction->setEnabled(false);
     }
 
     m_rebuildingCombo = true;
     ui->cboProfile->clear();
-    for(const ProfileData* pd: m_profiles) {
+    for (const ProfileData* pd: m_profiles) {
         ui->cboProfile->addItem(pd->profileName());
     }
     m_rebuildingCombo = false;
@@ -747,19 +751,19 @@ void SetupWidget::deleteProfile()
 void SetupWidget::createProfileMenus()
 {
     // delete previous entries if not already deleted
-    if ( m_newProfileAction ) {
+    if (m_newProfileAction) {
         m_newProfileAction->deleteLater();
     }
-    if ( m_duplicateProfileAction ) {
+    if (m_duplicateProfileAction) {
         m_duplicateProfileAction->deleteLater();
     }
-    if ( m_renameProfileAction ) {
+    if (m_renameProfileAction) {
         m_renameProfileAction->deleteLater();
     }
-    if ( m_deleteProfileAction ) {
+    if (m_deleteProfileAction) {
         m_deleteProfileAction->deleteLater();
     }
-    if ( m_profileMenu ) {
+    if (m_profileMenu) {
         m_profileMenu->deleteLater();
     }
 
@@ -775,14 +779,14 @@ void SetupWidget::createProfileMenus()
     connect(m_renameProfileAction, &QAction::triggered, this, &SetupWidget::renameProfile);
     connect(m_deleteProfileAction, &QAction::triggered, this, &SetupWidget::deleteProfile);
 
-    if ( m_profiles.size() == 1 ) {
+    if (m_profiles.size() == 1) {
         m_deleteProfileAction->setEnabled(false);
     }
 }
 
 void SetupWidget::populateCurrentProfileControls()
 {
-    if ( m_rebuildingCombo ) {
+    if (m_rebuildingCombo) {
         return;
     }
 
@@ -806,15 +810,15 @@ void SetupWidget::populateCurrentProfileControls()
 
 void SetupWidget::closeEvent(QCloseEvent *event)
 {
-    if ( m_shouldSave ) {
+    if (m_shouldSave) {
         int ret = QMessageBox::question(this, tr("There are unsaved changes"),
                                         tr("Do you want to save changes before closing?"),
                                         QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel,
                                         QMessageBox::Cancel);
 
-        if(ret == QMessageBox::No) {
+        if (ret == QMessageBox::No) {
             event->accept();
-        } else if(ret == QMessageBox::Yes) {
+        } else if (ret == QMessageBox::Yes) {
             saveSettings();
             event->accept();
         } else {
@@ -834,7 +838,7 @@ void SetupWidget::aboutQt()
 void SetupWidget::addToExcludeList()
 {
     QString userName = ui->edtExcludeChat->text();
-    if ( userName.startsWith("@") ) {
+    if (userName.startsWith("@")) {
         userName = userName.mid(1);
     }
     userName = userName.toLower();

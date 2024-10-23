@@ -21,8 +21,7 @@
 #include <QLocale>
 #include <QTranslator>
 
-class LocaleHelper
-{
+class LocaleHelper {
 public:
     static void loadBestTranslation(const QString &baseName = "atsumari", const QString &directory = ":/i18n");
     static void loadTranslation(const QLocale &locale, const QString &baseName = "atsumari", const QString &directory = ":/i18n");

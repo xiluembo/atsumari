@@ -25,8 +25,7 @@
 #include "emotewriter.h"
 #include "atsumariwindow.h"
 
-class AtsumariLauncher
-{
+class AtsumariLauncher {
 public:
     AtsumariLauncher();
     ~AtsumariLauncher();

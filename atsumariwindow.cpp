@@ -30,7 +30,8 @@
 #include <Qt3DExtras/QPlaneMesh>
 #include <Qt3DRender/QDepthTest>
 
-AtsumariWindow::AtsumariWindow() : Qt3DExtras::Qt3DWindow() {
+AtsumariWindow::AtsumariWindow() : Qt3DExtras::Qt3DWindow()
+{
     Qt3DRender::QCamera *camera = this->camera();
     camera->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 0.1f, 1000.0f);
     camera->setPosition(QVector3D(20.0, 20.0, 20.0f));
@@ -58,7 +59,8 @@ AtsumariWindow::AtsumariWindow() : Qt3DExtras::Qt3DWindow() {
     setRootEntity(root);
 }
 
-Qt3DCore::QEntity* AtsumariWindow::createScene() { // Root entity
+Qt3DCore::QEntity* AtsumariWindow::createScene() // Root entity
+{
     Qt3DCore::QEntity *rootEntity = new Qt3DCore::QEntity;
     return rootEntity;
 }

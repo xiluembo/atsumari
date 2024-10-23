@@ -29,7 +29,8 @@
 
 #include "settings_defaults.h"
 
-Atsumari::Atsumari(QEntity *parent) : Qt3DCore::QEntity(parent) {
+Atsumari::Atsumari(QEntity *parent) : Qt3DCore::QEntity(parent)
+{
     QSettings settings;
 
     int currentProfile = settings.value(CFG_CURRENT_PROFILE, DEFAULT_CURRENT_PROFILE).toInt();
@@ -65,7 +66,8 @@ Atsumari::Atsumari(QEntity *parent) : Qt3DCore::QEntity(parent) {
     settings.endArray();
 }
 
-void Atsumari::updateRandomRotation() {
+void Atsumari::updateRandomRotation()
+{
     int newAngleX = QRandomGenerator64::global()->bounded(360);
     int newAngleY = QRandomGenerator64::global()->bounded(360);
     int newAngleZ = QRandomGenerator64::global()->bounded(360);
@@ -113,7 +115,8 @@ void Atsumari::setIterationInterval(double seconds)
     m_rotationAnimation->setDuration(1000 * seconds);
 }
 
-void Atsumari::addEmote(const QUrl &emote, float theta, float phi, float emoteSize) {
+void Atsumari::addEmote(const QUrl &emote, float theta, float phi, float emoteSize)
+{
     Qt3DRender::QTextureImage *textureImage = new Qt3DRender::QTextureImage();
 
     textureImage->setSource(emote);
@@ -127,7 +130,7 @@ void Atsumari::addEmote(const QUrl &emote, float theta, float phi, float emoteSi
 
     // Generate random spheric coordinates
 
-    if ( qFuzzyCompare(theta, -1.0f) && qFuzzyCompare(phi,-1.0f) ) {
+    if (qFuzzyCompare(theta, -1.0f) && qFuzzyCompare(phi, -1.0f)) {
         theta = QRandomGenerator::global()->bounded(360.0f); // Azimute
         float u = QRandomGenerator::global()->bounded(2.0f) - 1.0f;
         phi = qRadiansToDegrees(qAcos(u));
@@ -159,7 +162,7 @@ void Atsumari::addEmote(const QUrl &emote, float theta, float phi, float emoteSi
     // Create Emote entity
     Qt3DCore::QEntity *emoteEntity = new Qt3DCore::QEntity(this);
     Qt3DExtras::QPlaneMesh *planeMesh = new Qt3DExtras::QPlaneMesh();
-    planeMesh->setWidth(emoteSize);  // Emote Size
+    planeMesh->setWidth(emoteSize); // Emote Size
     planeMesh->setHeight(emoteSize);
 
     Qt3DCore::QTransform *transform = new Qt3DCore::QTransform();
@@ -177,7 +180,7 @@ void Atsumari::addEmote(const QUrl &emote, float theta, float phi, float emoteSi
 
 void Atsumari::clearEmotes()
 {
-    for(Qt3DCore::QEntity* entity : m_emotes) {
+    for (Qt3DCore::QEntity* entity : m_emotes) {
         entity->deleteLater();
     }
     m_emotes.clear();
