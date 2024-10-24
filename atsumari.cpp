@@ -42,7 +42,7 @@ Atsumari::Atsumari(QEntity *parent) : Qt3DCore::QEntity(parent)
     settings.setArrayIndex(currentProfile);
 
     m_sphereMesh = new Qt3DExtras::QSphereMesh();
-    m_sphereMesh->setRadius(0.77f);
+    m_sphereMesh->setRadius(0.97f);
     m_sphereMesh->setSlices(settings.value(CFG_SLICES, DEFAULT_SLICES).toInt());
     m_sphereMesh->setRings(settings.value(CFG_RINGS, DEFAULT_RINGS).toInt());
 
