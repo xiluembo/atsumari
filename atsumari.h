@@ -19,7 +19,7 @@
 #define ATSUMARI_H
 
 #include <Qt3DCore/QEntity>
-#include <Qt3DExtras/QPhongMaterial>
+#include <Qt3DExtras/QDiffuseSpecularMaterial>
 #include <Qt3DExtras/QSphereMesh>
 #include <Qt3DCore/QTransform>
 #include <QTimer>
@@ -47,7 +47,7 @@ private:
     Qt3DCore::QTransform *m_transform;
     QPropertyAnimation *m_rotationAnimation;
     Qt3DExtras::QSphereMesh *m_sphereMesh;
-    Qt3DExtras::QPhongMaterial *m_material;
+    Qt3DExtras::QDiffuseSpecularMaterial *m_material;
     QList<Qt3DCore::QEntity*> m_emotes;
 };
 

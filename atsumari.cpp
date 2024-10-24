@@ -21,6 +21,10 @@
 #include <Qt3DExtras/QTextureMaterial>
 #include <Qt3DRender/QTexture>
 #include <Qt3DRender/QTextureImage>
+#include <Qt3DRender/QRenderPass>
+#include <Qt3DRender/QDepthTest>
+#include <Qt3DRender/QNoDepthMask>
+#include <Qt3DRender/QTechnique>
 #include <QQuaternion>
 #include <QPixmap>
 #include <QTemporaryFile>
@@ -38,15 +42,30 @@ Atsumari::Atsumari(QEntity *parent) : Qt3DCore::QEntity(parent)
     settings.setArrayIndex(currentProfile);
 
     m_sphereMesh = new Qt3DExtras::QSphereMesh();
-    m_sphereMesh->setRadius(0.97f);
+    m_sphereMesh->setRadius(0.77f);
     m_sphereMesh->setSlices(settings.value(CFG_SLICES, DEFAULT_SLICES).toInt());
     m_sphereMesh->setRings(settings.value(CFG_RINGS, DEFAULT_RINGS).toInt());
 
-    m_material = new Qt3DExtras::QPhongMaterial();
+    m_material = new Qt3DExtras::QDiffuseSpecularMaterial();
     m_material->setDiffuse(QColor::fromString(settings.value(CFG_COLORS_DIFFUSE, DEFAULT_COLORS_DIFFUSE).toString()));
     m_material->setSpecular(QColor::fromString(settings.value(CFG_COLORS_SPECULAR, DEFAULT_COLORS_SPECULAR).toString()));
     m_material->setAmbient(QColor::fromString(settings.value(CFG_COLORS_AMBIENT, DEFAULT_COLORS_AMBIENT).toString()));
     m_material->setShininess(settings.value(CFG_SHININESS, DEFAULT_SHININESS).toInt() / 100.0f);
+
+    Qt3DRender::QEffect *effect = m_material->effect();
+    if (effect)
+    {
+        for (Qt3DRender::QTechnique* currentTechnique : effect->techniques())
+        {
+            for (Qt3DRender::QRenderPass * currentPass : currentTechnique->renderPasses())
+            {
+                Qt3DRender::QDepthTest *depthTest = new Qt3DRender::QDepthTest;
+                depthTest->setDepthFunction(Qt3DRender::QDepthTest::Less);
+                currentPass->addRenderState(depthTest);
+                break;
+            }
+        }
+    }
 
     m_transform = new Qt3DCore::QTransform();
     addComponent(m_sphereMesh);
@@ -127,6 +146,29 @@ void Atsumari::addEmote(const QUrl &emote, float theta, float phi, float emoteSi
     Qt3DExtras::QTextureMaterial *material = new Qt3DExtras::QTextureMaterial();
     material->setAlphaBlendingEnabled(true);
     material->setTexture(texture);
+
+    Qt3DRender::QEffect *effect = material->effect();
+    if (effect)
+    {
+        for (Qt3DRender::QTechnique* currentTechnique : effect->techniques())
+        {
+            for (Qt3DRender::QRenderPass * currentPass : currentTechnique->renderPasses())
+            {
+                for (Qt3DRender::QRenderState * currentState : currentPass->renderStates())
+                {
+                    if (dynamic_cast<Qt3DRender::QNoDepthMask *>(currentState))
+                    {
+                        currentPass->removeRenderState(currentState);
+                    }
+                    Qt3DRender::QDepthTest*  depthTest  = new Qt3DRender::QDepthTest;
+                    depthTest ->setDepthFunction(Qt3DRender::QDepthTest::Less);
+                    currentPass->addRenderState(depthTest);
+                }
+            }
+        }
+    }
+    material->setAlphaBlendingEnabled(false);
+    material->setAlphaBlendingEnabled(true);
 
     // Generate random spheric coordinates
 
