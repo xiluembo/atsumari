@@ -65,9 +65,9 @@ void AtsumariLauncher::launch()
     m_container->layout()->addWidget(QWidget::createWindowContainer(&m_window));
     m_mw->setCentralWidget(m_container);
     m_mw->show();
+    m_mw->setWindowIcon(QIcon(":/appicon/atsumari.svg"));
 
     // View window
-    m_window.setIcon(QIcon(":/appicon/atsumari.svg"));
     m_window.show();
 
     // Setting up Camera
