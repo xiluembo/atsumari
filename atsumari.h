@@ -30,6 +30,7 @@ class Atsumari : public Qt3DCore::QEntity {
     Q_OBJECT
 public:
     explicit Atsumari(Qt3DCore::QEntity *parent = nullptr);
+     ~Atsumari();
 
     void setSlices(int slices);
     void setRings(int rings);

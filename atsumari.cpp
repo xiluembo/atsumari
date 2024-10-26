@@ -52,6 +52,28 @@ Atsumari::Atsumari(QEntity *parent) : Qt3DCore::QEntity(parent)
     m_material->setShininess(settings.value(CFG_SHININESS, DEFAULT_SHININESS).toInt() / 100.0f);
     m_material->setAlphaBlendingEnabled(true);
 
+    Qt3DRender::QEffect *effect = m_material->effect();
+    if (effect)
+    {
+        for (Qt3DRender::QTechnique* currentTechnique : effect->techniques())
+        {
+            for (Qt3DRender::QRenderPass * currentPass : currentTechnique->renderPasses())
+            {
+                for (Qt3DRender::QRenderState * currentState : currentPass->renderStates())
+                {
+                    if (dynamic_cast<Qt3DRender::QNoDepthMask *>(currentState))
+                    {
+                        currentPass->removeRenderState(currentState);
+                        break;
+                    }
+                }
+                Qt3DRender::QDepthTest* depthTest = new Qt3DRender::QDepthTest;
+                depthTest ->setDepthFunction(Qt3DRender::QDepthTest::Less);
+                currentPass->addRenderState(depthTest);
+            }
+        }
+    }
+
     m_transform = new Qt3DCore::QTransform();
     addComponent(m_sphereMesh);
     addComponent(m_material);
@@ -68,6 +90,11 @@ Atsumari::Atsumari(QEntity *parent) : Qt3DCore::QEntity(parent)
     connect(m_rotationAnimation, &QPropertyAnimation::finished, this, &Atsumari::updateRandomRotation);
     updateRandomRotation();
     settings.endArray();
+}
+
+Atsumari::~Atsumari()
+{
+    clearEmotes();
 }
 
 void Atsumari::updateRandomRotation()
@@ -132,6 +159,20 @@ void Atsumari::addEmote(const QUrl &emote, float theta, float phi, float emoteSi
     material->setAlphaBlendingEnabled(true);
     material->setDiffuse(QVariant::fromValue(texture));
 
+    Qt3DRender::QEffect *effect = material->effect();
+    if (effect)
+    {
+        for (Qt3DRender::QTechnique* currentTechnique : effect->techniques())
+        {
+            for (Qt3DRender::QRenderPass* currentPass : currentTechnique->renderPasses())
+            {
+                Qt3DRender::QDepthTest* depthTest = new Qt3DRender::QDepthTest;
+                depthTest ->setDepthFunction(Qt3DRender::QDepthTest::Always);
+                currentPass->addRenderState(depthTest);
+            }
+        }
+    }
+
     // Generate random spheric coordinates
 
     if (qFuzzyCompare(theta, -1.0f) && qFuzzyCompare(phi, -1.0f)) {
@@ -185,7 +226,7 @@ void Atsumari::addEmote(const QUrl &emote, float theta, float phi, float emoteSi
 void Atsumari::clearEmotes()
 {
     for (Qt3DCore::QEntity* entity : m_emotes) {
-        entity->deleteLater();
+        delete entity;
     }
     m_emotes.clear();
 }
