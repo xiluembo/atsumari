@@ -9,6 +9,11 @@ on:
     branches: [ "main" ]
 
 jobs:
+  builddeps:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install dependencies
+        run: sudo apt-get install -y libcups2-dev
   build:
     runs-on: ${{ matrix.os }}
 
