@@ -330,6 +330,9 @@
              <property name="maximum">
               <number>100</number>
              </property>
+             <property name="tracking">
+              <bool>false</bool>
+             </property>
              <property name="orientation">
               <enum>Qt::Orientation::Horizontal</enum>
              </property>
@@ -488,6 +491,9 @@
             <widget class="QSlider" name="sldShininess">
              <property name="maximum">
               <number>100</number>
+             </property>
+             <property name="tracking">
+              <bool>false</bool>
              </property>
              <property name="orientation">
               <enum>Qt::Orientation::Horizontal</enum>
@@ -774,7 +780,7 @@
             <x>0</x>
             <y>0</y>
             <width>821</width>
-            <height>618</height>
+            <height>598</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_8">
