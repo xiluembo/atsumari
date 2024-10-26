@@ -18,7 +18,6 @@
 #include "atsumari.h"
 
 #include <Qt3DExtras/QPlaneMesh>
-#include <Qt3DExtras/QTextureMaterial>
 #include <Qt3DRender/QTexture>
 #include <Qt3DRender/QTextureImage>
 #include <Qt3DRender/QRenderPass>
@@ -51,28 +50,7 @@ Atsumari::Atsumari(QEntity *parent) : Qt3DCore::QEntity(parent)
     m_material->setSpecular(QColor::fromString(settings.value(CFG_COLORS_SPECULAR, DEFAULT_COLORS_SPECULAR).toString()));
     m_material->setAmbient(QColor::fromString(settings.value(CFG_COLORS_AMBIENT, DEFAULT_COLORS_AMBIENT).toString()));
     m_material->setShininess(settings.value(CFG_SHININESS, DEFAULT_SHININESS).toInt() / 100.0f);
-
-    Qt3DRender::QEffect *effect = m_material->effect();
-    if (effect)
-    {
-        for (Qt3DRender::QTechnique* currentTechnique : effect->techniques())
-        {
-            for (Qt3DRender::QRenderPass * currentPass : currentTechnique->renderPasses())
-            {
-                for (Qt3DRender::QRenderState * currentState : currentPass->renderStates())
-                {
-                    if (dynamic_cast<Qt3DRender::QNoDepthMask *>(currentState))
-                    {
-                        currentPass->removeRenderState(currentState);
-                    }
-                    Qt3DRender::QDepthTest*  depthTest  = new Qt3DRender::QDepthTest;
-                    depthTest ->setDepthFunction(Qt3DRender::QDepthTest::Less);
-                    currentPass->addRenderState(depthTest);
-                    break;
-                }
-            }
-        }
-    }
+    m_material->setAlphaBlendingEnabled(true);
 
     m_transform = new Qt3DCore::QTransform();
     addComponent(m_sphereMesh);
@@ -150,30 +128,9 @@ void Atsumari::addEmote(const QUrl &emote, float theta, float phi, float emoteSi
     Qt3DRender::QTexture2D *texture = new Qt3DRender::QTexture2D();
     texture->addTextureImage(textureImage);
 
-    Qt3DExtras::QTextureMaterial *material = new Qt3DExtras::QTextureMaterial();
+    Qt3DExtras::QDiffuseSpecularMaterial *material = new Qt3DExtras::QDiffuseSpecularMaterial();
     material->setAlphaBlendingEnabled(true);
-    material->setTexture(texture);
-
-    Qt3DRender::QEffect *effect = material->effect();
-    if (effect)
-    {
-        for (Qt3DRender::QTechnique* currentTechnique : effect->techniques())
-        {
-            for (Qt3DRender::QRenderPass * currentPass : currentTechnique->renderPasses())
-            {
-                for (Qt3DRender::QRenderState * currentState : currentPass->renderStates())
-                {
-                    if (dynamic_cast<Qt3DRender::QNoDepthMask *>(currentState))
-                    {
-                        currentPass->removeRenderState(currentState);
-                    }
-                    Qt3DRender::QDepthTest*  depthTest  = new Qt3DRender::QDepthTest;
-                    depthTest ->setDepthFunction(Qt3DRender::QDepthTest::Always);
-                    currentPass->addRenderState(depthTest);
-                }
-            }
-        }
-    }
+    material->setDiffuse(QVariant::fromValue(texture));
 
     // Generate random spheric coordinates
 
