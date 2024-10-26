@@ -48,7 +48,7 @@ AtsumariWindow::AtsumariWindow() : Qt3DExtras::Qt3DWindow()
     clearBuffers->setClearColor(Qt::black);
     Qt3DRender::QRenderStateSet *renderStateSet = new Qt3DRender::QRenderStateSet(clearBuffers);
     Qt3DRender::QCullFace *cullFace = new Qt3DRender::QCullFace(renderStateSet);
-    cullFace->setMode(Qt3DRender::QCullFace::NoCulling);
+    cullFace->setMode(Qt3DRender::QCullFace::Back);
     renderStateSet->addRenderState(cullFace);
     Qt3DRender::QDepthTest *depthTest = new Qt3DRender::QDepthTest;
     depthTest->setDepthFunction(Qt3DRender::QDepthTest::Less);

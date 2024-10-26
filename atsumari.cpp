@@ -59,10 +59,17 @@ Atsumari::Atsumari(QEntity *parent) : Qt3DCore::QEntity(parent)
         {
             for (Qt3DRender::QRenderPass * currentPass : currentTechnique->renderPasses())
             {
-                Qt3DRender::QDepthTest *depthTest = new Qt3DRender::QDepthTest;
-                depthTest->setDepthFunction(Qt3DRender::QDepthTest::Less);
-                currentPass->addRenderState(depthTest);
-                break;
+                for (Qt3DRender::QRenderState * currentState : currentPass->renderStates())
+                {
+                    if (dynamic_cast<Qt3DRender::QNoDepthMask *>(currentState))
+                    {
+                        currentPass->removeRenderState(currentState);
+                    }
+                    Qt3DRender::QDepthTest*  depthTest  = new Qt3DRender::QDepthTest;
+                    depthTest ->setDepthFunction(Qt3DRender::QDepthTest::Less);
+                    currentPass->addRenderState(depthTest);
+                    break;
+                }
             }
         }
     }
@@ -161,14 +168,12 @@ void Atsumari::addEmote(const QUrl &emote, float theta, float phi, float emoteSi
                         currentPass->removeRenderState(currentState);
                     }
                     Qt3DRender::QDepthTest*  depthTest  = new Qt3DRender::QDepthTest;
-                    depthTest ->setDepthFunction(Qt3DRender::QDepthTest::Less);
+                    depthTest ->setDepthFunction(Qt3DRender::QDepthTest::Always);
                     currentPass->addRenderState(depthTest);
                 }
             }
         }
     }
-    material->setAlphaBlendingEnabled(false);
-    material->setAlphaBlendingEnabled(true);
 
     // Generate random spheric coordinates
 
