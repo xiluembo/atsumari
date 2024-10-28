@@ -932,6 +932,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="btnSaveSettings">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="locale">
         <locale language="English" country="UnitedStates"/>
        </property>
