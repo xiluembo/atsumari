@@ -314,6 +314,7 @@ void SetupWidget::saveSettings()
     bool fontWarn = false;
     QSettings settings;
     settings.setValue(CFG_LANGUAGE, ui->cboLanguage->currentData());
+    settings.setValue(CFG_CURRENT_PROFILE, m_currentProfile);
 
     settings.beginWriteArray(CFG_PROFILES, m_profiles.size());
     for (qsizetype i = 0; i < m_profiles.size(); ++i) {
