@@ -144,9 +144,13 @@ SetupWidget::SetupWidget(QWidget *parent)
     connect(ui->btnEmotePath, &QPushButton::clicked, this, &SetupWidget::selectEmotePath);
     connect(ui->edtEmojiDir, &QLineEdit::textChanged, this, [=]() {
         validatePaths(ui->edtEmojiDir);
+        m_shouldSave = true;
+        ui->btnSaveSettings->setEnabled(true);
     });
     connect(ui->edtEmoteDir, &QLineEdit::textChanged, this, [=]() {
         validatePaths(ui->edtEmoteDir);
+        m_shouldSave = true;
+        ui->btnSaveSettings->setEnabled(true);
     });
 
     // Twitch Tab
@@ -154,6 +158,10 @@ SetupWidget::SetupWidget(QWidget *parent)
     connect(ui->btnRemoveExcludeChat, &QPushButton::clicked, this, &SetupWidget::removeFromExcludeList);
     connect(ui->btnDevConsole, &QPushButton::clicked, this, &SetupWidget::openDevConsole);
     connect(ui->btnForceAuth, &QPushButton::clicked, this, &SetupWidget::resetAuth);
+    connect(ui->edtClientId, &QLineEdit::textChanged, this, [=]() {
+        m_shouldSave = true;
+        ui->btnSaveSettings->setEnabled(true);
+    });
 
     // About
     connect(ui->btnAboutQt, &QPushButton::clicked, this, &SetupWidget::aboutQt);
@@ -846,6 +854,9 @@ void SetupWidget::addToExcludeList()
 
     ui->lstExcludeChat->addItem(userName);
     ui->edtExcludeChat->clear();
+
+    m_shouldSave = true;
+    ui->btnSaveSettings->setEnabled(true);
 }
 
 void SetupWidget::removeFromExcludeList()
@@ -853,5 +864,8 @@ void SetupWidget::removeFromExcludeList()
     QListWidgetItem* item = ui->lstExcludeChat->currentItem();
     if (item) {
         delete ui->lstExcludeChat->takeItem(ui->lstExcludeChat->row(item));
+
+        m_shouldSave = true;
+        ui->btnSaveSettings->setEnabled(true);
     }
 }
