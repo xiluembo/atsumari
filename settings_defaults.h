@@ -52,6 +52,7 @@
 #define DEFAULT_ITERATION_TIME 3
 #define DEFAULT_DECORATION_PATH ":/decoration/kata_deco.png"
 #define DEFAULT_CURRENT_PROFILE 0
+#define DEFAULT_EXCLUDE_CHAT (QStringList() << "nightbot" << "sery_bot" << "streamelements" << "fossabot" << "wizebot" << "botisimo" << "moobot")
 
 // This client id is set as public, but please don't use it for other purposes
 // Creating a new application on Twitch dev Console is easy and free

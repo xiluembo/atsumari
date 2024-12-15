@@ -318,7 +318,9 @@ void SetupWidget::loadSettings()
 
     // Twitch
     ui->lstExcludeChat->clear();
-    ui->lstExcludeChat->addItems(settings.value(CFG_EXCLUDE_CHAT).toStringList());
+    QStringList excludeChatList = settings.value(CFG_EXCLUDE_CHAT, DEFAULT_EXCLUDE_CHAT).toStringList();
+    excludeChatList.sort();
+    ui->lstExcludeChat->addItems(excludeChatList);
     ui->edtClientId->setText(settings.value(CFG_CLIENT_ID, DEFAULT_CLIENT_ID).toString());
 
     // Directories
