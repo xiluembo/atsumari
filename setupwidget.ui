@@ -651,6 +651,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="btnAddExcludeChat">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="locale">
                <locale language="English" country="UnitedStates"/>
               </property>

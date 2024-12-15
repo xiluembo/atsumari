@@ -163,6 +163,15 @@ SetupWidget::SetupWidget(QWidget *parent)
         ui->btnSaveSettings->setEnabled(true);
     });
 
+    connect(ui->edtExcludeChat, &QLineEdit::textChanged, this, [=]() {
+        QString userName = ui->edtExcludeChat->text();
+        if (userName.startsWith("@")) {
+            userName = userName.mid(1);
+        }
+
+        ui->btnAddExcludeChat->setEnabled(!userName.isEmpty());
+    });
+
     // About
     connect(ui->btnAboutQt, &QPushButton::clicked, this, &SetupWidget::aboutQt);
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, [=](int index) {
