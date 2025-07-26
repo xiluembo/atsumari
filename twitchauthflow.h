@@ -21,12 +21,15 @@
 #include <QObject>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include <QWebEngineView>
+#include <QtNetworkAuth/qoauth2deviceauthorizationflow.h>
+
+
 
 class TwitchAuthFlow : public QObject {
     Q_OBJECT
 public:
     explicit TwitchAuthFlow(const QString& state, QObject *parent = nullptr);
+    ~TwitchAuthFlow();
     QString token() const;
 
 signals:
@@ -40,13 +43,21 @@ private:
     void onUserinfoReply(QNetworkReply* reply);
     void requestTokenValidation();
     void onValidateReply(QNetworkReply* reply);
-    void startAuthFlow();
+
+    void setupDeviceFlow();
+    void startPollingAfterUserConfirmation();
+    void pollForToken();
+    void handleTokenResponse(const QJsonDocument& response);
+    void retryAuthentication();
 
     QNetworkAccessManager m_nam;
-    QString m_state;
     QString m_token;
-
-    QWebEngineView* m_webView;
+    bool m_authInProgress;
+    QOAuth2DeviceAuthorizationFlow* m_deviceFlow;
+    QString m_deviceCode;
+    QTimer* m_pollTimer;
+    int m_retryCount;
+    static const int MAX_RETRIES = 3;
 
 };
 

@@ -24,8 +24,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets Quick3D WebSockets WebEngineWidgets Gui LinguistTools)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Quick3D WebSockets WebEngineWidgets Gui LinguistTools)
+find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets Quick3D WebSockets NetworkAuth Gui LinguistTools)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Quick3D WebSockets NetworkAuth Gui LinguistTools)
 
 qt_standard_project_setup(I18N_TRANSLATED_LANGUAGES pt_BR)
 
@@ -72,7 +72,7 @@ target_link_libraries(atsumari PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Quick3D
     Qt${QT_VERSION_MAJOR}::WebSockets
-    Qt${QT_VERSION_MAJOR}::WebEngineWidgets
+    Qt${QT_VERSION_MAJOR}::NetworkAuth
     Qt${QT_VERSION_MAJOR}::Gui
 )
 
