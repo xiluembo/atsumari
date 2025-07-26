@@ -458,9 +458,82 @@
 <context>
     <name>TwitchAuthFlow</name>
     <message>
-        <location filename="../twitchauthflow.cpp" line="187"/>
         <source>Twitch Authorization</source>
-        <translation>Autorização na Twitch</translation>
+        <translation type="vanished">Autorização na Twitch</translation>
+    </message>
+    <message>
+        <location filename="../twitchauthflow.cpp" line="195"/>
+        <location filename="../twitchauthflow.cpp" line="244"/>
+        <location filename="../twitchauthflow.cpp" line="257"/>
+        <location filename="../twitchauthflow.cpp" line="355"/>
+        <location filename="../twitchauthflow.cpp" line="364"/>
+        <source>Error</source>
+        <translation>Erro</translation>
+    </message>
+    <message>
+        <location filename="../twitchauthflow.cpp" line="195"/>
+        <source>Twitch Client ID is not configured. Please set it in the settings.</source>
+        <translation>O Client ID da Twitch não está configurado. Por favor preencha-o na tela de configurações.</translation>
+    </message>
+    <message>
+        <location filename="../twitchauthflow.cpp" line="223"/>
+        <source>A browser window has been opened with the authentication page.
+
+Please complete the authentication in your browser and then click OK to continue.</source>
+        <translation>Foi aberta uma janela do seu navegador com a página de autenticação.
+
+Por favor, complete a autenticação no seu navegador, e então clique em OK para continuar.</translation>
+    </message>
+    <message>
+        <location filename="../twitchauthflow.cpp" line="226"/>
+        <source>Twitch Authentication</source>
+        <translation>Autenticação na Twitch</translation>
+    </message>
+    <message>
+        <location filename="../twitchauthflow.cpp" line="238"/>
+        <location filename="../twitchauthflow.cpp" line="392"/>
+        <source>Success</source>
+        <translation>Sucesso</translation>
+    </message>
+    <message>
+        <location filename="../twitchauthflow.cpp" line="238"/>
+        <location filename="../twitchauthflow.cpp" line="392"/>
+        <source>Authentication completed successfully!</source>
+        <translation>Autenticação completada com sucesso!</translation>
+    </message>
+    <message>
+        <location filename="../twitchauthflow.cpp" line="244"/>
+        <source>Authentication failed. Please try again.</source>
+        <translation>Falha na autenticação. Por favor, tente novamente.</translation>
+    </message>
+    <message>
+        <location filename="../twitchauthflow.cpp" line="253"/>
+        <source>Authentication error: %1</source>
+        <translation>Erro de autenticação: %1</translation>
+    </message>
+    <message>
+        <location filename="../twitchauthflow.cpp" line="338"/>
+        <source>Authentication Pending</source>
+        <translation>Autenticação Pendente</translation>
+    </message>
+    <message>
+        <location filename="../twitchauthflow.cpp" line="339"/>
+        <source>Authentication is still pending. Have you completed the authentication in your browser?
+
+Click &apos;Yes&apos; to continue polling or &apos;No&apos; to retry the authentication.</source>
+        <translation>A autenticação ainda está pendente. Você completou a autenticação no seu navegador?
+
+Clique em &apos;Sim&apos; para continuar tentando ou &apos;Não&apos; para tentar novamente a autenticação.</translation>
+    </message>
+    <message>
+        <location filename="../twitchauthflow.cpp" line="355"/>
+        <source>Device code expired. Please try again.</source>
+        <translation>Código de dispositivo expirado. Por favor, tente novamente.</translation>
+    </message>
+    <message>
+        <location filename="../twitchauthflow.cpp" line="364"/>
+        <source>Authentication failed: %1</source>
+        <translation>Falha na autenticação: %1</translation>
     </message>
 </context>
 </TS>
