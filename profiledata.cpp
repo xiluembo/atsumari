@@ -29,14 +29,14 @@ void ProfileData::setProfileName(const QString &newProfileName)
     m_profileName = newProfileName;
 }
 
-QString ProfileData::diffuseColor() const
+QString ProfileData::baseColor() const
 {
-    return m_diffuseColor;
+    return m_baseColor;
 }
 
-void ProfileData::setDiffuseColor(const QString &newDiffuseColor)
+void ProfileData::setBaseColor(const QString &newBaseColor)
 {
-    m_diffuseColor = newDiffuseColor;
+    m_baseColor = newBaseColor;
 }
 
 QString ProfileData::specularColor() const
@@ -79,44 +79,44 @@ void ProfileData::setDecorationPath(const QString &newDecorationPath)
     m_decorationPath = newDecorationPath;
 }
 
-int ProfileData::lightIntensity() const
+int ProfileData::lightBrightness() const
 {
-    return m_lightIntensity;
+    return m_lightBrightness;
 }
 
-void ProfileData::setLightIntensity(int newLightIntensity)
+void ProfileData::setLightBrightness(int newLightBrightness)
 {
-    m_lightIntensity = newLightIntensity;
+    m_lightBrightness = newLightBrightness;
 }
 
-int ProfileData::slices() const
+int ProfileData::glossiness() const
 {
-    return m_slices;
+    return m_glossiness;
 }
 
-void ProfileData::setSlices(int newSlices)
+void ProfileData::setGlossiness(int newGlossiness)
 {
-    m_slices = newSlices;
+    m_glossiness = newGlossiness;
 }
 
-int ProfileData::rings() const
+int ProfileData::roughness() const
 {
-    return m_rings;
+    return m_roughness;
 }
 
-void ProfileData::setRings(int newRings)
+void ProfileData::setRoughness(int newRoughness)
 {
-    m_rings = newRings;
+    m_roughness = newRoughness;
 }
 
-int ProfileData::shininess() const
+int ProfileData::metalness() const
 {
-    return m_shininess;
+    return m_metalness;
 }
 
-void ProfileData::setShininess(int newShininess)
+void ProfileData::setMetalness(int newMetalness)
 {
-    m_shininess = newShininess;
+    m_metalness = newMetalness;
 }
 
 double ProfileData::iteration() const
@@ -137,4 +137,34 @@ QString ProfileData::font() const
 void ProfileData::setFont(const QString &newFont)
 {
     m_font = newFont;
+}
+
+int ProfileData::refraction() const
+{
+    return m_refraction;
+}
+
+void ProfileData::setRefraction(int newRefraction)
+{
+    m_refraction = newRefraction;
+}
+
+IndexOfRefraction ProfileData::indexOfRefractionType() const
+{
+    return m_indexOfRefractionType;
+}
+
+void ProfileData::setIndexOfRefractionType(IndexOfRefraction newIndexOfRefractionType)
+{
+    m_indexOfRefractionType = newIndexOfRefractionType;
+}
+
+MaterialType ProfileData::materialType() const
+{
+    return m_materialType;
+}
+
+void ProfileData::setMaterialType(MaterialType newMaterialType)
+{
+    m_materialType = newMaterialType;
 }

@@ -19,14 +19,28 @@
 
 #include <QtGlobal>
 
-#define CFG_COLORS_DIFFUSE "colors/diffuse"
+
+#define CFG_VERSION "version"
+
+#define CFG_V1_COLORS_DIFFUSE "colors/diffuse"
+#define CFG_V1_LIGHT_INTENSITY "light_intensity"
+#define CFG_V1_SLICES "slices"
+#define CFG_V1_RINGS "rings"
+#define CFG_V1_SHININESS "shininess"
+
+// v2
+#define CFG_COLORS_BASE "colors/base"
+#define CFG_MATERIAL_TYPE "material"
+#define CFG_LIGHT_BRIGHTNESS "light_brightness"
+#define CFG_ROUGHNESS "roughness"
+#define CFG_METALNESS "metalness"
+#define CFG_REFRACTION_TYPE "refraction_type"
+#define CFG_REFRACTION "refraction_value"
+#define CFG_GLOSSINESS "glossiness"
+
 #define CFG_COLORS_SPECULAR "colors/specular"
 #define CFG_COLORS_AMBIENT "colors/ambient"
 #define CFG_COLORS_LIGHT "colors/light"
-#define CFG_LIGHT_INTENSITY "light_intensity"
-#define CFG_SLICES "slices"
-#define CFG_RINGS "rings"
-#define CFG_SHININESS "shininess"
 #define CFG_ITERATION_TIME "iteration_time"
 #define CFG_EXCLUDE_CHAT "exclude_chat"
 #define CFG_DECORATION_PATH "decoration"
@@ -41,14 +55,19 @@
 #define CFG_PROFILE_NAME "profile_name"
 #define CFG_CURRENT_PROFILE "current_profile"
 
-#define DEFAULT_COLORS_DIFFUSE "#5a4584"
+#define DEFAULT_VERSION 1 // So we can migrate from v1
+#define DEFAULT_ROUGHNESS 0
+#define DEFAULT_METALNESS 0
+#define DEFAULT_REFRACTION_TYPE IndexOfRefraction::Custom
+#define DEFAULT_REFRACTION 150
+
+#define DEFAULT_MATERIAL_TYPE MaterialType::SpecularGlossy
+#define DEFAULT_COLORS_BASE "#5a4584"
 #define DEFAULT_COLORS_SPECULAR "#5a4584"
 #define DEFAULT_COLORS_AMBIENT "#000000"
 #define DEFAULT_COLORS_LIGHT "#ffffff"
-#define DEFAULT_LIGHT_INTENSITY 100
-#define DEFAULT_SLICES 15
-#define DEFAULT_RINGS 15
-#define DEFAULT_SHININESS 40
+#define DEFAULT_LIGHT_BRIGHTNESS 100
+#define DEFAULT_GLOSSINESS 40
 #define DEFAULT_ITERATION_TIME 3
 #define DEFAULT_DECORATION_PATH ":/decoration/kata_deco.png"
 #define DEFAULT_CURRENT_PROFILE 0

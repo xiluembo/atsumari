@@ -3,5 +3,6 @@
         <file>emoji/emojis.json</file>
         <file>appicon/atsumari.svg</file>
         <file>decoration/kata_deco.png</file>
+        <file>main.qml</file>
     </qresource>
 </RCC>

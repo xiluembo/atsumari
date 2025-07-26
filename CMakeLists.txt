@@ -24,8 +24,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets 3DCore 3DExtras WebSockets WebEngineWidgets Gui LinguistTools)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets 3DCore 3DExtras WebSockets WebEngineWidgets Gui LinguistTools)
+find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets Quick3D WebSockets WebEngineWidgets Gui LinguistTools)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Quick3D WebSockets WebEngineWidgets Gui LinguistTools)
 
 qt_standard_project_setup(I18N_TRANSLATED_LANGUAGES pt_BR)
 
@@ -34,13 +34,13 @@ set(PROJECT_SOURCES
         setupwidget.cpp
         setupwidget.h
         setupwidget.ui
-        atsumari.h atsumari.cpp
+
         res.qrc
         twitchchatreader.h twitchchatreader.cpp
         twitchauthflow.h twitchauthflow.cpp
         emotewriter.h emotewriter.cpp
         emojimapper.h emojimapper.cpp
-        atsumariwindow.h atsumariwindow.cpp
+
         settings_defaults.h
         atsumarilauncher.h atsumarilauncher.cpp
         localehelper.h localehelper.cpp
@@ -64,12 +64,13 @@ qt_add_translations(atsumari
 qt_add_executable(atsumari
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES}
+    indexofrefraction.h
+    materialtype.h
 )
 
 target_link_libraries(atsumari PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
-    Qt${QT_VERSION_MAJOR}::3DCore
-    Qt${QT_VERSION_MAJOR}::3DExtras
+    Qt${QT_VERSION_MAJOR}::Quick3D
     Qt${QT_VERSION_MAJOR}::WebSockets
     Qt${QT_VERSION_MAJOR}::WebEngineWidgets
     Qt${QT_VERSION_MAJOR}::Gui

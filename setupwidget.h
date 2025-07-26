@@ -21,13 +21,10 @@
 #include <QWidget>
 #include <QLineEdit>
 #include <QFrame>
-#include <Qt3DCore/QEntity>
-#include <Qt3DExtras/QOrbitCameraController>
-#include <Qt3DRender/QPointLight>
+#include <QQuickView>
+#include <QQuickItem>
 
-#include "atsumari.h"
 #include "profiledata.h"
-#include "atsumariwindow.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -61,6 +58,8 @@ private:
     void resetAuth();
     void setIcons();
     void populateLanguages();
+    void populateMaterialTypes();
+    void populateRefractionTypes();
     void setupPreview();
     void validatePaths(QLineEdit* edt);
     void newProfile();
@@ -70,19 +69,14 @@ private:
     void createProfileMenus();
     void populateCurrentProfileControls();
     void closeEvent(QCloseEvent* event);
+    void cleanupTempFiles();
     void aboutQt();
 
     QList<ProfileData*> m_profiles;
     int m_currentProfile;
 
-    AtsumariWindow* m_previewWindow;
-    Qt3DRender::QCamera *m_camera;
-    Qt3DCore::QEntity *m_rootEntity;
-    Qt3DExtras::QOrbitCameraController *m_cameraController;
-    Atsumari *m_previewEntity;
-    Qt3DCore::QEntity *m_lightEntity;
-    Qt3DRender::QPointLight *m_light;
-    Qt3DCore::QTransform *m_lightTransform;
+    QQuickView* m_previewWindow;
+    QQuickItem* m_previewRootItem;
 
     bool m_shouldSave;
     bool m_rebuildingCombo;

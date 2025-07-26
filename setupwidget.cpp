@@ -16,6 +16,7 @@
  */
 
 #include "setupwidget.h"
+#include <QQuickItem>
 #include "./ui_setupwidget.h"
 
 #include <algorithm>
@@ -30,11 +31,14 @@
 #include <QFileInfo>
 #include <QMenu>
 #include <QCloseEvent>
-
-#include <Qt3DRender/QCamera>
-#include <Qt3DExtras/QForwardRenderer>
+#include <QUrl>
+#include <QDir>
+#include <QPainter>
+#include <QPixmap>
+#include <QRandomGenerator>
 
 #include "settings_defaults.h"
+#include "materialtype.h"
 #include "atsumarilauncher.h"
 #include "localehelper.h"
 
@@ -52,6 +56,8 @@ SetupWidget::SetupWidget(QWidget *parent)
     ui->setupUi(this);
     setIcons();
     populateLanguages();
+    populateMaterialTypes();
+    populateRefractionTypes();
     loadSettings();
 
     // Appearance tab
@@ -64,8 +70,8 @@ SetupWidget::SetupWidget(QWidget *parent)
 
     createProfileMenus();
 
-    connect(ui->btnSelectDiffuse, &QPushButton::clicked, this, [=]() {
-        selectColor(&ProfileData::diffuseColor, &ProfileData::setDiffuseColor, ui->frmDiffuseColor);
+    connect(ui->btnSelectBaseColor, &QPushButton::clicked, this, [=]() {
+        selectColor(&ProfileData::baseColor, &ProfileData::setBaseColor, ui->frmBaseColor);
     });
 
     connect(ui->btnSelectSpecular, &QPushButton::clicked, this, [=]() {
@@ -97,18 +103,77 @@ SetupWidget::SetupWidget(QWidget *parent)
         runPreview();
     });
 
+    connect(ui->cboMaterialType, &QComboBox::currentIndexChanged, this, [=]() {
+        m_profiles[m_currentProfile]->setMaterialType(static_cast<MaterialType>(ui->cboMaterialType->currentData().toInt()));
+        ui->grpPrincipled->setVisible(ui->cboMaterialType->currentData() == static_cast<int>(MaterialType::Principled));
+        ui->grpSpecularGlossy->setVisible(ui->cboMaterialType->currentData() == static_cast<int>(MaterialType::SpecularGlossy));
+        m_shouldSave = true;
+        runPreview();
+    });
+
     // any of those values changing may trigger a preview update
-    connect(ui->spnSlices, &QSpinBox::valueChanged, this, [=]() {
-        m_profiles[m_currentProfile]->setSlices(ui->spnSlices->value());
+
+    connect(ui->sldRoughness, &QSlider::valueChanged, this, [=]() {
+        m_profiles[m_currentProfile]->setRoughness(ui->sldRoughness->value());
+        ui->spnRoughness->setValue(ui->sldRoughness->value() / 100.0);
         m_shouldSave = true;
         ui->btnSaveSettings->setEnabled(true);
         runPreview();
     });
 
-    connect(ui->spnRings, &QSpinBox::valueChanged, this, [=]() {
-        m_profiles[m_currentProfile]->setRings(ui->spnRings->value());
+    connect(ui->spnRoughness, &QDoubleSpinBox::valueChanged, this, [=]() {
+        m_profiles[m_currentProfile]->setRoughness(ui->spnRoughness->value() * 100);
+        ui->sldRoughness->setValue(ui->spnRoughness->value() * 100);
         m_shouldSave = true;
         ui->btnSaveSettings->setEnabled(true);
+        runPreview();
+    });
+
+    connect(ui->sldMetalness, &QSlider::valueChanged, this, [=]() {
+        m_profiles[m_currentProfile]->setMetalness(ui->sldMetalness->value());
+        ui->spnMetalness->setValue(ui->sldMetalness->value() / 100.0);
+        m_shouldSave = true;
+        ui->btnSaveSettings->setEnabled(true);
+        runPreview();
+    });
+
+    connect(ui->spnMetalness, &QDoubleSpinBox::valueChanged, this, [=]() {
+        m_profiles[m_currentProfile]->setMetalness(ui->spnMetalness->value() * 100);
+        ui->sldMetalness->setValue(ui->spnMetalness->value() * 100);
+        m_shouldSave = true;
+        ui->btnSaveSettings->setEnabled(true);
+        runPreview();
+    });
+
+    connect(ui->sldRefraction, &QSlider::valueChanged, this, [=]() {
+        m_profiles[m_currentProfile]->setRefraction(ui->sldRefraction->value());
+        ui->spnRefraction->setValue(ui->sldRefraction->value() / 100.0);
+        m_shouldSave = true;
+        ui->btnSaveSettings->setEnabled(true);
+        runPreview();
+    });
+
+    connect(ui->spnRefraction, &QDoubleSpinBox::valueChanged, this, [=]() {
+        m_profiles[m_currentProfile]->setRefraction(ui->spnRefraction->value() * 100);
+        ui->sldRefraction->setValue(ui->spnRefraction->value() * 100);
+        m_shouldSave = true;
+        ui->btnSaveSettings->setEnabled(true);
+        runPreview();
+    });
+
+    connect(ui->cboRefraction, &QComboBox::currentIndexChanged, this, [=]() {
+        bool isCustom = ui->cboRefraction->currentData() == static_cast<int>(IndexOfRefraction::Custom);
+        ui->spnRefraction->setEnabled(isCustom);
+        ui->sldRefraction->setEnabled(isCustom);
+
+        if (!isCustom) {
+            int refractionValue = ui->cboRefraction->currentData().toInt();
+            ui->spnRefraction->setValue(refractionValue / 100.0);
+            ui->sldRefraction->setEnabled(refractionValue);
+            m_profiles[m_currentProfile]->setRefraction(refractionValue);
+        }
+
+        m_profiles[m_currentProfile]->setIndexOfRefractionType(static_cast<IndexOfRefraction>(ui->cboRefraction->currentData().toInt()));
         runPreview();
     });
 
@@ -119,15 +184,33 @@ SetupWidget::SetupWidget(QWidget *parent)
         runPreview();
     });
 
-    connect(ui->sldLightIntensity, &QSlider::valueChanged, this, [=]() {
-        m_profiles[m_currentProfile]->setLightIntensity(ui->sldLightIntensity->value());
+    connect(ui->sldLightBrightness, &QSlider::valueChanged, this, [=]() {
+        m_profiles[m_currentProfile]->setLightBrightness(ui->sldLightBrightness->value());
+        ui->spnLightBrightness->setValue(ui->sldLightBrightness->value() / 100.0);
         m_shouldSave = true;
         ui->btnSaveSettings->setEnabled(true);
         runPreview();
     });
 
-    connect(ui->sldShininess, &QSlider::valueChanged, this, [=]() {
-        m_profiles[m_currentProfile]->setShininess(ui->sldShininess->value());
+    connect(ui->spnLightBrightness, &QDoubleSpinBox::valueChanged, this, [=]() {
+        m_profiles[m_currentProfile]->setRefraction(ui->spnLightBrightness->value() * 100);
+        ui->sldLightBrightness->setValue(ui->spnLightBrightness->value() * 100);
+        m_shouldSave = true;
+        ui->btnSaveSettings->setEnabled(true);
+        runPreview();
+    });
+
+    connect(ui->sldGlossiness, &QSlider::valueChanged, this, [=]() {
+        m_profiles[m_currentProfile]->setGlossiness(ui->sldGlossiness->value());
+        ui->spnGlossiness->setValue(ui->sldGlossiness->value() / 100.0);
+        m_shouldSave = true;
+        ui->btnSaveSettings->setEnabled(true);
+        runPreview();
+    });
+
+    connect(ui->spnGlossiness, &QDoubleSpinBox::valueChanged, this, [=]() {
+        m_profiles[m_currentProfile]->setRefraction(ui->spnGlossiness->value() * 100);
+        ui->sldGlossiness->setValue(ui->spnGlossiness->value() * 100);
         m_shouldSave = true;
         ui->btnSaveSettings->setEnabled(true);
         runPreview();
@@ -196,46 +279,78 @@ SetupWidget::SetupWidget(QWidget *parent)
 SetupWidget::~SetupWidget()
 {
     delete ui;
-    m_lightTransform->deleteLater();
-    m_light->deleteLater();
-    m_lightEntity->deleteLater();
-    m_previewEntity->deleteLater();
-    m_cameraController->deleteLater();
-    m_rootEntity->deleteLater();
-    m_camera->deleteLater();
-    m_previewWindow->deleteLater();
+    if (m_previewWindow) m_previewWindow->deleteLater();
 }
 
 void SetupWidget::runPreview()
 {
-    m_previewEntity->setSlices(ui->spnSlices->value());
-    m_previewEntity->setRings(ui->spnRings->value());
-    m_previewEntity->setDiffuse(m_profiles[m_currentProfile]->diffuseColor());
-    m_previewEntity->setSpecular(m_profiles[m_currentProfile]->specularColor());
-    m_previewEntity->setAmbient(m_profiles[m_currentProfile]->ambientColor());
-    m_previewEntity->setShininess(ui->sldShininess->value());
-    m_previewEntity->setIterationInterval(ui->spnIteration->value());
+    if (!m_previewRootItem) {
+        return;
+    }
 
-    QUrl kata_deco = QUrl::fromLocalFile(m_profiles[m_currentProfile]->decorationPath());
+    // Update QML properties for real-time preview
 
-    m_previewEntity->clearEmotes();
+    // common material properties
+    m_previewRootItem->setProperty("baseColor", QColor(m_profiles[m_currentProfile]->baseColor()));
+    m_previewRootItem->setProperty("ambientColor", QColor(m_profiles[m_currentProfile]->ambientColor()));
 
-    m_previewEntity->addEmote(kata_deco, 0.00f, 0.00f, 0.35f);
-    m_previewEntity->addEmote(kata_deco, 0.00f, 180.00f, 0.35f);
-    m_previewEntity->addEmote(kata_deco, 0.00f, 63.435f, 0.35f);
-    m_previewEntity->addEmote(kata_deco, 72.0f, 63.435f, 0.35f);
-    m_previewEntity->addEmote(kata_deco, 144.0f, 63.435f, 0.35f);
-    m_previewEntity->addEmote(kata_deco, 216.0f, 63.435f, 0.35f);
-    m_previewEntity->addEmote(kata_deco, 288.0f, 63.435f, 0.35f);
-    m_previewEntity->addEmote(kata_deco, 36.0f, 116.565f, 0.35f);
-    m_previewEntity->addEmote(kata_deco, 108.0f, 116.565f, 0.35f);
-    m_previewEntity->addEmote(kata_deco, 180.0f, 116.565f, 0.35f);
-    m_previewEntity->addEmote(kata_deco, 252.0f, 116.565f, 0.35f);
-    m_previewEntity->addEmote(kata_deco, 324.0f, 116.565f, 0.35f);
+    MaterialType materialType = static_cast<MaterialType>(ui->cboMaterialType->currentData().toInt());
+    if(materialType == MaterialType::Principled) {
+        // principled material properties
+        m_previewRootItem->setProperty("useSpecularGlossyMaterial", false);
+        m_previewRootItem->setProperty("roughness", ui->spnRoughness->value());
+        m_previewRootItem->setProperty("metalness", ui->spnMetalness->value());
+        m_previewRootItem->setProperty("refraction", ui->spnRefraction->value());
+    } else if (materialType == MaterialType::SpecularGlossy) {
+        // specular glossy material properties
+        m_previewRootItem->setProperty("useSpecularGlossyMaterial", true);
+        m_previewRootItem->setProperty("specularColor", QColor(m_profiles[m_currentProfile]->specularColor()));
+        m_previewRootItem->setProperty("glossiness", ui->spnGlossiness->value());
+    }
 
-    // lighting
-    m_light->setColor(m_profiles[m_currentProfile]->lightColor());
-    m_light->setIntensity(ui->sldLightIntensity->value() / 100.0f);
+    // other common properties
+    m_previewRootItem->setProperty("rotationInterval", ui->spnIteration->value() * 1000);
+    m_previewRootItem->setProperty("lightColor", m_profiles[m_currentProfile]->lightColor());
+    m_previewRootItem->setProperty("brightness", ui->spnLightBrightness->value());
+    
+    // Set decoration path from current profile
+    QString decorationPath = m_profiles[m_currentProfile]->decorationPath();
+    // Convert to QUrl format for QML compatibility
+    if (decorationPath.startsWith(":/")) {
+        // Resource path - adjust for QML
+        decorationPath = decorationPath.mid(2);
+        m_previewRootItem->setProperty("decorationPath", decorationPath);
+    } else {
+        // Local file path - convert to file:// URL
+        m_previewRootItem->setProperty("decorationPath", QUrl::fromLocalFile(decorationPath).toString());
+    }
+    
+    // Add emotes at icosahedron vertices using QML function
+    QMetaObject::invokeMethod(m_previewRootItem, "addEmoteAtIcosahedronVertex", Qt::QueuedConnection);
+    
+    // Add test emojis for font testing (random positions)
+    QStringList testEmojis = {"💜", "🦋", "👁️", "❄️", "🥑", "🙂"};
+    for (const QString& emoji : testEmojis) {
+        // Create temporary file for emoji
+        QString tempPath = QDir::tempPath() + "/atsumari_test_emoji_" + QString::number(QRandomGenerator::global()->bounded(1000)) + ".png";
+        
+        // Create QPixmap with emoji
+        QPixmap emojiPixmap(64, 64);
+        emojiPixmap.fill(Qt::transparent);
+        QPainter painter(&emojiPixmap);
+        painter.setFont(QFont(m_profiles[m_currentProfile]->font(), 32));
+        painter.setPen(Qt::black);
+        painter.drawText(emojiPixmap.rect(), Qt::AlignCenter, emoji);
+        painter.end();
+        
+        // Save to temp file
+        if (emojiPixmap.save(tempPath)) {
+            // Add to scene with random position
+            QMetaObject::invokeMethod(m_previewRootItem, "addEmote", Qt::QueuedConnection,
+                                    Q_ARG(QVariant, QUrl::fromLocalFile(tempPath).toString()),
+                                    Q_ARG(QVariant, -1.0), Q_ARG(QVariant, -1.0), Q_ARG(QVariant, 0.3));
+        }
+    }
 }
 
 void SetupWidget::resetDecoration()
@@ -269,15 +384,18 @@ void SetupWidget::loadSettings()
         ProfileData* profileData = new ProfileData;
         QString defaultProfileName = tr("Default");
         profileData->setProfileName(defaultProfileName);
-        profileData->setDiffuseColor(DEFAULT_COLORS_DIFFUSE);
-        profileData->setSpecularColor(DEFAULT_COLORS_SPECULAR);
+        profileData->setMaterialType(DEFAULT_MATERIAL_TYPE);
+        profileData->setBaseColor(DEFAULT_COLORS_BASE);
         profileData->setAmbientColor(DEFAULT_COLORS_AMBIENT);
         profileData->setLightColor(DEFAULT_COLORS_LIGHT);
+        profileData->setRoughness(DEFAULT_ROUGHNESS);
+        profileData->setMetalness(DEFAULT_METALNESS);
+        profileData->setIndexOfRefractionType(DEFAULT_REFRACTION_TYPE);
+        profileData->setRefraction(DEFAULT_REFRACTION);
+        profileData->setSpecularColor(DEFAULT_COLORS_SPECULAR);
+        profileData->setGlossiness(DEFAULT_GLOSSINESS);
         profileData->setDecorationPath(DEFAULT_DECORATION_PATH);
-        profileData->setLightIntensity(DEFAULT_LIGHT_INTENSITY);
-        profileData->setSlices(DEFAULT_SLICES);
-        profileData->setRings(DEFAULT_RINGS);
-        profileData->setShininess(DEFAULT_SHININESS);
+        profileData->setLightBrightness(DEFAULT_LIGHT_BRIGHTNESS);
         profileData->setIteration(DEFAULT_ITERATION_TIME);
         profileData->setFont(DEFAULT_EMOJI_FONT);
 
@@ -290,21 +408,56 @@ void SetupWidget::loadSettings()
             ProfileData* profileData = new ProfileData;
             QString profileName = settings.value(CFG_PROFILE_NAME).toString();
 
+            int version;
+
+            version = settings.value(CFG_VERSION, DEFAULT_VERSION).toInt();
             profileData->setProfileName(profileName);
-            profileData->setDiffuseColor(settings.value(CFG_COLORS_DIFFUSE, DEFAULT_COLORS_DIFFUSE).toString());
-            profileData->setSpecularColor(settings.value(CFG_COLORS_SPECULAR, DEFAULT_COLORS_SPECULAR).toString());
-            profileData->setAmbientColor(settings.value(CFG_COLORS_AMBIENT, DEFAULT_COLORS_AMBIENT).toString());
-            profileData->setLightColor(settings.value(CFG_COLORS_LIGHT, DEFAULT_COLORS_LIGHT).toString());
-            profileData->setDecorationPath(settings.value(CFG_DECORATION_PATH, DEFAULT_DECORATION_PATH).toString());
-            profileData->setLightIntensity(settings.value(CFG_LIGHT_INTENSITY, DEFAULT_LIGHT_INTENSITY).toInt());
-            profileData->setSlices(settings.value(CFG_SLICES, DEFAULT_SLICES).toInt());
-            profileData->setRings(settings.value(CFG_RINGS, DEFAULT_RINGS).toInt());
-            profileData->setShininess(settings.value(CFG_SHININESS, DEFAULT_SHININESS).toInt());
-            profileData->setIteration(settings.value(CFG_ITERATION_TIME, DEFAULT_ITERATION_TIME).toDouble());
-            profileData->setFont(settings.value(CFG_EMOJI_FONT, DEFAULT_EMOJI_FONT).toString());
+
+            if ( version == 1 ) {
+                // migrate to Specular Glossy
+                profileData->setMaterialType(DEFAULT_MATERIAL_TYPE);
+                profileData->setBaseColor(settings.value(CFG_V1_COLORS_DIFFUSE, DEFAULT_COLORS_BASE).toString()); // from v1
+                profileData->setAmbientColor(settings.value(CFG_COLORS_AMBIENT, DEFAULT_COLORS_AMBIENT).toString());
+                profileData->setLightColor(settings.value(CFG_COLORS_LIGHT, DEFAULT_COLORS_LIGHT).toString());
+
+                // default values for Principled Material
+                profileData->setRoughness(DEFAULT_ROUGHNESS);
+                profileData->setMetalness(DEFAULT_METALNESS);
+                profileData->setIndexOfRefractionType(DEFAULT_REFRACTION_TYPE);
+                profileData->setRefraction(DEFAULT_REFRACTION);
+
+                profileData->setSpecularColor(settings.value(CFG_COLORS_SPECULAR, DEFAULT_COLORS_SPECULAR).toString());
+                profileData->setGlossiness(settings.value(CFG_V1_SHININESS, DEFAULT_GLOSSINESS).toInt() / 2); // from v1
+
+                profileData->setLightBrightness(settings.value(CFG_V1_LIGHT_INTENSITY, DEFAULT_LIGHT_BRIGHTNESS).toInt()); // from v1
+                profileData->setIteration(settings.value(CFG_ITERATION_TIME, DEFAULT_ITERATION_TIME).toDouble());
+                profileData->setDecorationPath(settings.value(CFG_DECORATION_PATH, DEFAULT_DECORATION_PATH).toString());
+                profileData->setFont(settings.value(CFG_EMOJI_FONT, DEFAULT_EMOJI_FONT).toString());
+            } else if ( version == 2 ) {
+                int materialType = settings.value(CFG_MATERIAL_TYPE).toInt();
+                profileData->setMaterialType(static_cast<MaterialType>(materialType));
+                profileData->setBaseColor(settings.value(CFG_COLORS_BASE, DEFAULT_COLORS_BASE).toString());
+                profileData->setAmbientColor(settings.value(CFG_COLORS_AMBIENT, DEFAULT_COLORS_AMBIENT).toString());
+                profileData->setLightColor(settings.value(CFG_COLORS_LIGHT, DEFAULT_COLORS_LIGHT).toString());
+
+                // Principled Material
+                profileData->setRoughness(settings.value(CFG_ROUGHNESS, DEFAULT_ROUGHNESS).toInt());
+                profileData->setMetalness(settings.value(CFG_METALNESS, DEFAULT_METALNESS).toInt());
+                int indexOfRefraction = settings.value(CFG_REFRACTION_TYPE, static_cast<int>(DEFAULT_REFRACTION_TYPE)).toInt();
+                profileData->setIndexOfRefractionType(static_cast<IndexOfRefraction>(indexOfRefraction));
+                profileData->setRefraction(settings.value(CFG_ROUGHNESS, DEFAULT_ROUGHNESS).toInt());
+
+                // Specular Glossy Material
+                profileData->setSpecularColor(settings.value(CFG_COLORS_SPECULAR, DEFAULT_COLORS_SPECULAR).toString());
+                profileData->setGlossiness(settings.value(CFG_GLOSSINESS, DEFAULT_GLOSSINESS).toInt());
+
+                profileData->setLightBrightness(settings.value(CFG_LIGHT_BRIGHTNESS, DEFAULT_LIGHT_BRIGHTNESS).toInt());
+                profileData->setIteration(settings.value(CFG_ITERATION_TIME, DEFAULT_ITERATION_TIME).toDouble());
+                profileData->setDecorationPath(settings.value(CFG_DECORATION_PATH, DEFAULT_DECORATION_PATH).toString());
+                profileData->setFont(settings.value(CFG_EMOJI_FONT, DEFAULT_EMOJI_FONT).toString());
+            }
 
             ui->cboProfile->addItem(profileName);
-
             m_profiles.append(profileData);
         }
         settings.endArray();
@@ -338,15 +491,24 @@ void SetupWidget::saveSettings()
     settings.beginWriteArray(CFG_PROFILES, m_profiles.size());
     for (qsizetype i = 0; i < m_profiles.size(); ++i) {
         settings.setArrayIndex(i);
+        settings.setValue(CFG_VERSION, 2);
+        settings.setValue(CFG_MATERIAL_TYPE, static_cast<int>(m_profiles[i]->materialType()));
         settings.setValue(CFG_PROFILE_NAME, m_profiles[i]->profileName());
-        settings.setValue(CFG_COLORS_DIFFUSE, m_profiles[i]->diffuseColor());
-        settings.setValue(CFG_COLORS_SPECULAR, m_profiles[i]->specularColor());
+        settings.setValue(CFG_COLORS_BASE, m_profiles[i]->baseColor());
         settings.setValue(CFG_COLORS_AMBIENT, m_profiles[i]->ambientColor());
         settings.setValue(CFG_COLORS_LIGHT, m_profiles[i]->lightColor());
-        settings.setValue(CFG_LIGHT_INTENSITY, m_profiles[i]->lightIntensity());
-        settings.setValue(CFG_SLICES, m_profiles[i]->slices());
-        settings.setValue(CFG_RINGS, m_profiles[i]->rings());
-        settings.setValue(CFG_SHININESS, m_profiles[i]->shininess());
+
+        // Principled Material Properties
+        settings.setValue(CFG_ROUGHNESS, m_profiles[i]->roughness());
+        settings.setValue(CFG_METALNESS, m_profiles[i]->metalness());
+        settings.setValue(CFG_REFRACTION_TYPE, static_cast<int>(m_profiles[i]->indexOfRefractionType()));
+        settings.setValue(CFG_REFRACTION, m_profiles[i]->refraction());
+
+        // Specular Glossy Material Properties
+        settings.setValue(CFG_COLORS_SPECULAR, m_profiles[i]->specularColor());
+        settings.setValue(CFG_GLOSSINESS, m_profiles[i]->glossiness());
+
+        settings.setValue(CFG_LIGHT_BRIGHTNESS, m_profiles[i]->lightBrightness());
         settings.setValue(CFG_ITERATION_TIME, m_profiles[i]->iteration());
         settings.setValue(CFG_DECORATION_PATH, m_profiles[i]->decorationPath());
 
@@ -419,7 +581,7 @@ void SetupWidget::checkClose()
     this->setEnabled(false);
 
     // It's only safe to launch a new 3D Window when the previous one was destroyed
-    connect(m_previewWindow, &Qt3DExtras::Qt3DWindow::destroyed, [=]() {
+    connect(m_previewWindow, &QQuickView::destroyed, [=]() {
         AtsumariLauncher* launcher = new AtsumariLauncher;
         launcher->launch();
     });
@@ -497,7 +659,7 @@ void SetupWidget::setIcons()
     }
 #endif
     ui->btnProfileActions->setIcon(QIcon::fromTheme("application-menu"));
-    ui->btnSelectDiffuse->setIcon(QIcon::fromTheme("color-picker"));
+    ui->btnSelectBaseColor->setIcon(QIcon::fromTheme("color-picker"));
     ui->btnSelectSpecular->setIcon(QIcon::fromTheme("color-picker"));
     ui->btnSelectAmbient->setIcon(QIcon::fromTheme("color-picker"));
     ui->btnSelectLight->setIcon(QIcon::fromTheme("color-picker"));
@@ -542,41 +704,40 @@ void SetupWidget::populateLanguages()
     }
 }
 
+void SetupWidget::populateMaterialTypes()
+{
+    ui->cboMaterialType->clear();
+    ui->cboMaterialType->addItem(tr("Principled Material"), static_cast<int>(MaterialType::Principled));
+    ui->cboMaterialType->addItem(tr("Specular Glossy Material"), static_cast<int>(MaterialType::SpecularGlossy));
+}
+
+void SetupWidget::populateRefractionTypes()
+{
+    ui->cboRefraction->clear();
+    ui->cboRefraction->addItem(tr("Custom"), static_cast<int>(IndexOfRefraction::Custom));
+    ui->cboRefraction->addItem(tr("Air"), static_cast<int>(IndexOfRefraction::Air));
+    ui->cboRefraction->addItem(tr("Water"), static_cast<int>(IndexOfRefraction::Water));
+    ui->cboRefraction->addItem(tr("Glass"), static_cast<int>(IndexOfRefraction::Glass));
+    ui->cboRefraction->addItem(tr("Sapphire"), static_cast<int>(IndexOfRefraction::Sapphire));
+    ui->cboRefraction->addItem(tr("Diamond"), static_cast<int>(IndexOfRefraction::Diamond));
+}
+
 void SetupWidget::setupPreview()
 {
-    // preview window
-    m_previewWindow = new AtsumariWindow;
-    m_previewWindow->defaultFrameGraph()->setClearColor(QColor(Qt::black));
-
+    // Create QQuickView for preview using the same QML as standalone
+    m_previewWindow = new QQuickView;
+    m_previewWindow->setColor(Qt::black);
+    m_previewWindow->setResizeMode(QQuickView::SizeRootObjectToView);
+    
+    // Set the same QML source as standalone window
+    m_previewWindow->setSource(QUrl("qrc:/main.qml"));
+    
+    // Add to preview group
     ui->grpPreview->layout()->addWidget(QWidget::createWindowContainer(m_previewWindow));
     m_previewWindow->show();
-
-    // Setting up Camera
-    m_camera = m_previewWindow->camera();
-    m_camera->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 0.1f, 1000.0f);
-    m_camera->setPosition(QVector3D(0, 0, 3.0));
-    m_camera->setViewCenter(QVector3D(0, 0, 0));
-
-    // Root Entity
-    m_rootEntity = m_previewWindow->createScene();
-
-    // Adding Atsumari
-    m_previewEntity = new Atsumari(m_rootEntity);
-
-    // Camera Controller
-    m_cameraController = new Qt3DExtras::QOrbitCameraController(m_rootEntity);
-    m_cameraController->setCamera(m_camera);
-
-    // Add Lighting
-    m_lightEntity = new Qt3DCore::QEntity(m_rootEntity);
-    m_light = new Qt3DRender::QPointLight(m_lightEntity);
-    m_lightTransform = new Qt3DCore::QTransform(m_lightEntity);
-
-    m_lightTransform->setTranslation(m_camera->position());
-    m_lightEntity->addComponent(m_light);
-    m_lightEntity->addComponent(m_lightTransform);
-
-    m_previewWindow->setRootEntity(m_rootEntity);
+    
+    // Get the root QML object for property updates
+    m_previewRootItem = m_previewWindow->rootObject();
 }
 
 void SetupWidget::validatePaths(QLineEdit *edt)
@@ -626,15 +787,18 @@ void SetupWidget::newProfile()
 
     ProfileData* profile = new ProfileData;
     profile->setProfileName(profileName);
-    profile->setDiffuseColor(DEFAULT_COLORS_DIFFUSE);
-    profile->setSpecularColor(DEFAULT_COLORS_SPECULAR);
+    profile->setMaterialType(DEFAULT_MATERIAL_TYPE);
+    profile->setBaseColor(DEFAULT_COLORS_BASE);
     profile->setAmbientColor(DEFAULT_COLORS_AMBIENT);
     profile->setLightColor(DEFAULT_COLORS_LIGHT);
+    profile->setRoughness(DEFAULT_ROUGHNESS);
+    profile->setMetalness(DEFAULT_METALNESS);
+    profile->setIndexOfRefractionType(DEFAULT_REFRACTION_TYPE);
+    profile->setRefraction(DEFAULT_REFRACTION);
+    profile->setSpecularColor(DEFAULT_COLORS_SPECULAR);
+    profile->setGlossiness(DEFAULT_GLOSSINESS);
     profile->setDecorationPath(DEFAULT_DECORATION_PATH);
-    profile->setLightIntensity(DEFAULT_LIGHT_INTENSITY);
-    profile->setSlices(DEFAULT_SLICES);
-    profile->setRings(DEFAULT_RINGS);
-    profile->setShininess(DEFAULT_SHININESS);
+    profile->setLightBrightness(DEFAULT_LIGHT_BRIGHTNESS);
     profile->setIteration(DEFAULT_ITERATION_TIME);
     profile->setFont(DEFAULT_EMOJI_FONT);
 
@@ -814,22 +978,41 @@ void SetupWidget::populateCurrentProfileControls()
 
     const ProfileData* p = m_profiles[m_currentProfile];
 
-    ui->frmDiffuseColor->setStyleSheet(QString("background-color: %1;").arg(p->diffuseColor()));
-    ui->frmSpecularColor->setStyleSheet(QString("background-color: %1;").arg(p->specularColor()));
+    ui->cboMaterialType->setCurrentIndex(static_cast<int>(p->materialType()));
+
+    // Initialize GroupBox visibility based on material type
+    ui->grpPrincipled->setVisible(p->materialType() == MaterialType::Principled);
+    ui->grpSpecularGlossy->setVisible(p->materialType() == MaterialType::SpecularGlossy);
+
+    ui->frmBaseColor->setStyleSheet(QString("background-color: %1;").arg(p->baseColor()));
     ui->frmAmbientColor->setStyleSheet(QString("background-color: %1;").arg(p->ambientColor()));
     ui->frmLightColor->setStyleSheet(QString("background-color: %1;").arg(p->lightColor()));
-    ui->lblDecoration->setPixmap(p->decorationPath());
+    ui->frmSpecularColor->setStyleSheet(QString("background-color: %1;").arg(p->specularColor()));
 
-    ui->sldLightIntensity->setValue(p->lightIntensity());
-    ui->spnSlices->setValue(p->slices());
-    ui->spnRings->setValue(p->rings());
-    ui->sldShininess->setValue(p->shininess());
+    ui->sldRoughness->setValue(p->roughness());
+    ui->spnRoughness->setValue(p->roughness() / 100.0);
+    ui->sldMetalness->setValue(p->metalness());
+    ui->spnMetalness->setValue(p->metalness() / 100.0);
+    ui->cboRefraction->setCurrentIndex(static_cast<int>(p->indexOfRefractionType()));
+    ui->sldRefraction->setEnabled(p->indexOfRefractionType() == IndexOfRefraction::Custom);
+    ui->spnRefraction->setEnabled(p->indexOfRefractionType() == IndexOfRefraction::Custom);
+    ui->sldRefraction->setValue(p->refraction());
+    ui->spnRefraction->setValue(p->refraction() / 100.0);
+
+    ui->sldGlossiness->setValue(p->glossiness());
+    ui->spnGlossiness->setValue(p->glossiness() / 100.0);
+
+    ui->sldLightBrightness->setValue(p->lightBrightness());
+    ui->spnLightBrightness->setValue(p->lightBrightness() / 100.0);
     ui->spnIteration->setValue(p->iteration());
+    ui->lblDecoration->setPixmap(p->decorationPath());
     ui->cboEmojiFont->setCurrentFont(QFont(p->font(), -1));
 }
 
 void SetupWidget::closeEvent(QCloseEvent *event)
 {
+    cleanupTempFiles();
+    
     if (m_shouldSave) {
         int ret = QMessageBox::question(this, tr("There are unsaved changes"),
                                         tr("Do you want to save changes before closing?"),
@@ -848,6 +1031,18 @@ void SetupWidget::closeEvent(QCloseEvent *event)
     }
 
     qGuiApp->quit();
+}
+
+void SetupWidget::cleanupTempFiles()
+{
+    QDir tempDir(QDir::tempPath());
+    QStringList filters;
+    filters << "atsumari_test_emoji_*.png";
+
+    QFileInfoList files = tempDir.entryInfoList(filters, QDir::Files);
+    for (const QFileInfo& file : files) {
+        QFile::remove(file.absoluteFilePath());
+    }
 }
 
 void SetupWidget::aboutQt()

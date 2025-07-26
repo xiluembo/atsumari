@@ -20,14 +20,17 @@
 
 #include <QString>
 
+#include "indexofrefraction.h"
+#include "materialtype.h"
+
 class ProfileData {
 public:
     ProfileData();
 
     QString profileName() const;
     void setProfileName(const QString &newProfileName);
-    QString diffuseColor() const;
-    void setDiffuseColor(const QString &newDiffuseColor);
+    QString baseColor() const;
+    void setBaseColor(const QString &newBaseColor);
     QString specularColor() const;
     void setSpecularColor(const QString &newSpecularColor);
     QString ambientColor() const;
@@ -36,31 +39,48 @@ public:
     void setLightColor(const QString &newLightColor);
     QString decorationPath() const;
     void setDecorationPath(const QString &newDecorationPath);
-    int lightIntensity() const;
-    void setLightIntensity(int newLightIntensity);
-    int slices() const;
-    void setSlices(int newSlices);
-    int rings() const;
-    void setRings(int newRings);
-    int shininess() const;
-    void setShininess(int newShininess);
+    int lightBrightness() const;
+    void setLightBrightness(int newLightBrightness);
+    int glossiness() const;
+    void setGlossiness(int newShininess);
+    int roughness() const;
+    void setRoughness(int newRoughness);
+    int metalness() const;
+    void setMetalness(int newMetalness);
     double iteration() const;
     void setIteration(double newIteration);
     QString font() const;
     void setFont(const QString &newFont);
 
+    int refraction() const;
+    void setRefraction(int newRefraction);
+
+    IndexOfRefraction indexOfRefractionType() const;
+    void setIndexOfRefractionType(IndexOfRefraction newIndexOfRefractionType);
+
+    MaterialType materialType() const;
+    void setMaterialType(MaterialType newMaterialType);
+
 private:
     QString m_profileName;
-    QString m_diffuseColor;
-    QString m_specularColor;
+    QString m_baseColor;
     QString m_ambientColor;
     QString m_lightColor;
-    QString m_decorationPath;
-    int m_lightIntensity;
-    int m_slices;
-    int m_rings;
-    int m_shininess;
+    MaterialType m_materialType;
+
+    // Principled Material properties
+    int m_roughness;
+    int m_metalness;
+    IndexOfRefraction m_indexOfRefractionType;
+    int m_refraction;
+
+    // Specular Glossy Material properties
+    QString m_specularColor;
+    int m_glossiness;
+
+    int m_lightBrightness;
     double m_iteration;
+    QString m_decorationPath;
     QString m_font;
 };
 

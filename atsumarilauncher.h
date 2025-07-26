@@ -23,7 +23,6 @@
 #include "twitchauthflow.h"
 #include "twitchchatreader.h"
 #include "emotewriter.h"
-#include "atsumariwindow.h"
 
 class AtsumariLauncher {
 public:
@@ -37,7 +36,6 @@ private:
     TwitchAuthFlow* m_twFlow;
     EmoteWriter* m_emw;
     TwitchChatReader* m_tReader;
-    AtsumariWindow m_window;
     QMainWindow* m_mw = new QMainWindow;
     QWidget* m_container = new QWidget;
 };
