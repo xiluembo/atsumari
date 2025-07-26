@@ -114,8 +114,6 @@ Item {
                 Math.random() * 360
             )
 
-            console.log("t:" + root.cameraRotationTarget);
-
             rotationAnimation.restart();
         }
     }
