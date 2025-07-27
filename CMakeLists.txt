@@ -85,7 +85,7 @@ set_target_properties(atsumari PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
-qt_generate_deploy_app_script(
+qt_generate_deploy_qml_app_script(
     TARGET atsumari
     OUTPUT_SCRIPT deploy_script
     NO_UNSUPPORTED_PLATFORM_ERROR
