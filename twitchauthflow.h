@@ -19,11 +19,10 @@
 #define TWITCHAUTHFLOW_H
 
 #include <QObject>
+#include <QTimer>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QtNetworkAuth/qoauth2deviceauthorizationflow.h>
-
-
 
 class TwitchAuthFlow : public QObject {
     Q_OBJECT

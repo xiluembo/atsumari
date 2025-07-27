@@ -27,7 +27,6 @@
 #include <QDateTime>
 #include <QDebug>
 #include <QDesktopServices>
-#include <QTimer>
 #include <QUrlQuery>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -407,12 +406,6 @@ void TwitchAuthFlow::retryAuthentication()
     // Restart device flow
     setupDeviceFlow();
 }
-
-
-
-
-
-
 
 QString TwitchAuthFlow::token() const
 {
