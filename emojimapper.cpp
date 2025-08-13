@@ -17,10 +17,10 @@
 
 #include "emojimapper.h"
 
-EmojiMapper::EmojiMapper()
+EmojiMapper::EmojiMapper(const QString& emojiFilePath)
     : maxLen(0)
 {
-    loadEmojis(":/emoji/emojis.json");
+    loadEmojis(emojiFilePath);
 }
 
 void EmojiMapper::loadEmojis(const QString &filePath)
