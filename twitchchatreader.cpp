@@ -107,7 +107,7 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs)
             QString lastEmoteName;
             int lastEmoteEndPos = -1;
 
-            // Processar cada emote
+            // Process each emote
             QMap<QString, QString> processedEmotes;
             for (const QString& emote : emoteList) {
                 QStringList parts = emote.split(':');
