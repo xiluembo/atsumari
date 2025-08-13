@@ -78,8 +78,8 @@
 #define DEFAULT_CLIENT_ID "3x2mzlmm9mz8qpml51m5mxc8dbdk4d"
 
 #ifdef Q_OS_WIN
-# define DEFAULT_EMOJI_DIR QString("%1/%2").arg(qApp->applicationDirPath(), "emoteInfo")
-# define DEFAULT_EMOTE_DIR QString("%1/%2").arg(qApp->applicationDirPath(), "emojiInfo")
+# define DEFAULT_EMOJI_DIR QString("%1/%2").arg(qApp->applicationDirPath(), "emojiInfo")
+# define DEFAULT_EMOTE_DIR QString("%1/%2").arg(qApp->applicationDirPath(), "emoteInfo")
 # define DEFAULT_EMOJI_FONT "Segoe UI Emoji"
 #else
 # define DEFAULT_EMOJI_DIR QString("%1/%2").arg(qEnvironmentVariable("HOME"), ".atsumari/emojiInfo")
