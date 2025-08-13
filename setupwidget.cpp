@@ -169,7 +169,7 @@ SetupWidget::SetupWidget(QWidget *parent)
         if (!isCustom) {
             int refractionValue = ui->cboRefraction->currentData().toInt();
             ui->spnRefraction->setValue(refractionValue / 100.0);
-            ui->sldRefraction->setEnabled(refractionValue);
+            ui->sldRefraction->setValue(refractionValue);
             m_profiles[m_currentProfile]->setRefraction(refractionValue);
         }
 
