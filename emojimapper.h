@@ -28,7 +28,7 @@
 
 class EmojiMapper {
 public:
-    EmojiMapper();
+    explicit EmojiMapper(const QString& emojiFilePath = ":/emoji/emojis.json");
     QPair<QString, QString> findBestMatch(const QString& text) const;
 
 private:
