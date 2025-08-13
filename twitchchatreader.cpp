@@ -27,6 +27,9 @@ TwitchChatReader::TwitchChatReader(const QString &url, const QString &token, con
     : QObject(parent), m_webSocket(new QWebSocket), m_channel(channel)
 {
 
+    // Ensure the websocket is deleted with this reader to avoid leaks
+    m_webSocket->setParent(this);
+
     connect(m_webSocket, &QWebSocket::connected, this, &TwitchChatReader::onConnected);
     connect(m_webSocket, &QWebSocket::textMessageReceived, this, &TwitchChatReader::onTextMessageReceived);
 
@@ -60,20 +63,20 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs)
     for (const QString& message: allMsgs.split("\n")) {
 
         if (message.startsWith("PING")) {
-            // Send an equivalent PONG
+            // Send an equivalent PONG and continue processing other messages
             QString response = message;
             response.replace("PING", "PONG");
             m_webSocket->sendTextMessage(response);
-            return; // Don't further process the message
+            continue; // Don't further process this message
         }
 
         // Extract metadata from the message
         int privmsgIndex = message.indexOf(" PRIVMSG #");
         if (privmsgIndex == -1) {
-            // It's just their pong, don't process further
+            // It's just their pong or another non-chat message
             if (message.contains("PONG")) {
             }
-            return;
+            continue;
         }
 
         QString metadata = message.left(privmsgIndex);
@@ -88,7 +91,7 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs)
 
             QString nameData = nameMatch.captured(1).toLower();
             if (exceptNames.contains(nameData)) {
-                return;
+                continue;
             }
         }
 
