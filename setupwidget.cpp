@@ -1150,13 +1150,14 @@ void SetupWidget::loadLogSettings()
         m_shouldSave = true;
         ui->btnSaveSettings->setEnabled(true);
     };
-    connect(ui->chkTimestamp, &QCheckBox::stateChanged, this, markDirty);
-    connect(ui->chkCommand, &QCheckBox::stateChanged, this, markDirty);
-    connect(ui->chkBadges, &QCheckBox::stateChanged, this, markDirty);
-    connect(ui->chkSender, &QCheckBox::stateChanged, this, markDirty);
-    connect(ui->chkMessage, &QCheckBox::stateChanged, this, markDirty);
-    connect(ui->chkTags, &QCheckBox::stateChanged, this, markDirty);
-    connect(ui->chkEmotes, &QCheckBox::stateChanged, this, markDirty);
+
+    connect(ui->chkTimestamp, &QCheckBox::checkStateChanged, this, markDirty);
+    connect(ui->chkCommand, &QCheckBox::checkStateChanged, this, markDirty);
+    connect(ui->chkBadges, &QCheckBox::checkStateChanged, this, markDirty);
+    connect(ui->chkSender, &QCheckBox::checkStateChanged, this, markDirty);
+    connect(ui->chkMessage, &QCheckBox::checkStateChanged, this, markDirty);
+    connect(ui->chkTags, &QCheckBox::checkStateChanged, this, markDirty);
+    connect(ui->chkEmotes, &QCheckBox::checkStateChanged, this, markDirty);
 }
 
 void SetupWidget::saveLogSettings()
