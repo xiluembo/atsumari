@@ -1099,8 +1099,10 @@ void SetupWidget::loadLogSettings()
     ui->tblCommandColors->setHorizontalHeaderLabels(QStringList() << tr("Command") << tr("Foreground") << tr("Background"));
     settings.beginGroup("log/colors");
     QStringList cmds = settings.childGroups();
-    if (cmds.isEmpty())
-        cmds << "PRIVMSG" << "PING" << "PONG";
+    if (cmds.isEmpty()) {
+        cmds << "CLEARCHAT" << "CLEARMSG" << "GLOBALUSERSTATE" << "NOTICE" << "PART";
+        cmds << "PING" << "PRIVMSG" << "RECONNECT" << "ROOMSTATE" << "USERNOTICE" << "USERSTATE";
+    }
     ui->tblCommandColors->setRowCount(cmds.size());
     for (int i = 0; i < cmds.size(); ++i) {
         QString cmd = cmds.at(i);
