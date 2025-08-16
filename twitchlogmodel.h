@@ -6,6 +6,7 @@
 #include <QPixmap>
 #include <QVector>
 #include <QHash>
+#include <QList>
 
 class TwitchLogModel : public QAbstractTableModel {
     Q_OBJECT
@@ -37,6 +38,8 @@ public:
                   const QList<QPixmap> &emotes = QList<QPixmap>());
 
     bool exportToFile(const QString &fileName) const;
+
+    QList<QPixmap> emotesForRow(int row) const;
 
 private:
     explicit TwitchLogModel(QObject *parent = nullptr);

@@ -2,6 +2,8 @@
 #define LOGVIEWDIALOG_H
 
 #include <QDialog>
+#include <QList>
+#include <QPixmap>
 
 class QTableView;
 class QPushButton;
@@ -13,6 +15,7 @@ public:
 
 private:
     void applyColumnVisibility();
+    void showEmotes(const QList<QPixmap> &emotes);
     QTableView *m_table;
     QPushButton *m_exportButton;
 };

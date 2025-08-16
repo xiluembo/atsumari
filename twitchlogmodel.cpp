@@ -3,6 +3,7 @@
 #include <QSettings>
 #include <QFile>
 #include <QTextStream>
+#include <QPainter>
 
 #include "settings_defaults.h"
 
@@ -59,8 +60,27 @@ QVariant TwitchLogModel::data(const QModelIndex &index, int role) const
     } else if (role == Qt::DecorationRole) {
         if (index.column() == Badges && !e.badges.isEmpty())
             return e.badges.first();
-        if (index.column() == Emotes && !e.emotes.isEmpty())
-            return e.emotes.first();
+        if (index.column() == Emotes && !e.emotes.isEmpty()) {
+            if (e.emotes.size() == 1)
+                return e.emotes.first();
+
+            int totalWidth = 0;
+            int maxHeight = 0;
+            for (const QPixmap &p : e.emotes) {
+                totalWidth += p.width();
+                maxHeight = qMax(maxHeight, p.height());
+            }
+
+            QPixmap combined(totalWidth, maxHeight);
+            combined.fill(Qt::transparent);
+            QPainter painter(&combined);
+            int x = 0;
+            for (const QPixmap &p : e.emotes) {
+                painter.drawPixmap(x, 0, p);
+                x += p.width();
+            }
+            return combined;
+        }
     } else if (role == Qt::ForegroundRole) {
         auto it = m_fgColors.find(e.command);
         if (it != m_fgColors.end())
@@ -123,6 +143,13 @@ bool TwitchLogModel::exportToFile(const QString &fileName) const
            << e.tags << '\n';
     }
     return true;
+}
+
+QList<QPixmap> TwitchLogModel::emotesForRow(int row) const
+{
+    if (row < 0 || row >= m_entries.size())
+        return QList<QPixmap>();
+    return m_entries.at(row).emotes;
 }
 
 void TwitchLogModel::loadColors()
