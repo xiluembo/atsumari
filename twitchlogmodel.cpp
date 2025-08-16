@@ -96,6 +96,10 @@ void TwitchLogModel::addEntry(const QString &command,
                               const QList<QPixmap> &badges,
                               const QList<QPixmap> &emotes)
 {
+    QSettings settings;
+    QStringList hidden = settings.value(CFG_LOG_HIDE_CMDS, DEFAULT_LOG_HIDE_CMDS).toStringList();
+    if (hidden.contains(command))
+        return;
     beginInsertRows(QModelIndex(), m_entries.size(), m_entries.size());
     Entry e;
     e.timestamp = QDateTime::currentDateTime();
