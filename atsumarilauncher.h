@@ -19,14 +19,17 @@
 #define ATSUMARILAUNCHER_H
 
 #include <QMainWindow>
+#include <QSystemTrayIcon>
 
 #include "twitchauthflow.h"
 #include "twitchchatreader.h"
 #include "emotewriter.h"
+#include "logviewdialog.h"
 
-class AtsumariLauncher {
+class AtsumariLauncher : public QObject {
+    Q_OBJECT
 public:
-    AtsumariLauncher();
+    AtsumariLauncher(QObject *parent = nullptr);
     ~AtsumariLauncher();
     AtsumariLauncher(const AtsumariLauncher&) = delete;
     AtsumariLauncher& operator=(const AtsumariLauncher&) = delete;
@@ -38,6 +41,8 @@ private:
     TwitchChatReader* m_tReader;
     QMainWindow* m_mw = new QMainWindow;
     QWidget* m_container = new QWidget;
+    QSystemTrayIcon* m_tray = nullptr;
+    LogViewDialog* m_logDialog = nullptr;
 };
 
 #endif // ATSUMARILAUNCHER_H

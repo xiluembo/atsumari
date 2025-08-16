@@ -1,0 +1,142 @@
+#include "twitchlogmodel.h"
+
+#include <QSettings>
+#include <QFile>
+#include <QTextStream>
+
+#include "settings_defaults.h"
+
+static TwitchLogModel* s_instance = nullptr;
+
+TwitchLogModel* TwitchLogModel::instance()
+{
+    if (!s_instance) {
+        s_instance = new TwitchLogModel();
+    }
+    return s_instance;
+}
+
+TwitchLogModel::TwitchLogModel(QObject *parent)
+    : QAbstractTableModel(parent)
+{
+    loadColors();
+}
+
+int TwitchLogModel::rowCount(const QModelIndex &parent) const
+{
+    Q_UNUSED(parent);
+    return m_entries.size();
+}
+
+int TwitchLogModel::columnCount(const QModelIndex &parent) const
+{
+    Q_UNUSED(parent);
+    return ColumnCount;
+}
+
+QVariant TwitchLogModel::data(const QModelIndex &index, int role) const
+{
+    if (!index.isValid() || index.row() < 0 || index.row() >= m_entries.size())
+        return QVariant();
+
+    const Entry &e = m_entries.at(index.row());
+
+    if (role == Qt::DisplayRole) {
+        switch (index.column()) {
+        case Timestamp:
+            return e.timestamp.toString(Qt::ISODate);
+        case Command:
+            return e.command;
+        case Sender:
+            return e.sender;
+        case Message:
+            return e.message;
+        case Tags:
+            return e.tags;
+        default:
+            return QVariant();
+        }
+    } else if (role == Qt::DecorationRole) {
+        if (index.column() == Badges && !e.badges.isEmpty())
+            return e.badges.first();
+        if (index.column() == Emotes && !e.emotes.isEmpty())
+            return e.emotes.first();
+    } else if (role == Qt::ForegroundRole) {
+        auto it = m_fgColors.find(e.command);
+        if (it != m_fgColors.end())
+            return it.value();
+    } else if (role == Qt::BackgroundRole) {
+        auto it = m_bgColors.find(e.command);
+        if (it != m_bgColors.end())
+            return it.value();
+    }
+    return QVariant();
+}
+
+QVariant TwitchLogModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
+        switch (section) {
+        case Timestamp: return tr("Timestamp");
+        case Command: return tr("Command");
+        case Badges: return tr("Badges");
+        case Sender: return tr("Sender");
+        case Message: return tr("Message");
+        case Tags: return tr("Tags");
+        case Emotes: return tr("Emotes");
+        }
+    }
+    return QVariant();
+}
+
+void TwitchLogModel::addEntry(const QString &command,
+                              const QString &sender,
+                              const QString &message,
+                              const QString &tags,
+                              const QList<QPixmap> &badges,
+                              const QList<QPixmap> &emotes)
+{
+    beginInsertRows(QModelIndex(), m_entries.size(), m_entries.size());
+    Entry e;
+    e.timestamp = QDateTime::currentDateTime();
+    e.command = command;
+    e.sender = sender;
+    e.message = message;
+    e.tags = tags;
+    e.badges = badges;
+    e.emotes = emotes;
+    m_entries.append(e);
+    endInsertRows();
+}
+
+bool TwitchLogModel::exportToFile(const QString &fileName) const
+{
+    QFile f(fileName);
+    if (!f.open(QIODevice::WriteOnly | QIODevice::Text))
+        return false;
+    QTextStream ts(&f);
+    for (const Entry &e : m_entries) {
+        ts << e.timestamp.toString(Qt::ISODate) << '\t'
+           << e.command << '\t'
+           << e.sender << '\t'
+           << e.message << '\t'
+           << e.tags << '\n';
+    }
+    return true;
+}
+
+void TwitchLogModel::loadColors()
+{
+    QSettings settings;
+    settings.beginGroup(QStringLiteral("log/colors"));
+    QStringList cmds = settings.childGroups();
+    for (const QString &cmd : cmds) {
+        settings.beginGroup(cmd);
+        QColor fg = settings.value("fg", QColor(Qt::black)).value<QColor>();
+        QColor bg = settings.value("bg", QColor(Qt::white)).value<QColor>();
+        m_fgColors.insert(cmd, fg);
+        m_bgColors.insert(cmd, bg);
+        settings.endGroup();
+    }
+    settings.endGroup();
+}

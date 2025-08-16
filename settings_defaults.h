@@ -55,6 +55,10 @@
 #define CFG_PROFILE_NAME "profile_name"
 #define CFG_CURRENT_PROFILE "current_profile"
 
+#define CFG_LOG_COLUMNS "log/columns"
+#define CFG_LOG_COLOR_PREFIX "log/colors/"
+#define DEFAULT_LOG_COLUMNS (QStringList() << "Timestamp" << "Command" << "Badges" << "Sender" << "Message" << "Tags" << "Emotes")
+
 #define DEFAULT_VERSION 1 // So we can migrate from v1
 #define DEFAULT_ROUGHNESS 0
 #define DEFAULT_METALNESS 0

@@ -71,6 +71,8 @@ private:
     void closeEvent(QCloseEvent* event);
     void cleanupTempFiles();
     void aboutQt();
+    void loadLogSettings();
+    void saveLogSettings();
 
     QList<ProfileData*> m_profiles;
     int m_currentProfile;

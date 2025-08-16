@@ -933,6 +933,57 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="tabLogs">
+      <attribute name="title">
+       <string>Logs</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_logs">
+       <item>
+        <widget class="QGroupBox" name="grpLogColumns">
+         <property name="title">
+          <string>Columns</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_cols">
+          <item><widget class="QCheckBox" name="chkTimestamp"><property name="text"><string>Timestamp</string></property></widget></item>
+          <item><widget class="QCheckBox" name="chkCommand"><property name="text"><string>Command</string></property></widget></item>
+          <item><widget class="QCheckBox" name="chkBadges"><property name="text"><string>Badges</string></property></widget></item>
+          <item><widget class="QCheckBox" name="chkSender"><property name="text"><string>Sender</string></property></widget></item>
+          <item><widget class="QCheckBox" name="chkMessage"><property name="text"><string>Message</string></property></widget></item>
+          <item><widget class="QCheckBox" name="chkTags"><property name="text"><string>Tags</string></property></widget></item>
+          <item><widget class="QCheckBox" name="chkEmotes"><property name="text"><string>Emotes</string></property></widget></item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="grpCommandColors">
+         <property name="title">
+          <string>Command Colors</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_colors">
+          <item>
+           <widget class="QTableWidget" name="tblCommandColors">
+            <column>
+             <property name="text">
+              <string>Command</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Foreground</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Background</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="tabAbout">
       <attribute name="title">
        <string>About</string>

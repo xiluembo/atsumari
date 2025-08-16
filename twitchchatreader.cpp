@@ -20,8 +20,10 @@
 #include <QRegularExpression>
 #include <QTimer>
 #include <QSettings>
+#include <QFile>
 
 #include "settings_defaults.h"
+#include "twitchlogmodel.h"
 
 TwitchChatReader::TwitchChatReader(const QString &url, const QString &token, const QString &channel, QObject *parent)
     : QObject(parent), m_webSocket(new QWebSocket), m_channel(channel)
@@ -31,10 +33,12 @@ TwitchChatReader::TwitchChatReader(const QString &url, const QString &token, con
     m_webSocket->setParent(this);
 
     connect(m_webSocket, &QWebSocket::connected, this, &TwitchChatReader::onConnected);
+    connect(m_webSocket, &QWebSocket::errorOccurred, this, [=](QAbstractSocket::SocketError error) { qDebug() << "error:: " << error;});
     connect(m_webSocket, &QWebSocket::textMessageReceived, this, &TwitchChatReader::onTextMessageReceived);
 
     connect(m_webSocket, &QWebSocket::disconnected, this, [=] {
         m_webSocket->open(QUrl(url + "?oauth_token=" + token));
+        qDebug() << QUrl(url + "?oauth_token=" + token);
     });
 
     m_token = token;
@@ -51,57 +55,84 @@ TwitchChatReader::~TwitchChatReader()
 
 void TwitchChatReader::onConnected()
 {
+    qDebug() << "Sending Commands";
     // Send required IRC commands
     m_webSocket->sendTextMessage(QStringLiteral("PASS oauth:") + m_token);
+    TwitchLogModel::instance()->addEntry("PASS", m_channel, QStringLiteral("oauth:***"), QString());
     m_webSocket->sendTextMessage(QStringLiteral("CAP REQ :twitch.tv/commands twitch.tv/tags twitch.tv/membership"));
+    TwitchLogModel::instance()->addEntry("CAP", m_channel, QStringLiteral("twitch.tv/commands twitch.tv/tags twitch.tv/membership"), QString());
     m_webSocket->sendTextMessage(QStringLiteral("NICK ") + m_channel);
+    TwitchLogModel::instance()->addEntry("NICK", m_channel, m_channel, QString());
     m_webSocket->sendTextMessage(QStringLiteral("JOIN #") + m_channel);
+    TwitchLogModel::instance()->addEntry("JOIN", m_channel, QStringLiteral("#") + m_channel, QString());
 }
 
 void TwitchChatReader::onTextMessageReceived(const QString &allMsgs)
 {
     for (const QString& message: allMsgs.split("\n")) {
+        if (message.trimmed().isEmpty())
+            continue;
 
-        if (message.startsWith("PING")) {
-            // Send an equivalent PONG and continue processing other messages
+        QString msg = message;
+        QString tags;
+        QString prefix;
+        if (msg.startsWith("@")) {
+            int sp = msg.indexOf(' ');
+            tags = msg.left(sp);
+            msg = msg.mid(sp + 1);
+        }
+        if (msg.startsWith(":")) {
+            int sp = msg.indexOf(' ');
+            prefix = msg.mid(1, sp - 1);
+            msg = msg.mid(sp + 1);
+        }
+        int sp = msg.indexOf(' ');
+        QString command = sp == -1 ? msg : msg.left(sp);
+        QString params = sp == -1 ? QString() : msg.mid(sp + 1);
+        QString trailing;
+        int colon = params.indexOf(" :");
+        if (colon != -1) {
+            trailing = params.mid(colon + 2);
+            params = params.left(colon);
+        }
+
+        QString sender = prefix.section('!', 0, 0);
+
+        if (command == "PING") {
             QString response = message;
             response.replace("PING", "PONG");
             m_webSocket->sendTextMessage(response);
-            continue; // Don't further process this message
-        }
-
-        // Extract metadata from the message
-        int privmsgIndex = message.indexOf(" PRIVMSG #");
-        if (privmsgIndex == -1) {
-            // It's just their pong or another non-chat message
-            if (message.contains("PONG")) {
-            }
+            TwitchLogModel::instance()->addEntry("PING", sender, trailing, tags);
+            TwitchLogModel::instance()->addEntry("PONG", m_channel, trailing, QString());
             continue;
         }
 
-        QString metadata = message.left(privmsgIndex);
-        QString content = message.mid(message.indexOf(':', privmsgIndex) + 1);
+        if (command != "PRIVMSG") {
+            TwitchLogModel::instance()->addEntry(command, sender, trailing, tags);
+            continue;
+        }
 
-        // Find sender
+        QString metadata = tags;
+        QString content = trailing;
+
         static QRegularExpression displayNameRegex("display.name=([^;\\s]+)");
         QRegularExpressionMatch nameMatch = displayNameRegex.match(metadata);
         if (nameMatch.hasMatch()) {
             QSettings settings;
             QStringList exceptNames = settings.value(CFG_EXCLUDE_CHAT).toStringList();
-
             QString nameData = nameMatch.captured(1).toLower();
             if (exceptNames.contains(nameData)) {
                 continue;
             }
+            sender = nameMatch.captured(1);
         }
 
-        // Check for gigantified emote message
         bool isGigantifiedEmoteMessage = metadata.contains("msg-id=gigantified-emote-message");
 
-        // Find emotes in the metadata
         static QRegularExpression emoteRegex("emotes=([^;\\s]+)");
         QRegularExpressionMatch match = emoteRegex.match(metadata);
 
+        QList<QPixmap> emotePixmaps;
         if (match.hasMatch()) {
             QString emotesData = match.captured(1);
             QStringList emoteList = emotesData.split('/');
@@ -110,7 +141,6 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs)
             QString lastEmoteName;
             int lastEmoteEndPos = -1;
 
-            // Process each emote
             QMap<QString, QString> processedEmotes;
             for (const QString& emote : emoteList) {
                 QStringList parts = emote.split(':');
@@ -123,7 +153,7 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs)
                 if (range.length() != 2) continue;
 
                 int start = range[0].toInt();
-                int end = range[1].toInt() + 1; // Adjust to QString ranges
+                int end = range[1].toInt() + 1;
                 QString emoteName = content.mid(start, end - start);
 
                 if (isGigantifiedEmoteMessage && end > lastEmoteEndPos) {
@@ -132,11 +162,16 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs)
                     lastEmoteEndPos = end;
                 }
 
-                //emit emoteSent(emoteId, emoteName.trimmed()); // Emit signal with ID and emote name
                 processedEmotes[emoteId] = emoteName.trimmed();
+
+                QSettings settings;
+                QString dir = settings.value(CFG_EMOTE_DIR, DEFAULT_EMOTE_DIR).toString();
+                QString path = QString("%1/%2.png").arg(dir, emoteId);
+                if (QFile::exists(path)) {
+                    emotePixmaps.append(QPixmap(path));
+                }
             }
 
-            // Emit bigEmoteSent for the last emote if it's a gigantified emote message
             if (isGigantifiedEmoteMessage && !lastEmoteId.isEmpty()) {
                 emit bigEmoteSent(lastEmoteId, lastEmoteName.trimmed());
                 processedEmotes.remove(lastEmoteId);
@@ -147,7 +182,6 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs)
             }
         }
 
-        // Identify emoji in the contents
         QMap<QString, QString> emojisFound;
         while (!content.isEmpty()) {
             QPair<QString, QString> emojidata = m_emojiMapper.findBestMatch(content);
@@ -155,10 +189,8 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs)
             QString emojiSlug = emojidata.second;
             if (!emojiStr.isEmpty()) {
                 emojisFound[emojiSlug] = emojiStr;
-                // Remove the matched part from the content
                 content.remove(0, emojiStr.length());
             } else {
-                // Remove the first character and try again
                 content.remove(0, 1);
             }
         }
@@ -166,6 +198,8 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs)
         for (const QString& slug: emojisFound.keys()) {
             emit emojiSent(slug, emojisFound[slug]);
         }
+
+        TwitchLogModel::instance()->addEntry(command, sender, trailing, metadata, QList<QPixmap>(), emotePixmaps);
     }
 }
 
