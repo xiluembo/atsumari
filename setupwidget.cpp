@@ -1095,18 +1095,21 @@ void SetupWidget::loadLogSettings()
     ui->chkTags->setChecked(cols.contains("Tags"));
     ui->chkEmotes->setChecked(cols.contains("Emotes"));
 
-    ui->tblCommandColors->setColumnCount(3);
-    ui->tblCommandColors->setHorizontalHeaderLabels(QStringList() << tr("Command") << tr("Foreground") << tr("Background"));
+    ui->tblCommandColors->setColumnCount(4);
+    ui->tblCommandColors->setHorizontalHeaderLabels(QStringList() << tr("Command") << tr("Show") << tr("Foreground") << tr("Background"));
     settings.beginGroup("log/colors");
     QStringList cmds = settings.childGroups();
+    settings.endGroup();
     if (cmds.isEmpty()) {
         cmds << "CLEARCHAT" << "CLEARMSG" << "GLOBALUSERSTATE" << "NOTICE" << "PART";
         cmds << "PING" << "PRIVMSG" << "RECONNECT" << "ROOMSTATE" << "USERNOTICE" << "USERSTATE";
     }
+
+    QStringList hidden = settings.value(CFG_LOG_HIDE_CMDS, DEFAULT_LOG_HIDE_CMDS).toStringList();
     ui->tblCommandColors->setRowCount(cmds.size());
     for (int i = 0; i < cmds.size(); ++i) {
         QString cmd = cmds.at(i);
-        settings.beginGroup(cmd);
+        settings.beginGroup(QStringLiteral("log/colors/%1").arg(cmd));
         QColor fg = settings.value("fg", QColor(Qt::black)).value<QColor>();
         QColor bg = settings.value("bg", QColor(Qt::white)).value<QColor>();
         settings.endGroup();
@@ -1115,29 +1118,33 @@ void SetupWidget::loadLogSettings()
         cmdItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
         ui->tblCommandColors->setItem(i, 0, cmdItem);
 
+        QTableWidgetItem* showItem = new QTableWidgetItem();
+        showItem->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+        showItem->setCheckState(hidden.contains(cmd) ? Qt::Unchecked : Qt::Checked);
+        ui->tblCommandColors->setItem(i, 1, showItem);
+
         QTableWidgetItem* fgItem = new QTableWidgetItem(fg.name());
         fgItem->setForeground(fg);
         fgItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-        ui->tblCommandColors->setItem(i, 1, fgItem);
+        ui->tblCommandColors->setItem(i, 2, fgItem);
 
         QTableWidgetItem* bgItem = new QTableWidgetItem(bg.name());
         bgItem->setBackground(bg);
         bgItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-        ui->tblCommandColors->setItem(i, 2, bgItem);
+        ui->tblCommandColors->setItem(i, 3, bgItem);
     }
-    settings.endGroup();
 
     connect(ui->tblCommandColors, &QTableWidget::itemDoubleClicked, this, [=](QTableWidgetItem* item) {
         QColor initial;
-        if (item->column() == 1)
+        if (item->column() == 2)
             initial = item->foreground().color();
-        else if (item->column() == 2)
+        else if (item->column() == 3)
             initial = item->background().color();
         else
             return;
         QColor c = QColorDialog::getColor(initial, this, tr("Select color"));
         if (!c.isValid()) return;
-        if (item->column() == 1) {
+        if (item->column() == 2) {
             item->setForeground(c);
             item->setText(c.name());
         } else {
@@ -1152,6 +1159,11 @@ void SetupWidget::loadLogSettings()
         m_shouldSave = true;
         ui->btnSaveSettings->setEnabled(true);
     };
+
+    connect(ui->tblCommandColors, &QTableWidget::itemChanged, this, [=](QTableWidgetItem* item) {
+        if (item->column() == 1)
+            markDirty();
+    });
 
     connect(ui->chkTimestamp, &QCheckBox::checkStateChanged, this, markDirty);
     connect(ui->chkCommand, &QCheckBox::checkStateChanged, this, markDirty);
@@ -1177,14 +1189,19 @@ void SetupWidget::saveLogSettings()
 
     settings.beginGroup("log/colors");
     settings.remove("");
+    QStringList hidden;
     for (int r = 0; r < ui->tblCommandColors->rowCount(); ++r) {
         QString cmd = ui->tblCommandColors->item(r,0)->text();
-        QColor fg = ui->tblCommandColors->item(r,1)->foreground().color();
-        QColor bg = ui->tblCommandColors->item(r,2)->background().color();
+        bool show = ui->tblCommandColors->item(r,1)->checkState() == Qt::Checked;
+        if (!show)
+            hidden << cmd;
+        QColor fg = ui->tblCommandColors->item(r,2)->foreground().color();
+        QColor bg = ui->tblCommandColors->item(r,3)->background().color();
         settings.beginGroup(cmd);
         settings.setValue("fg", fg);
         settings.setValue("bg", bg);
         settings.endGroup();
     }
     settings.endGroup();
+    settings.setValue(CFG_LOG_HIDE_CMDS, hidden);
 }
