@@ -3,7 +3,7 @@
 #include <QSettings>
 #include <QFile>
 #include <QTextStream>
-#include <QPainter>
+#include <QFileInfo>
 
 #include "settings_defaults.h"
 
@@ -62,27 +62,6 @@ QVariant TwitchLogModel::data(const QModelIndex &index, int role) const
     } else if (role == Qt::DecorationRole) {
         if (index.column() == Badges && !e.badges.isEmpty())
             return e.badges.first();
-        if (index.column() == Emotes && !e.emotes.isEmpty()) {
-            if (e.emotes.size() == 1)
-                return e.emotes.first();
-
-            int totalWidth = 0;
-            int maxHeight = 0;
-            for (const QPixmap &p : e.emotes) {
-                totalWidth += p.width();
-                maxHeight = qMax(maxHeight, p.height());
-            }
-
-            QPixmap combined(totalWidth, maxHeight);
-            combined.fill(Qt::transparent);
-            QPainter painter(&combined);
-            int x = 0;
-            for (const QPixmap &p : e.emotes) {
-                painter.drawPixmap(x, 0, p);
-                x += p.width();
-            }
-            return combined;
-        }
     } else if (role == Qt::ForegroundRole) {
         auto it = m_fgColors.find(e.command);
         if (it != m_fgColors.end())
@@ -118,7 +97,8 @@ void TwitchLogModel::addEntry(MsgDirection direction,
                               const QString &message,
                               const QString &tags,
                               const QList<QPixmap> &badges,
-                              const QList<QPixmap> &emotes)
+                              const QList<QPixmap> &emotes,
+                              const QStringList &pendingEmotes)
 {
     QSettings settings;
     QStringList hidden = settings.value(CFG_LOG_HIDE_CMDS, DEFAULT_LOG_HIDE_CMDS).toStringList();
@@ -134,6 +114,7 @@ void TwitchLogModel::addEntry(MsgDirection direction,
     e.tags = tags;
     e.badges = badges;
     e.emotes = emotes;
+    e.pendingEmotes = pendingEmotes;
     m_entries.append(e);
     endInsertRows();
 }
@@ -176,4 +157,21 @@ void TwitchLogModel::loadColors()
         settings.endGroup();
     }
     settings.endGroup();
+}
+
+void TwitchLogModel::loadEmote(const QString &path)
+{
+    QString id = QFileInfo(path).baseName();
+    QPixmap pix(path);
+    if (pix.isNull())
+        return;
+    for (int i = 0; i < m_entries.size(); ++i) {
+        Entry &e = m_entries[i];
+        if (e.pendingEmotes.contains(id)) {
+            e.pendingEmotes.removeAll(id);
+            e.emotes.append(pix);
+            QModelIndex idx = index(i, Emotes);
+            emit dataChanged(idx, idx, {Qt::DecorationRole});
+        }
+    }
 }
