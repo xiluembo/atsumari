@@ -12,6 +12,7 @@
 
 #include "twitchlogmodel.h"
 #include "settings_defaults.h"
+#include "pixmapsequencedelegate.h"
 
 LogViewDialog::LogViewDialog(QWidget *parent)
     : QDialog(parent)
@@ -23,9 +24,7 @@ LogViewDialog::LogViewDialog(QWidget *parent)
     m_table->setModel(TwitchLogModel::instance());
     int size = m_table->verticalHeader()->defaultSectionSize();
     m_table->setIconSize(QSize(size, size));
-    connect(m_table->verticalHeader(), &QHeaderView::sectionResized, this, [=](int, int, int newSize){
-        m_table->setIconSize(QSize(newSize, newSize));
-    });
+    m_table->setItemDelegateForColumn(TwitchLogModel::Emotes, new PixmapSequenceDelegate(m_table));
     connect(m_exportButton, &QPushButton::clicked, this, [=]() {
         QString fn = QFileDialog::getSaveFileName(this, tr("Export logs"), QString(), tr("Text Files (*.txt)"));
         if (!fn.isEmpty()) {
