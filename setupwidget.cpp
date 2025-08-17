@@ -40,6 +40,7 @@
 #include <QRandomGenerator>
 
 #include "settings_defaults.h"
+#include "logcommandcolors.h"
 #include "materialtype.h"
 #include "atsumarilauncher.h"
 #include "localehelper.h"
@@ -1103,8 +1104,9 @@ void SetupWidget::loadLogSettings()
     for (int i = 0; i < cmds.size(); ++i) {
         QString cmd = cmds.at(i);
         settings.beginGroup(QStringLiteral("log/colors/%1").arg(cmd));
-        QColor fg = settings.value("fg", QColor(Qt::black)).value<QColor>();
-        QColor bg = settings.value("bg", QColor(Qt::white)).value<QColor>();
+        const auto defaults = defaultCommandColors(cmd);
+        QColor fg = settings.value("fg", defaults.first).value<QColor>();
+        QColor bg = settings.value("bg", defaults.second).value<QColor>();
         settings.endGroup();
 
         QTableWidgetItem* cmdItem = new QTableWidgetItem(cmd);
