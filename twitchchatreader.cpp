@@ -75,7 +75,7 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs)
         if (message.trimmed().isEmpty())
             continue;
 
-        QString msg = message;
+        QString msg = message.trimmed();
         QString tags;
         QString prefix;
         if (msg.startsWith("@")) {
