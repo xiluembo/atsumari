@@ -22,6 +22,7 @@
 #include <QFontMetrics>
 #include <QPixmap>
 #include <QDir>
+#include <QFile>
 #include <QApplication>
 #include <QFontDatabase>
 #include <QSettings>
@@ -42,15 +43,16 @@ EmoteWriter::EmoteWriter(QObject *parent) : QObject(parent), networkManager(new 
 void EmoteWriter::saveEmote(const QString &id)
 {
     QSettings settings;
-
-    if (m_emotes.contains(id)) {
-        emit emoteWritten(m_emotes[id]);
+    QString filePath = QString("%1/%2.png").arg(settings.value(CFG_EMOTE_DIR, DEFAULT_EMOTE_DIR).toString(), id);
+    if (m_emotes.contains(id) || QFile::exists(filePath)) {
+        m_emotes[id] = filePath;
+        emit emoteWritten(filePath);
     } else {
         QUrl url(QString("https://static-cdn.jtvnw.net/emoticons/v2/%1/static/dark/3.0").arg(id));
         QNetworkRequest request(url);
         networkManager->get(request);
 
-        QDir emotePath(QString("%1/%2.png").arg(settings.value(CFG_EMOTE_DIR, DEFAULT_EMOTE_DIR).toString(), id));
+        QDir emotePath(filePath);
 
         pendingEmotes.insert(id, emotePath.absolutePath());
     }
@@ -59,15 +61,16 @@ void EmoteWriter::saveEmote(const QString &id)
 void EmoteWriter::saveBigEmote(const QString &id)
 {
     QSettings settings;
-
-    if (m_emotes.contains(id)) {
-        emit bigEmoteWritten(m_emotes[id]);
+    QString filePath = QString("%1/big_Emote_%2.png").arg(settings.value(CFG_EMOTE_DIR, DEFAULT_EMOTE_DIR).toString(), id);
+    if (m_emotes.contains(id) || QFile::exists(filePath)) {
+        m_emotes[id] = filePath;
+        emit bigEmoteWritten(filePath);
     } else {
         QUrl url(QString("https://static-cdn.jtvnw.net/emoticons/v2/%1/static/dark/3.0").arg(id));
         QNetworkRequest request(url);
         networkManager->get(request);
 
-        QDir emotePath(QString("%1/big_Emote_%2.png").arg(settings.value(CFG_EMOTE_DIR, DEFAULT_EMOTE_DIR).toString(), id));
+        QDir emotePath(filePath);
 
         pendingEmotes.insert(id, emotePath.absolutePath());
     }
@@ -78,8 +81,9 @@ void EmoteWriter::saveEmoji(const QString &slug, const QString& emojiData)
     QSettings settings;
     // Check if the emoji is already saved
     QString filePath = QString("%1/%2.png").arg(settings.value(CFG_EMOJI_DIR, DEFAULT_EMOJI_DIR).toString(), slug);
-    if (m_emotes.contains(slug)) {
-        emit emoteWritten(m_emotes[slug]);
+    if (m_emotes.contains(slug) || QFile::exists(filePath)) {
+        m_emotes[slug] = filePath;
+        emit emoteWritten(filePath);
         return;
     }
 

@@ -7,6 +7,7 @@
 #include <QVector>
 #include <QHash>
 #include <QList>
+#include <QStringList>
 
 class TwitchLogModel : public QAbstractTableModel {
     Q_OBJECT
@@ -21,6 +22,7 @@ public:
         QString message;
         QString tags;
         QList<QPixmap> emotes;
+        QStringList pendingEmotes;
     };
 
     static TwitchLogModel* instance();
@@ -35,11 +37,15 @@ public:
                   const QString &message,
                   const QString &tags,
                   const QList<QPixmap> &badges = QList<QPixmap>(),
-                  const QList<QPixmap> &emotes = QList<QPixmap>());
+                  const QList<QPixmap> &emotes = QList<QPixmap>(),
+                  const QStringList &pendingEmotes = QStringList());
 
     bool exportToFile(const QString &fileName) const;
 
     QList<QPixmap> emotesForRow(int row) const;
+
+public slots:
+    void loadEmote(const QString &path);
 
 private:
     explicit TwitchLogModel(QObject *parent = nullptr);
