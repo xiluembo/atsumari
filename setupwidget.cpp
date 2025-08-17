@@ -1097,13 +1097,9 @@ void SetupWidget::loadLogSettings()
 
     ui->tblCommandColors->setColumnCount(4);
     ui->tblCommandColors->setHorizontalHeaderLabels(QStringList() << tr("Command") << tr("Show") << tr("Foreground") << tr("Background"));
-    settings.beginGroup("log/colors");
-    QStringList cmds = settings.childGroups();
-    settings.endGroup();
-    if (cmds.isEmpty()) {
-        cmds << "CLEARCHAT" << "CLEARMSG" << "GLOBALUSERSTATE" << "NOTICE" << "PART";
-        cmds << "PING" << "PRIVMSG" << "RECONNECT" << "ROOMSTATE" << "USERNOTICE" << "USERSTATE";
-    }
+    QStringList cmds;
+    cmds << "CLEARCHAT" << "CLEARMSG" << "GLOBALUSERSTATE" << "NOTICE" << "JOIN" << "PART";
+    cmds << "PING" << "PONG" << "PRIVMSG" << "RECONNECT" << "ROOMSTATE" << "USERNOTICE" << "USERSTATE";
 
     QStringList hidden = settings.value(CFG_LOG_HIDE_CMDS, DEFAULT_LOG_HIDE_CMDS).toStringList();
     ui->tblCommandColors->setRowCount(cmds.size());
