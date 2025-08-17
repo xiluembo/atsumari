@@ -12,14 +12,13 @@
 class TwitchLogModel : public QAbstractTableModel {
     Q_OBJECT
 public:
-    enum Columns { Direction = 0, Timestamp, Command, Badges, Sender, Message, Tags, Emotes, ColumnCount };
+    enum Columns { Direction = 0, Timestamp, Command, Sender, Message, Tags, Emotes, ColumnCount };
     enum MsgDirection { Sent = 0, Received };
 
     struct Entry {
         MsgDirection direction;
         QDateTime timestamp;
         QString command;
-        QList<QPixmap> badges;
         QString sender;
         QString message;
         QString tags;
@@ -39,7 +38,6 @@ public:
                   const QString &sender,
                   const QString &message,
                   const QString &tags,
-                  const QList<QPixmap> &badges = QList<QPixmap>(),
                   const QList<QPixmap> &emotes = QList<QPixmap>(),
                   const QStringList &pendingEmotes = QStringList());
 
