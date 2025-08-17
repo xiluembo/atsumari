@@ -1087,6 +1087,7 @@ void SetupWidget::loadLogSettings()
 {
     QSettings settings;
     QStringList cols = settings.value(CFG_LOG_COLUMNS, DEFAULT_LOG_COLUMNS).toStringList();
+    ui->chkDirection->setChecked(cols.contains("Direction"));
     ui->chkTimestamp->setChecked(cols.contains("Timestamp"));
     ui->chkCommand->setChecked(cols.contains("Command"));
     ui->chkBadges->setChecked(cols.contains("Badges"));
@@ -1165,6 +1166,7 @@ void SetupWidget::loadLogSettings()
             markDirty();
     });
 
+    connect(ui->chkDirection, &QCheckBox::checkStateChanged, this, markDirty);
     connect(ui->chkTimestamp, &QCheckBox::checkStateChanged, this, markDirty);
     connect(ui->chkCommand, &QCheckBox::checkStateChanged, this, markDirty);
     connect(ui->chkBadges, &QCheckBox::checkStateChanged, this, markDirty);
@@ -1178,6 +1180,7 @@ void SetupWidget::saveLogSettings()
 {
     QSettings settings;
     QStringList cols;
+    if (ui->chkDirection->isChecked()) cols << "Direction";
     if (ui->chkTimestamp->isChecked()) cols << "Timestamp";
     if (ui->chkCommand->isChecked()) cols << "Command";
     if (ui->chkBadges->isChecked()) cols << "Badges";

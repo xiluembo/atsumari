@@ -11,9 +11,11 @@
 class TwitchLogModel : public QAbstractTableModel {
     Q_OBJECT
 public:
-    enum Columns { Timestamp = 0, Command, Badges, Sender, Message, Tags, Emotes, ColumnCount };
+    enum Columns { Direction = 0, Timestamp, Command, Badges, Sender, Message, Tags, Emotes, ColumnCount };
+    enum MsgDirection { Sent = 0, Received };
 
     struct Entry {
+        MsgDirection direction;
         QDateTime timestamp;
         QString command;
         QList<QPixmap> badges;
@@ -30,7 +32,8 @@ public:
     QVariant data(const QModelIndex &index, int role) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
-    void addEntry(const QString &command,
+    void addEntry(MsgDirection direction,
+                  const QString &command,
                   const QString &sender,
                   const QString &message,
                   const QString &tags,

@@ -944,6 +944,7 @@
           <string>Columns</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_cols">
+          <item><widget class="QCheckBox" name="chkDirection"><property name="text"><string>Direction</string></property></widget></item>
           <item><widget class="QCheckBox" name="chkTimestamp"><property name="text"><string>Timestamp</string></property></widget></item>
           <item><widget class="QCheckBox" name="chkCommand"><property name="text"><string>Command</string></property></widget></item>
           <item><widget class="QCheckBox" name="chkBadges"><property name="text"><string>Badges</string></property></widget></item>

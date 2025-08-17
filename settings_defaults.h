@@ -58,7 +58,7 @@
 #define CFG_LOG_COLUMNS "log/columns"
 #define CFG_LOG_COLOR_PREFIX "log/colors/"
 #define CFG_LOG_HIDE_CMDS "log/hide"
-#define DEFAULT_LOG_COLUMNS (QStringList() << "Timestamp" << "Command" << "Badges" << "Sender" << "Message" << "Tags" << "Emotes")
+#define DEFAULT_LOG_COLUMNS (QStringList() << "Direction" << "Timestamp" << "Command" << "Badges" << "Sender" << "Message" << "Tags" << "Emotes")
 #define DEFAULT_LOG_HIDE_CMDS (QStringList() << "PING" << "PONG")
 
 #define DEFAULT_VERSION 1 // So we can migrate from v1

@@ -58,13 +58,13 @@ void TwitchChatReader::onConnected()
     qDebug() << "Sending Commands";
     // Send required IRC commands
     m_webSocket->sendTextMessage(QStringLiteral("PASS oauth:") + m_token);
-    TwitchLogModel::instance()->addEntry("PASS", m_channel, QStringLiteral("oauth:***"), QString());
+    TwitchLogModel::instance()->addEntry(TwitchLogModel::Sent, "PASS", m_channel, QStringLiteral("oauth:***"), QString());
     m_webSocket->sendTextMessage(QStringLiteral("CAP REQ :twitch.tv/commands twitch.tv/tags twitch.tv/membership"));
-    TwitchLogModel::instance()->addEntry("CAP", m_channel, QStringLiteral("twitch.tv/commands twitch.tv/tags twitch.tv/membership"), QString());
+    TwitchLogModel::instance()->addEntry(TwitchLogModel::Sent, "CAP", m_channel, QStringLiteral("twitch.tv/commands twitch.tv/tags twitch.tv/membership"), QString());
     m_webSocket->sendTextMessage(QStringLiteral("NICK ") + m_channel);
-    TwitchLogModel::instance()->addEntry("NICK", m_channel, m_channel, QString());
+    TwitchLogModel::instance()->addEntry(TwitchLogModel::Sent, "NICK", m_channel, m_channel, QString());
     m_webSocket->sendTextMessage(QStringLiteral("JOIN #") + m_channel);
-    TwitchLogModel::instance()->addEntry("JOIN", m_channel, QStringLiteral("#") + m_channel, QString());
+    TwitchLogModel::instance()->addEntry(TwitchLogModel::Sent, "JOIN", m_channel, QStringLiteral("#") + m_channel, QString());
 }
 
 void TwitchChatReader::onTextMessageReceived(const QString &allMsgs)
@@ -102,13 +102,13 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs)
             QString response = message;
             response.replace("PING", "PONG");
             m_webSocket->sendTextMessage(response);
-            TwitchLogModel::instance()->addEntry("PING", sender, trailing, tags);
-            TwitchLogModel::instance()->addEntry("PONG", m_channel, trailing, QString());
+            TwitchLogModel::instance()->addEntry(TwitchLogModel::Received, "PING", sender, trailing, tags);
+            TwitchLogModel::instance()->addEntry(TwitchLogModel::Sent, "PONG", m_channel, trailing, QString());
             continue;
         }
 
         if (command != "PRIVMSG") {
-            TwitchLogModel::instance()->addEntry(command, sender, trailing, tags);
+            TwitchLogModel::instance()->addEntry(TwitchLogModel::Received, command, sender, trailing, tags);
             continue;
         }
 
@@ -199,7 +199,7 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs)
             emit emojiSent(slug, emojisFound[slug]);
         }
 
-        TwitchLogModel::instance()->addEntry(command, sender, trailing, metadata, QList<QPixmap>(), emotePixmaps);
+        TwitchLogModel::instance()->addEntry(TwitchLogModel::Received, command, sender, trailing, metadata, QList<QPixmap>(), emotePixmaps);
     }
 }
 
