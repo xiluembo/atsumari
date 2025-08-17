@@ -29,6 +29,7 @@
 
 #include "settings_defaults.h"
 #include "materialtype.h"
+#include "twitchlogmodel.h"
 
 
 AtsumariLauncher::AtsumariLauncher(QObject *parent)
@@ -149,12 +150,14 @@ void AtsumariLauncher::launch()
                                  Q_ARG(QVariant, QUrl::fromLocalFile(path).toString()),
                                  Q_ARG(QVariant, -1.0), Q_ARG(QVariant, -1.0), Q_ARG(QVariant, 0.3));
     });
+    QObject::connect(m_emw, &EmoteWriter::emoteWritten, TwitchLogModel::instance(), &TwitchLogModel::loadEmote);
 
     QObject::connect(m_emw, &EmoteWriter::bigEmoteWritten, [=](QString path) {
         QMetaObject::invokeMethod(rootItem, "addEmote", Qt::QueuedConnection,
                                  Q_ARG(QVariant, QUrl::fromLocalFile(path).toString()),
                                  Q_ARG(QVariant, -1.0), Q_ARG(QVariant, -1.0), Q_ARG(QVariant, 0.25));
     });
+    QObject::connect(m_emw, &EmoteWriter::bigEmoteWritten, TwitchLogModel::instance(), &TwitchLogModel::loadEmote);
 
     settings.endArray();
 

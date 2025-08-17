@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QPainter>
+#include <QFileInfo>
 
 #include "settings_defaults.h"
 
@@ -114,7 +115,8 @@ void TwitchLogModel::addEntry(const QString &command,
                               const QString &message,
                               const QString &tags,
                               const QList<QPixmap> &badges,
-                              const QList<QPixmap> &emotes)
+                              const QList<QPixmap> &emotes,
+                              const QStringList &pendingEmotes)
 {
     QSettings settings;
     QStringList hidden = settings.value(CFG_LOG_HIDE_CMDS, DEFAULT_LOG_HIDE_CMDS).toStringList();
@@ -129,6 +131,7 @@ void TwitchLogModel::addEntry(const QString &command,
     e.tags = tags;
     e.badges = badges;
     e.emotes = emotes;
+    e.pendingEmotes = pendingEmotes;
     m_entries.append(e);
     endInsertRows();
 }
@@ -170,4 +173,21 @@ void TwitchLogModel::loadColors()
         settings.endGroup();
     }
     settings.endGroup();
+}
+
+void TwitchLogModel::loadEmote(const QString &path)
+{
+    QString id = QFileInfo(path).baseName();
+    QPixmap pix(path);
+    if (pix.isNull())
+        return;
+    for (int i = 0; i < m_entries.size(); ++i) {
+        Entry &e = m_entries[i];
+        if (e.pendingEmotes.contains(id)) {
+            e.pendingEmotes.removeAll(id);
+            e.emotes.append(pix);
+            QModelIndex idx = index(i, Emotes);
+            emit dataChanged(idx, idx, {Qt::DecorationRole});
+        }
+    }
 }

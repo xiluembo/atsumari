@@ -21,6 +21,8 @@
 #include <QTimer>
 #include <QSettings>
 #include <QFile>
+#include <QUrl>
+#include <QStringList>
 
 #include "settings_defaults.h"
 #include "twitchlogmodel.h"
@@ -133,6 +135,7 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs)
         QRegularExpressionMatch match = emoteRegex.match(metadata);
 
         QList<QPixmap> emotePixmaps;
+        QStringList missingEmotes;
         if (match.hasMatch()) {
             QString emotesData = match.captured(1);
             QStringList emoteList = emotesData.split('/');
@@ -169,6 +172,8 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs)
                 QString path = QString("%1/%2.png").arg(dir, emoteId);
                 if (QFile::exists(path)) {
                     emotePixmaps.append(QPixmap(path));
+                } else {
+                    missingEmotes.append(emoteId);
                 }
             }
 
@@ -197,9 +202,18 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs)
 
         for (const QString& slug: emojisFound.keys()) {
             emit emojiSent(slug, emojisFound[slug]);
+
+            QSettings settings;
+            QString dir = settings.value(CFG_EMOJI_DIR, DEFAULT_EMOJI_DIR).toString();
+            QString path = QString("%1/%2.png").arg(dir, slug);
+            if (QFile::exists(path)) {
+                emotePixmaps.append(QPixmap(path));
+            } else {
+                missingEmotes.append(slug);
+            }
         }
 
-        TwitchLogModel::instance()->addEntry(command, sender, trailing, metadata, QList<QPixmap>(), emotePixmaps);
+        TwitchLogModel::instance()->addEntry(command, sender, trailing, metadata, QList<QPixmap>(), emotePixmaps, missingEmotes);
     }
 }
 
