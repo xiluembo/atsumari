@@ -58,7 +58,8 @@
 #define CFG_LOG_COLUMNS "log/columns"
 #define CFG_LOG_COLOR_PREFIX "log/colors/"
 #define CFG_LOG_HIDE_CMDS "log/hide"
-#define DEFAULT_LOG_COLUMNS (QStringList() << "Timestamp" << "Command" << "Badges" << "Sender" << "Message" << "Tags" << "Emotes")
+#define DEFAULT_LOG_COLUMNS (QStringList() << "Direction" << "Timestamp" << "Command" << "Badges" << "Sender" << "Message" << "Tags" << "Emotes")
+
 #define DEFAULT_LOG_COMMANDS (QStringList() << "001" << "002" << "003" << "004" << "353" << "366" << "372" << "375" << "376" \
                                        << "CAP" << "CLEARCHAT" << "CLEARMSG" << "GLOBALUSERSTATE" << "JOIN" << "NICK" << "NOTICE" \
                                        << "PART" << "PASS" << "PING" << "PONG" << "PRIVMSG" << "RECONNECT" << "ROOMSTATE" \

@@ -44,6 +44,8 @@ QVariant TwitchLogModel::data(const QModelIndex &index, int role) const
 
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
+        case Direction:
+            return e.direction == Sent ? QStringLiteral("➡️") : QStringLiteral("⬅️");
         case Timestamp:
             return e.timestamp.toString(Qt::ISODate);
         case Command:
@@ -76,6 +78,7 @@ QVariant TwitchLogModel::headerData(int section, Qt::Orientation orientation, in
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
+        case Direction: return tr("Direction");
         case Timestamp: return tr("Timestamp");
         case Command: return tr("Command");
         case Badges: return tr("Badges");
@@ -88,7 +91,8 @@ QVariant TwitchLogModel::headerData(int section, Qt::Orientation orientation, in
     return QVariant();
 }
 
-void TwitchLogModel::addEntry(const QString &command,
+void TwitchLogModel::addEntry(MsgDirection direction,
+                              const QString &command,
                               const QString &sender,
                               const QString &message,
                               const QString &tags,
@@ -102,6 +106,7 @@ void TwitchLogModel::addEntry(const QString &command,
         return;
     beginInsertRows(QModelIndex(), m_entries.size(), m_entries.size());
     Entry e;
+    e.direction = direction;
     e.timestamp = QDateTime::currentDateTime();
     e.command = command;
     e.sender = sender;
@@ -121,7 +126,8 @@ bool TwitchLogModel::exportToFile(const QString &fileName) const
         return false;
     QTextStream ts(&f);
     for (const Entry &e : m_entries) {
-        ts << e.timestamp.toString(Qt::ISODate) << '\t'
+        ts << (e.direction == Sent ? QStringLiteral("➡️") : QStringLiteral("⬅️")) << '\t'
+           << e.timestamp.toString(Qt::ISODate) << '\t'
            << e.command << '\t'
            << e.sender << '\t'
            << e.message << '\t'
