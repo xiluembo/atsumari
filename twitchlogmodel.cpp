@@ -6,6 +6,7 @@
 #include <QFileInfo>
 
 #include "settings_defaults.h"
+#include "logcommandcolors.h"
 
 static TwitchLogModel* s_instance = nullptr;
 
@@ -144,13 +145,26 @@ void TwitchLogModel::loadColors()
     QStringList cmds = settings.childGroups();
     for (const QString &cmd : cmds) {
         settings.beginGroup(cmd);
-        QColor fg = settings.value("fg", QColor(Qt::black)).value<QColor>();
-        QColor bg = settings.value("bg", QColor(Qt::white)).value<QColor>();
+        const auto defaults = defaultCommandColors(cmd);
+        QColor fg = settings.value("fg", defaults.first).value<QColor>();
+        QColor bg = settings.value("bg", defaults.second).value<QColor>();
         m_fgColors.insert(cmd, fg);
         m_bgColors.insert(cmd, bg);
         settings.endGroup();
     }
     settings.endGroup();
+
+    // Defaults for common commands when no colors are configured
+    const QStringList defaultCmds{QStringLiteral("PRIVMSG"), QStringLiteral("JOIN"), QStringLiteral("PART")};
+    for (const QString &cmd : defaultCmds) {
+        if (!m_fgColors.contains(cmd) || !m_bgColors.contains(cmd)) {
+            const auto colors = defaultCommandColors(cmd);
+            if (!m_fgColors.contains(cmd))
+                m_fgColors.insert(cmd, colors.first);
+            if (!m_bgColors.contains(cmd))
+                m_bgColors.insert(cmd, colors.second);
+        }
+    }
 }
 
 void TwitchLogModel::loadEmote(const QString &path)
