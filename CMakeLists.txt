@@ -42,6 +42,7 @@ set(PROJECT_SOURCES
         emojimapper.h emojimapper.cpp
         twitchlogmodel.h twitchlogmodel.cpp
         logviewdialog.h logviewdialog.cpp logviewdialog.ui
+        pixmapsequencedelegate.h pixmapsequencedelegate.cpp
 
         settings_defaults.h
         atsumarilauncher.h atsumarilauncher.cpp
