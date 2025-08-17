@@ -213,7 +213,7 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs)
             }
         }
 
-        TwitchLogModel::instance()->addEntry(TwitchLogModel::Received, command, sender, trailing, metadata, QList<QPixmap>(), emotePixmaps, missingEmotes);
+        TwitchLogModel::instance()->addEntry(TwitchLogModel::Received, command, sender, trailing, metadata, emotePixmaps, missingEmotes);
     }
 }
 

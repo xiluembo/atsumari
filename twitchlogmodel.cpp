@@ -59,9 +59,6 @@ QVariant TwitchLogModel::data(const QModelIndex &index, int role) const
         default:
             return QVariant();
         }
-    } else if (role == Qt::DecorationRole) {
-        if (index.column() == Badges && !e.badges.isEmpty())
-            return e.badges.first();
     } else if (role == Qt::ForegroundRole) {
         auto it = m_fgColors.find(e.command);
         if (it != m_fgColors.end())
@@ -81,7 +78,6 @@ QVariant TwitchLogModel::headerData(int section, Qt::Orientation orientation, in
         case Direction: return tr("Direction");
         case Timestamp: return tr("Timestamp");
         case Command: return tr("Command");
-        case Badges: return tr("Badges");
         case Sender: return tr("Sender");
         case Message: return tr("Message");
         case Tags: return tr("Tags");
@@ -96,7 +92,6 @@ void TwitchLogModel::addEntry(MsgDirection direction,
                               const QString &sender,
                               const QString &message,
                               const QString &tags,
-                              const QList<QPixmap> &badges,
                               const QList<QPixmap> &emotes,
                               const QStringList &pendingEmotes)
 {
@@ -112,7 +107,6 @@ void TwitchLogModel::addEntry(MsgDirection direction,
     e.sender = sender;
     e.message = message;
     e.tags = tags;
-    e.badges = badges;
     e.emotes = emotes;
     e.pendingEmotes = pendingEmotes;
     m_entries.append(e);

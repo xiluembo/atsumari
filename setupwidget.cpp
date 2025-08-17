@@ -1090,7 +1090,6 @@ void SetupWidget::loadLogSettings()
     ui->chkDirection->setChecked(cols.contains("Direction"));
     ui->chkTimestamp->setChecked(cols.contains("Timestamp"));
     ui->chkCommand->setChecked(cols.contains("Command"));
-    ui->chkBadges->setChecked(cols.contains("Badges"));
     ui->chkSender->setChecked(cols.contains("Sender"));
     ui->chkMessage->setChecked(cols.contains("Message"));
     ui->chkTags->setChecked(cols.contains("Tags"));
@@ -1162,7 +1161,6 @@ void SetupWidget::loadLogSettings()
     connect(ui->chkDirection, &QCheckBox::checkStateChanged, this, markDirty);
     connect(ui->chkTimestamp, &QCheckBox::checkStateChanged, this, markDirty);
     connect(ui->chkCommand, &QCheckBox::checkStateChanged, this, markDirty);
-    connect(ui->chkBadges, &QCheckBox::checkStateChanged, this, markDirty);
     connect(ui->chkSender, &QCheckBox::checkStateChanged, this, markDirty);
     connect(ui->chkMessage, &QCheckBox::checkStateChanged, this, markDirty);
     connect(ui->chkTags, &QCheckBox::checkStateChanged, this, markDirty);
@@ -1176,7 +1174,6 @@ void SetupWidget::saveLogSettings()
     if (ui->chkDirection->isChecked()) cols << "Direction";
     if (ui->chkTimestamp->isChecked()) cols << "Timestamp";
     if (ui->chkCommand->isChecked()) cols << "Command";
-    if (ui->chkBadges->isChecked()) cols << "Badges";
     if (ui->chkSender->isChecked()) cols << "Sender";
     if (ui->chkMessage->isChecked()) cols << "Message";
     if (ui->chkTags->isChecked()) cols << "Tags";
