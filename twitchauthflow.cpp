@@ -33,10 +33,6 @@
 
 #include "settings_defaults.h"
 
-
-
-
-
 TwitchAuthFlow::TwitchAuthFlow(const QString& state, QObject *parent)
     : QObject{parent}
     , m_token(QString())
@@ -64,10 +60,6 @@ TwitchAuthFlow::TwitchAuthFlow(const QString& state, QObject *parent)
     connect(this, &TwitchAuthFlow::tokenFetched, this, &TwitchAuthFlow::requestTokenValidation);
     connect(this, &TwitchAuthFlow::tokenValidated, this, &TwitchAuthFlow::requestUserinfo);
 }
-
-
-
-
 
 TwitchAuthFlow::~TwitchAuthFlow()
 {

@@ -33,11 +33,14 @@
 #include <QCloseEvent>
 #include <QUrl>
 #include <QDir>
+#include <QTableWidget>
+#include <QCheckBox>
 #include <QPainter>
 #include <QPixmap>
 #include <QRandomGenerator>
 
 #include "settings_defaults.h"
+#include "logcommandcolors.h"
 #include "materialtype.h"
 #include "atsumarilauncher.h"
 #include "localehelper.h"
@@ -479,6 +482,8 @@ void SetupWidget::loadSettings()
     // Directories
     ui->edtEmojiDir->setText(settings.value(CFG_EMOJI_DIR, DEFAULT_EMOJI_DIR).toString());
     ui->edtEmoteDir->setText(settings.value(CFG_EMOTE_DIR, DEFAULT_EMOTE_DIR).toString());
+
+    loadLogSettings();
 }
 
 void SetupWidget::saveSettings()
@@ -547,6 +552,8 @@ void SetupWidget::saveSettings()
         QMessageBox::warning(this, tr("Empty ClientId"), tr("Twitch Client Id is empty, you'll be not able to connect to your chat, use the Twitch Dev Console button to create a Client on Twitch."));
     }
     settings.setValue(CFG_CLIENT_ID, ui->edtClientId->text());
+
+    saveLogSettings();
 
     ui->btnSaveSettings->setEnabled(false);
     m_shouldSave = false;
@@ -677,7 +684,8 @@ void SetupWidget::setIcons()
     ui->tabWidget->setTabIcon(0, QIcon::fromTheme("configure"));
     ui->tabWidget->setTabIcon(1, QIcon::fromTheme("folder"));
     ui->tabWidget->setTabIcon(2, QIcon::fromTheme("computer"));
-    ui->tabWidget->setTabIcon(3, QIcon::fromTheme("help-about"));
+    ui->tabWidget->setTabIcon(3, QIcon::fromTheme("text-x-generic"));
+    ui->tabWidget->setTabIcon(4, QIcon::fromTheme("help-about"));
 }
 
 void SetupWidget::populateLanguages()
@@ -1074,4 +1082,121 @@ void SetupWidget::removeFromExcludeList()
         m_shouldSave = true;
         ui->btnSaveSettings->setEnabled(true);
     }
+}
+
+void SetupWidget::loadLogSettings()
+{
+    QSettings settings;
+    QStringList cols = settings.value(CFG_LOG_COLUMNS, DEFAULT_LOG_COLUMNS).toStringList();
+    ui->chkDirection->setChecked(cols.contains("Direction"));
+    ui->chkTimestamp->setChecked(cols.contains("Timestamp"));
+    ui->chkCommand->setChecked(cols.contains("Command"));
+    ui->chkSender->setChecked(cols.contains("Sender"));
+    ui->chkMessage->setChecked(cols.contains("Message"));
+    ui->chkTags->setChecked(cols.contains("Tags"));
+    ui->chkEmotes->setChecked(cols.contains("Emotes"));
+
+    ui->tblCommandColors->setColumnCount(4);
+    ui->tblCommandColors->setHorizontalHeaderLabels(QStringList() << tr("Command") << tr("Show") << tr("Foreground") << tr("Background"));
+    QStringList cmds = DEFAULT_LOG_COMMANDS;
+    QStringList hidden = settings.value(CFG_LOG_HIDE_CMDS, DEFAULT_LOG_HIDE_CMDS).toStringList();
+    ui->tblCommandColors->setRowCount(cmds.size());
+    for (int i = 0; i < cmds.size(); ++i) {
+        QString cmd = cmds.at(i);
+        settings.beginGroup(QStringLiteral("log/colors/%1").arg(cmd));
+        const auto defaults = defaultCommandColors(cmd);
+        QColor fg = settings.value("fg", defaults.first).value<QColor>();
+        QColor bg = settings.value("bg", defaults.second).value<QColor>();
+        settings.endGroup();
+
+        QTableWidgetItem* cmdItem = new QTableWidgetItem(cmd);
+        cmdItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+        ui->tblCommandColors->setItem(i, 0, cmdItem);
+
+        QTableWidgetItem* showItem = new QTableWidgetItem();
+        showItem->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+        showItem->setCheckState(hidden.contains(cmd) ? Qt::Unchecked : Qt::Checked);
+        ui->tblCommandColors->setItem(i, 1, showItem);
+
+        QTableWidgetItem* fgItem = new QTableWidgetItem(fg.name());
+        fgItem->setForeground(fg);
+        fgItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+        ui->tblCommandColors->setItem(i, 2, fgItem);
+
+        QTableWidgetItem* bgItem = new QTableWidgetItem(bg.name());
+        bgItem->setBackground(bg);
+        bgItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+        ui->tblCommandColors->setItem(i, 3, bgItem);
+    }
+
+    connect(ui->tblCommandColors, &QTableWidget::itemDoubleClicked, this, [=](QTableWidgetItem* item) {
+        QColor initial;
+        if (item->column() == 2)
+            initial = item->foreground().color();
+        else if (item->column() == 3)
+            initial = item->background().color();
+        else
+            return;
+        QColor c = QColorDialog::getColor(initial, this, tr("Select color"));
+        if (!c.isValid()) return;
+        if (item->column() == 2) {
+            item->setForeground(c);
+            item->setText(c.name());
+        } else {
+            item->setBackground(c);
+            item->setText(c.name());
+        }
+        m_shouldSave = true;
+        ui->btnSaveSettings->setEnabled(true);
+    });
+
+    auto markDirty = [=]() {
+        m_shouldSave = true;
+        ui->btnSaveSettings->setEnabled(true);
+    };
+
+    connect(ui->tblCommandColors, &QTableWidget::itemChanged, this, [=](QTableWidgetItem* item) {
+        if (item->column() == 1)
+            markDirty();
+    });
+
+    connect(ui->chkDirection, &QCheckBox::checkStateChanged, this, markDirty);
+    connect(ui->chkTimestamp, &QCheckBox::checkStateChanged, this, markDirty);
+    connect(ui->chkCommand, &QCheckBox::checkStateChanged, this, markDirty);
+    connect(ui->chkSender, &QCheckBox::checkStateChanged, this, markDirty);
+    connect(ui->chkMessage, &QCheckBox::checkStateChanged, this, markDirty);
+    connect(ui->chkTags, &QCheckBox::checkStateChanged, this, markDirty);
+    connect(ui->chkEmotes, &QCheckBox::checkStateChanged, this, markDirty);
+}
+
+void SetupWidget::saveLogSettings()
+{
+    QSettings settings;
+    QStringList cols;
+    if (ui->chkDirection->isChecked()) cols << "Direction";
+    if (ui->chkTimestamp->isChecked()) cols << "Timestamp";
+    if (ui->chkCommand->isChecked()) cols << "Command";
+    if (ui->chkSender->isChecked()) cols << "Sender";
+    if (ui->chkMessage->isChecked()) cols << "Message";
+    if (ui->chkTags->isChecked()) cols << "Tags";
+    if (ui->chkEmotes->isChecked()) cols << "Emotes";
+    settings.setValue(CFG_LOG_COLUMNS, cols);
+
+    settings.beginGroup("log/colors");
+    settings.remove("");
+    QStringList hidden;
+    for (int r = 0; r < ui->tblCommandColors->rowCount(); ++r) {
+        QString cmd = ui->tblCommandColors->item(r,0)->text();
+        bool show = ui->tblCommandColors->item(r,1)->checkState() == Qt::Checked;
+        if (!show)
+            hidden << cmd;
+        QColor fg = ui->tblCommandColors->item(r,2)->foreground().color();
+        QColor bg = ui->tblCommandColors->item(r,3)->background().color();
+        settings.beginGroup(cmd);
+        settings.setValue("fg", fg);
+        settings.setValue("bg", bg);
+        settings.endGroup();
+    }
+    settings.endGroup();
+    settings.setValue(CFG_LOG_HIDE_CMDS, hidden);
 }

@@ -24,23 +24,33 @@
 #include <QSettings>
 #include <QVBoxLayout>
 #include <QGuiApplication>
+#include <QMenu>
+#include <QTranslator>
 
 #include "settings_defaults.h"
 #include "materialtype.h"
+#include "twitchlogmodel.h"
 
 
-AtsumariLauncher::AtsumariLauncher()
-    : m_twFlow(new TwitchAuthFlow(QString("a123%1").arg(QRandomGenerator64::global()->generate())))
+AtsumariLauncher::AtsumariLauncher(QObject *parent)
+    : QObject(parent)
+    , m_twFlow(new TwitchAuthFlow(QString("a123%1").arg(QRandomGenerator64::global()->generate())))
     , m_emw(new EmoteWriter())
     , m_tReader(nullptr)
     , m_mw(new QMainWindow)
     , m_container(new QWidget)
+    , m_tray(nullptr)
+    , m_logDialog(new LogViewDialog)
 { }
 
 AtsumariLauncher::~AtsumariLauncher()
 {
     m_container->deleteLater();
     m_mw->deleteLater();
+    if (m_tray)
+        m_tray->deleteLater();
+    if (m_logDialog)
+        m_logDialog->deleteLater();
 }
 
 void AtsumariLauncher::launch()
@@ -119,7 +129,7 @@ void AtsumariLauncher::launch()
     
     // Setup Twitch chat connections
     QObject::connect(m_twFlow, &TwitchAuthFlow::loginFetched, m_twFlow, [&](const QString& a) {
-        m_tReader = new TwitchChatReader("ws://irc-ws.chat.twitch.tv:80/", m_twFlow->token(), a);
+        m_tReader = new TwitchChatReader("wss://irc-ws.chat.twitch.tv:443/", m_twFlow->token(), a);
 
         QObject::connect(m_tReader, &TwitchChatReader::emoteSent, m_emw, [=](const QString& id, const QString& emoName) {
             Q_UNUSED(emoName);
@@ -140,14 +150,37 @@ void AtsumariLauncher::launch()
                                  Q_ARG(QVariant, QUrl::fromLocalFile(path).toString()),
                                  Q_ARG(QVariant, -1.0), Q_ARG(QVariant, -1.0), Q_ARG(QVariant, 0.3));
     });
+    QObject::connect(m_emw, &EmoteWriter::emoteWritten, TwitchLogModel::instance(), &TwitchLogModel::loadEmote);
 
     QObject::connect(m_emw, &EmoteWriter::bigEmoteWritten, [=](QString path) {
         QMetaObject::invokeMethod(rootItem, "addEmote", Qt::QueuedConnection,
                                  Q_ARG(QVariant, QUrl::fromLocalFile(path).toString()),
                                  Q_ARG(QVariant, -1.0), Q_ARG(QVariant, -1.0), Q_ARG(QVariant, 0.25));
     });
+    QObject::connect(m_emw, &EmoteWriter::bigEmoteWritten, TwitchLogModel::instance(), &TwitchLogModel::loadEmote);
 
     settings.endArray();
+
+    m_logDialog->setWindowIcon(QIcon(":/appicon/atsumari.svg"));
+
+    if (QSystemTrayIcon::isSystemTrayAvailable()) {
+        m_tray = new QSystemTrayIcon(QIcon(":/appicon/atsumari.svg"), m_mw);
+        QMenu* menu = new QMenu(m_mw);
+        QAction* act = menu->addAction(tr("Show Logs"));
+        QObject::connect(act, &QAction::triggered, m_logDialog, &QDialog::show);
+        QAction* quitAct = menu->addAction(tr("Quit"));
+        QObject::connect(quitAct, &QAction::triggered, this, &QCoreApplication::quit);
+        m_tray->setContextMenu(menu);
+        m_tray->show();
+    } else {
+        m_container->setContextMenuPolicy(Qt::CustomContextMenu);
+        QObject::connect(m_container, &QWidget::customContextMenuRequested, [=](const QPoint& p) {
+            QMenu menu;
+            QAction* act = menu.addAction(tr("Show Logs"));
+            QObject::connect(act, &QAction::triggered, m_logDialog, &QDialog::show);
+            menu.exec(m_container->mapToGlobal(p));
+        });
+    }
 
     // now we can close the app if the window is closed
     qGuiApp->setQuitOnLastWindowClosed(true);

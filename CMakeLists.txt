@@ -40,6 +40,9 @@ set(PROJECT_SOURCES
         twitchauthflow.h twitchauthflow.cpp
         emotewriter.h emotewriter.cpp
         emojimapper.h emojimapper.cpp
+        twitchlogmodel.h twitchlogmodel.cpp
+        logviewdialog.h logviewdialog.cpp logviewdialog.ui
+        pixmapsequencedelegate.h pixmapsequencedelegate.cpp
 
         settings_defaults.h
         atsumarilauncher.h atsumarilauncher.cpp
