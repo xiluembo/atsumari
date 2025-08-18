@@ -24,8 +24,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core Widgets Quick3D WebSockets NetworkAuth Gui LinguistTools)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Widgets Quick3D WebSockets NetworkAuth Gui LinguistTools)
+find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core Widgets Quick3D WebSockets NetworkAuth Gui LinguistTools Test)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Widgets Quick3D WebSockets NetworkAuth Gui LinguistTools Test)
 
 qt_standard_project_setup(I18N_TRANSLATED_LANGUAGES pt_BR)
 
@@ -59,16 +59,16 @@ if(WIN32)
     )
 endif()
 
-qt_add_translations(atsumari
-    TS_FILE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/i18n
-    NO_GENERATE_PLURALS_TS_FILE
-)
-
 qt_add_executable(atsumari
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES}
     indexofrefraction.h
     materialtype.h
+)
+
+qt_add_translations(atsumari
+    TS_FILE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/i18n
+    NO_GENERATE_PLURALS_TS_FILE
 )
 
 target_link_libraries(atsumari PRIVATE
@@ -88,17 +88,30 @@ set_target_properties(atsumari PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
-qt_generate_deploy_qml_app_script(
-    TARGET atsumari
-    OUTPUT_SCRIPT deploy_script
-    NO_UNSUPPORTED_PLATFORM_ERROR
-)
+if(Qt6_VERSION VERSION_GREATER_EQUAL "6.5.0")
+    qt_generate_deploy_qml_app_script(
+        TARGET atsumari
+        OUTPUT_SCRIPT deploy_script
+        NO_UNSUPPORTED_PLATFORM_ERROR
+    )
+    install(SCRIPT ${deploy_script})
+endif()
 
 install(TARGETS atsumari
     BUNDLE DESTINATION .
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-install(SCRIPT ${deploy_script})
-
 qt_finalize_executable(atsumari)
+
+enable_testing()
+
+qt_add_executable(emojimapper_tests
+    tests/emojimapper_tests.cpp
+    emojimapper.cpp
+    emojimapper.h
+)
+
+target_link_libraries(emojimapper_tests PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Test)
+
+add_test(NAME emojimapper_tests COMMAND emojimapper_tests)
