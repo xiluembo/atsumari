@@ -28,7 +28,6 @@
 #include <QDesktopServices>
 #include <QMessageBox>
 #include <QStyleHints>
-#include <QFileInfo>
 #include <QMenu>
 #include <QCloseEvent>
 #include <QUrl>
@@ -226,20 +225,6 @@ SetupWidget::SetupWidget(QWidget *parent)
 
     setupPreview();
     runPreview();
-
-    // Directories tab
-    connect(ui->btnEmojiPath, &QPushButton::clicked, this, &SetupWidget::selectEmojiPath);
-    connect(ui->btnEmotePath, &QPushButton::clicked, this, &SetupWidget::selectEmotePath);
-    connect(ui->edtEmojiDir, &QLineEdit::textChanged, this, [=]() {
-        validatePaths(ui->edtEmojiDir);
-        m_shouldSave = true;
-        ui->btnSaveSettings->setEnabled(true);
-    });
-    connect(ui->edtEmoteDir, &QLineEdit::textChanged, this, [=]() {
-        validatePaths(ui->edtEmoteDir);
-        m_shouldSave = true;
-        ui->btnSaveSettings->setEnabled(true);
-    });
 
     // Twitch Tab
     connect(ui->btnAddExcludeChat, &QPushButton::clicked, this, &SetupWidget::addToExcludeList);
@@ -480,10 +465,6 @@ void SetupWidget::loadSettings()
     ui->lstExcludeChat->addItems(excludeChatList);
     ui->edtClientId->setText(settings.value(CFG_CLIENT_ID, DEFAULT_CLIENT_ID).toString());
 
-    // Directories
-    ui->edtEmojiDir->setText(settings.value(CFG_EMOJI_DIR, DEFAULT_EMOJI_DIR).toString());
-    ui->edtEmoteDir->setText(settings.value(CFG_EMOTE_DIR, DEFAULT_EMOTE_DIR).toString());
-
     loadLogSettings();
 }
 
@@ -532,10 +513,6 @@ void SetupWidget::saveSettings()
         QMessageBox::warning(this, tr("Changing default font"),
                              tr("Changing default font is not advised. SVG Based fonts may not work correctly on Windows, and non-SVG Based fonts may also fail to render correctly on other platforms"));
     }
-
-    // Directories
-    settings.setValue(CFG_EMOJI_DIR, ui->edtEmojiDir->text());
-    settings.setValue(CFG_EMOTE_DIR, ui->edtEmoteDir->text());
 
     // Twitch
     QStringList excludeChat;
@@ -638,16 +615,6 @@ void SetupWidget::openDevConsole()
     QDesktopServices::openUrl(QUrl("https://dev.twitch.tv/console"));
 }
 
-void SetupWidget::selectEmotePath()
-{
-    ui->edtEmoteDir->setText(QFileDialog::getExistingDirectory(this, tr("Select emotes directory"), ui->edtEmoteDir->text()));
-}
-
-void SetupWidget::selectEmojiPath()
-{
-    ui->edtEmojiDir->setText(QFileDialog::getExistingDirectory(this, tr("Select emojis directory"), ui->edtEmoteDir->text()));
-}
-
 void SetupWidget::resetAuth()
 {
     QSettings settings;
@@ -677,16 +644,13 @@ void SetupWidget::setIcons()
     ui->btnRemoveExcludeChat->setIcon(QIcon::fromTheme("list-remove"));
     ui->btnSaveSettings->setIcon(QIcon::fromTheme("document-save"));
     ui->btnClose->setIcon(QIcon::fromTheme("system-run"));
-    ui->btnEmojiPath->setIcon(QIcon::fromTheme("folder-open"));
-    ui->btnEmotePath->setIcon(QIcon::fromTheme("folder-open"));
     ui->btnDevConsole->setIcon(QIcon::fromTheme("applications-development"));
     ui->btnForceAuth->setIcon(QIcon::fromTheme("security-high"));
     ui->btnAboutQt->setIcon(QIcon::fromTheme("help-about"));
     ui->tabWidget->setTabIcon(0, QIcon::fromTheme("configure"));
-    ui->tabWidget->setTabIcon(1, QIcon::fromTheme("folder"));
-    ui->tabWidget->setTabIcon(2, QIcon::fromTheme("computer"));
-    ui->tabWidget->setTabIcon(3, QIcon::fromTheme("text-x-generic"));
-    ui->tabWidget->setTabIcon(4, QIcon::fromTheme("help-about"));
+    ui->tabWidget->setTabIcon(1, QIcon::fromTheme("computer"));
+    ui->tabWidget->setTabIcon(2, QIcon::fromTheme("text-x-generic"));
+    ui->tabWidget->setTabIcon(3, QIcon::fromTheme("help-about"));
 }
 
 void SetupWidget::populateLanguages()
@@ -747,27 +711,6 @@ void SetupWidget::setupPreview()
     
     // Get the root QML object for property updates
     m_previewRootItem = m_previewWindow->rootObject();
-}
-
-void SetupWidget::validatePaths(QLineEdit *edt)
-{
-    QString path = edt->text();
-
-    QFileInfo fi(path);
-
-    if (fi.isRelative()) {
-        edt->setStyleSheet("color: red");
-    } else {
-        if (fi.exists()) {
-            if (fi.isDir()) {
-                edt->setStyleSheet(QString());
-            } else {
-                edt->setStyleSheet("color: red");
-            }
-        } else {
-            edt->setStyleSheet("color: green");
-        }
-    }
 }
 
 void SetupWidget::newProfile()
@@ -1020,8 +963,6 @@ void SetupWidget::populateCurrentProfileControls()
 
 void SetupWidget::closeEvent(QCloseEvent *event)
 {
-    cleanupTempFiles();
-    
     if (m_shouldSave) {
         int ret = QMessageBox::question(this, tr("There are unsaved changes"),
                                         tr("Do you want to save changes before closing?"),
@@ -1040,18 +981,6 @@ void SetupWidget::closeEvent(QCloseEvent *event)
     }
 
     qGuiApp->quit();
-}
-
-void SetupWidget::cleanupTempFiles()
-{
-    QDir tempDir(QDir::tempPath());
-    QStringList filters;
-    filters << "atsumari_test_emoji_*.png";
-
-    QFileInfoList files = tempDir.entryInfoList(filters, QDir::Files);
-    for (const QFileInfo& file : files) {
-        QFile::remove(file.absoluteFilePath());
-    }
 }
 
 void SetupWidget::aboutQt()
