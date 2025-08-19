@@ -88,8 +88,9 @@ void EmoteWriter::saveEmoji(const QString &slug, const QString& emojiData)
     painter.end();
 
     QImage image = pixmap.toImage().convertToFormat(QImage::Format_RGBA8888);
-    auto *texData = new QQuick3DTextureData(this);
-    texData->setTextureSize(image.size());
+    auto *texData = new QQuick3DTextureData();
+    texData->setParent(this);
+    texData->setSize(image.size());
     texData->setFormat(QQuick3DTextureData::RGBA8);
     texData->setData(QByteArray(reinterpret_cast<const char*>(image.constBits()), image.sizeInBytes()));
 
@@ -113,8 +114,9 @@ void EmoteWriter::handleNetworkReply(QNetworkReply *reply)
     QPixmap pixmap = QPixmap::fromImage(image);
 
     QImage img = pixmap.toImage().convertToFormat(QImage::Format_RGBA8888);
-    auto *texData = new QQuick3DTextureData(this);
-    texData->setTextureSize(img.size());
+    auto *texData = new QQuick3DTextureData();
+    texData->setParent(this);
+    texData->setSize(img.size());
     texData->setFormat(QQuick3DTextureData::RGBA8);
     texData->setData(QByteArray(reinterpret_cast<const char*>(img.constBits()), img.sizeInBytes()));
 

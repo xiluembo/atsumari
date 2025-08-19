@@ -345,8 +345,9 @@ void SetupWidget::runPreview()
         painter.end();
 
         QImage image = emojiPixmap.toImage().convertToFormat(QImage::Format_RGBA8888);
-        auto *texData = new QQuick3DTextureData(m_previewRootItem);
-        texData->setTextureSize(image.size());
+        auto *texData = new QQuick3DTextureData();
+        texData->setParent(m_previewRootItem);
+        texData->setSize(image.size());
         texData->setFormat(QQuick3DTextureData::RGBA8);
         texData->setData(QByteArray(reinterpret_cast<const char*>(image.constBits()), image.sizeInBytes()));
 
