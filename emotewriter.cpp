@@ -21,123 +21,116 @@
 #include <QFont>
 #include <QFontMetrics>
 #include <QPixmap>
-#include <QDir>
-#include <QFile>
 #include <QApplication>
 #include <QFontDatabase>
 #include <QSettings>
+#include <QImage>
 
 #include "settings_defaults.h"
 
 EmoteWriter::EmoteWriter(QObject *parent) : QObject(parent), networkManager(new QNetworkAccessManager(this))
 {
-    QSettings settings;
-
-    QDir dir;
-    dir.mkpath(settings.value(CFG_EMOTE_DIR, DEFAULT_EMOTE_DIR).toString());
-    dir.mkpath(settings.value(CFG_EMOJI_DIR, DEFAULT_EMOJI_DIR).toString());
-
     connect(networkManager, &QNetworkAccessManager::finished, this, &EmoteWriter::handleNetworkReply);
 }
 
 void EmoteWriter::saveEmote(const QString &id)
 {
-    QSettings settings;
-    QString filePath = QString("%1/%2.png").arg(settings.value(CFG_EMOTE_DIR, DEFAULT_EMOTE_DIR).toString(), id);
-    if (m_emotes.contains(id) || QFile::exists(filePath)) {
-        m_emotes[id] = filePath;
-        emit emoteWritten(filePath);
-    } else {
-        QUrl url(QString("https://static-cdn.jtvnw.net/emoticons/v2/%1/static/dark/3.0").arg(id));
-        QNetworkRequest request(url);
-        networkManager->get(request);
-
-        QDir emotePath(filePath);
-
-        pendingEmotes.insert(id, emotePath.absolutePath());
+    if (m_textures.contains(id)) {
+        emit emoteReady(id, m_textures.value(id), m_pixmaps.value(id));
+        return;
     }
+
+    QUrl url(QString("https://static-cdn.jtvnw.net/emoticons/v2/%1/static/dark/3.0").arg(id));
+    QNetworkRequest request(url);
+    QNetworkReply *reply = networkManager->get(request);
+    reply->setProperty("emoteId", id);
+    reply->setProperty("isBig", false);
 }
 
 void EmoteWriter::saveBigEmote(const QString &id)
 {
-    QSettings settings;
-    QString filePath = QString("%1/big_Emote_%2.png").arg(settings.value(CFG_EMOTE_DIR, DEFAULT_EMOTE_DIR).toString(), id);
-    if (m_emotes.contains(id) || QFile::exists(filePath)) {
-        m_emotes[id] = filePath;
-        emit bigEmoteWritten(filePath);
-    } else {
-        QUrl url(QString("https://static-cdn.jtvnw.net/emoticons/v2/%1/static/dark/3.0").arg(id));
-        QNetworkRequest request(url);
-        networkManager->get(request);
-
-        QDir emotePath(filePath);
-
-        pendingEmotes.insert(id, emotePath.absolutePath());
+    QString key = QStringLiteral("big_") + id;
+    if (m_textures.contains(key)) {
+        emit bigEmoteReady(id, m_textures.value(key), m_pixmaps.value(key));
+        return;
     }
+
+    QUrl url(QString("https://static-cdn.jtvnw.net/emoticons/v2/%1/static/dark/3.0").arg(id));
+    QNetworkRequest request(url);
+    QNetworkReply *reply = networkManager->get(request);
+    reply->setProperty("emoteId", id);
+    reply->setProperty("isBig", true);
 }
 
 void EmoteWriter::saveEmoji(const QString &slug, const QString& emojiData)
 {
-    QSettings settings;
-    // Check if the emoji is already saved
-    QString filePath = QString("%1/%2.png").arg(settings.value(CFG_EMOJI_DIR, DEFAULT_EMOJI_DIR).toString(), slug);
-    if (m_emotes.contains(slug) || QFile::exists(filePath)) {
-        m_emotes[slug] = filePath;
-        emit emoteWritten(filePath);
+    if (m_textures.contains(slug)) {
+        emit emoteReady(slug, m_textures.value(slug), m_pixmaps.value(slug));
         return;
     }
 
-    // Setting up the pixmap where the emoji is going to be rendered
+    QSettings settings;
     int imageSize = 112;
     QPixmap pixmap(imageSize, imageSize);
-    pixmap.fill(Qt::transparent); // Transparent background
+    pixmap.fill(Qt::transparent);
 
-    // Setting up the QPainter
     QPainter painter(&pixmap);
     painter.setRenderHint(QPainter::Antialiasing, true);
 
-    QFont font(settings.value(CFG_EMOJI_FONT, DEFAULT_EMOJI_FONT).toString(), 72); // Set up a big font for the emoji
+    QFont font(settings.value(CFG_EMOJI_FONT, DEFAULT_EMOJI_FONT).toString(), 72);
     painter.setFont(font);
 
-    // Center the emoji into the image
     QFontMetrics metrics(font);
     int textWidth = metrics.horizontalAdvance(emojiData);
     int x = (imageSize - textWidth) / 2;
     int y = (imageSize + metrics.ascent() - metrics.descent()) / 2;
     painter.drawText(x, y, emojiData);
-
-    // Save the image file
-    if (pixmap.save(filePath, "PNG")) {
-        m_emotes[slug] = filePath; // Update emotes map
-        emit emoteWritten(filePath); // Emit signal
-    }
-
     painter.end();
+
+    QImage image = pixmap.toImage().convertToFormat(QImage::Format_RGBA8888);
+    auto *texData = new QQuick3DTextureData(this);
+    texData->setTextureSize(image.size());
+    texData->setFormat(QQuick3DTextureData::RGBA8);
+    texData->setData(QByteArray(reinterpret_cast<const char*>(image.constBits()), image.sizeInBytes()));
+
+    m_textures.insert(slug, texData);
+    m_pixmaps.insert(slug, pixmap);
+    emit emoteReady(slug, texData, pixmap);
 }
 
 
 void EmoteWriter::handleNetworkReply(QNetworkReply *reply)
 {
-    if (reply && reply->error() == QNetworkReply::NoError) {
-        QString id = reply->url().toString().split('/').at(5); // Extracting the ID from URL
-        QString filePath = pendingEmotes.value(id);
-        if (filePath.isEmpty()) {
-            reply->deleteLater();
-            return;
-        }
+    if (!reply || reply->error() != QNetworkReply::NoError)
+        return;
 
-        QFile file(filePath);
-        if (file.open(QIODevice::WriteOnly)) {
-            file.write(reply->readAll());
-            file.close();
-            m_emotes.insert(id, filePath);
-            if (filePath.contains("/big_Emote_")) {
-                emit bigEmoteWritten(filePath);
-            } else {
-                emit emoteWritten(filePath);
-            }
-            pendingEmotes.remove(id);
-        }
-        reply->deleteLater();
-    }
+    QString id = reply->property("emoteId").toString();
+    bool isBig = reply->property("isBig").toBool();
+
+    QByteArray data = reply->readAll();
+    QImage image;
+    image.loadFromData(data);
+    QPixmap pixmap = QPixmap::fromImage(image);
+
+    QImage img = pixmap.toImage().convertToFormat(QImage::Format_RGBA8888);
+    auto *texData = new QQuick3DTextureData(this);
+    texData->setTextureSize(img.size());
+    texData->setFormat(QQuick3DTextureData::RGBA8);
+    texData->setData(QByteArray(reinterpret_cast<const char*>(img.constBits()), img.sizeInBytes()));
+
+    QString key = isBig ? QStringLiteral("big_") + id : id;
+    m_textures.insert(key, texData);
+    m_pixmaps.insert(key, pixmap);
+
+    if (isBig)
+        emit bigEmoteReady(id, texData, pixmap);
+    else
+        emit emoteReady(id, texData, pixmap);
+
+    reply->deleteLater();
+}
+
+QPixmap EmoteWriter::pixmapFor(const QString &id) const
+{
+    return m_pixmaps.value(id);
 }

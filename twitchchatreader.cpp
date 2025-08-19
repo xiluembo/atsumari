@@ -20,15 +20,16 @@
 #include <QRegularExpression>
 #include <QTimer>
 #include <QSettings>
-#include <QFile>
 #include <QUrl>
 #include <QStringList>
+#include <QPixmap>
 
 #include "settings_defaults.h"
 #include "twitchlogmodel.h"
+#include "emotewriter.h"
 
-TwitchChatReader::TwitchChatReader(const QString &url, const QString &token, const QString &channel, QObject *parent)
-    : QObject(parent), m_webSocket(new QWebSocket), m_channel(channel)
+TwitchChatReader::TwitchChatReader(const QString &url, const QString &token, const QString &channel, EmoteWriter *emoteWriter, QObject *parent)
+    : QObject(parent), m_webSocket(new QWebSocket), m_channel(channel), m_emoteWriter(emoteWriter)
 {
 
     // Ensure the websocket is deleted with this reader to avoid leaks
@@ -167,14 +168,11 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs)
 
                 processedEmotes[emoteId] = emoteName.trimmed();
 
-                QSettings settings;
-                QString dir = settings.value(CFG_EMOTE_DIR, DEFAULT_EMOTE_DIR).toString();
-                QString path = QString("%1/%2.png").arg(dir, emoteId);
-                if (QFile::exists(path)) {
-                    emotePixmaps.append(QPixmap(path));
-                } else {
+                QPixmap pix = m_emoteWriter ? m_emoteWriter->pixmapFor(emoteId) : QPixmap();
+                if (!pix.isNull())
+                    emotePixmaps.append(pix);
+                else
                     missingEmotes.append(emoteId);
-                }
             }
 
             if (isGigantifiedEmoteMessage && !lastEmoteId.isEmpty()) {
@@ -203,14 +201,11 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs)
         for (const QString& slug: emojisFound.keys()) {
             emit emojiSent(slug, emojisFound[slug]);
 
-            QSettings settings;
-            QString dir = settings.value(CFG_EMOJI_DIR, DEFAULT_EMOJI_DIR).toString();
-            QString path = QString("%1/%2.png").arg(dir, slug);
-            if (QFile::exists(path)) {
-                emotePixmaps.append(QPixmap(path));
-            } else {
+            QPixmap pix = m_emoteWriter ? m_emoteWriter->pixmapFor(slug) : QPixmap();
+            if (!pix.isNull())
+                emotePixmaps.append(pix);
+            else
                 missingEmotes.append(slug);
-            }
         }
 
         TwitchLogModel::instance()->addEntry(TwitchLogModel::Received, command, sender, trailing, metadata, emotePixmaps, missingEmotes);

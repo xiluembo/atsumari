@@ -3,7 +3,6 @@
 #include <QSettings>
 #include <QFile>
 #include <QTextStream>
-#include <QFileInfo>
 
 #include "settings_defaults.h"
 #include "logcommandcolors.h"
@@ -167,10 +166,8 @@ void TwitchLogModel::loadColors()
     }
 }
 
-void TwitchLogModel::loadEmote(const QString &path)
+void TwitchLogModel::loadEmote(const QString &id, const QPixmap &pix)
 {
-    QString id = QFileInfo(path).baseName();
-    QPixmap pix(path);
     if (pix.isNull())
         return;
     for (int i = 0; i < m_entries.size(); ++i) {

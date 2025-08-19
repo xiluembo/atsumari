@@ -26,6 +26,8 @@
 #include <QGuiApplication>
 #include <QMenu>
 #include <QTranslator>
+#include <QPixmap>
+#include <QQuick3DTextureData>
 
 #include "settings_defaults.h"
 #include "materialtype.h"
@@ -129,7 +131,7 @@ void AtsumariLauncher::launch()
     
     // Setup Twitch chat connections
     QObject::connect(m_twFlow, &TwitchAuthFlow::loginFetched, m_twFlow, [&](const QString& a) {
-        m_tReader = new TwitchChatReader("wss://irc-ws.chat.twitch.tv:443/", m_twFlow->token(), a);
+        m_tReader = new TwitchChatReader("wss://irc-ws.chat.twitch.tv:443/", m_twFlow->token(), a, m_emw);
 
         QObject::connect(m_tReader, &TwitchChatReader::emoteSent, m_emw, [=](const QString& id, const QString& emoName) {
             Q_UNUSED(emoName);
@@ -145,19 +147,21 @@ void AtsumariLauncher::launch()
     });
 
     // Connect emote writer to add emotes to QML scene
-    QObject::connect(m_emw, &EmoteWriter::emoteWritten, [=](QString path) {
+    QObject::connect(m_emw, &EmoteWriter::emoteReady,
+                     [=](const QString &id, QQuick3DTextureData *tex, const QPixmap &pix) {
         QMetaObject::invokeMethod(rootItem, "addEmote", Qt::QueuedConnection,
-                                 Q_ARG(QVariant, QUrl::fromLocalFile(path).toString()),
+                                 Q_ARG(QVariant, QVariant::fromValue(tex)),
                                  Q_ARG(QVariant, -1.0), Q_ARG(QVariant, -1.0), Q_ARG(QVariant, 0.3));
+        TwitchLogModel::instance()->loadEmote(id, pix);
     });
-    QObject::connect(m_emw, &EmoteWriter::emoteWritten, TwitchLogModel::instance(), &TwitchLogModel::loadEmote);
 
-    QObject::connect(m_emw, &EmoteWriter::bigEmoteWritten, [=](QString path) {
+    QObject::connect(m_emw, &EmoteWriter::bigEmoteReady,
+                     [=](const QString &id, QQuick3DTextureData *tex, const QPixmap &pix) {
         QMetaObject::invokeMethod(rootItem, "addEmote", Qt::QueuedConnection,
-                                 Q_ARG(QVariant, QUrl::fromLocalFile(path).toString()),
+                                 Q_ARG(QVariant, QVariant::fromValue(tex)),
                                  Q_ARG(QVariant, -1.0), Q_ARG(QVariant, -1.0), Q_ARG(QVariant, 0.25));
+        TwitchLogModel::instance()->loadEmote(id, pix);
     });
-    QObject::connect(m_emw, &EmoteWriter::bigEmoteWritten, TwitchLogModel::instance(), &TwitchLogModel::loadEmote);
 
     settings.endArray();
 

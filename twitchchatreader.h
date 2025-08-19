@@ -24,10 +24,12 @@
 
 #include "emojimapper.h"
 
+class EmoteWriter;
+
 class TwitchChatReader : public QObject {
     Q_OBJECT
 public:
-    TwitchChatReader(const QString& url, const QString& token, const QString& channel, QObject* parent = nullptr);
+    TwitchChatReader(const QString& url, const QString& token, const QString& channel, EmoteWriter* emoteWriter, QObject* parent = nullptr);
     ~TwitchChatReader();
 
 signals:
@@ -45,6 +47,7 @@ private:
     QString m_channel;
 
     EmojiMapper m_emojiMapper;
+    EmoteWriter* m_emoteWriter;
 };
 
 #endif // TWITCHCHATREADER_H

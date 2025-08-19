@@ -38,6 +38,8 @@
 #include <QPainter>
 #include <QPixmap>
 #include <QRandomGenerator>
+#include <QQuick3DTextureData>
+#include <QImage>
 
 #include "settings_defaults.h"
 #include "logcommandcolors.h"
@@ -334,10 +336,6 @@ void SetupWidget::runPreview()
     // Add test emojis for font testing (random positions)
     QStringList testEmojis = {"💜", "🦋", "👁️", "❄️", "🥑", "🙂"};
     for (const QString& emoji : testEmojis) {
-        // Create temporary file for emoji
-        QString tempPath = QDir::tempPath() + "/atsumari_test_emoji_" + QString::number(QRandomGenerator::global()->bounded(1000)) + ".png";
-        
-        // Create QPixmap with emoji
         QPixmap emojiPixmap(64, 64);
         emojiPixmap.fill(Qt::transparent);
         QPainter painter(&emojiPixmap);
@@ -345,14 +343,16 @@ void SetupWidget::runPreview()
         painter.setPen(Qt::black);
         painter.drawText(emojiPixmap.rect(), Qt::AlignCenter, emoji);
         painter.end();
-        
-        // Save to temp file
-        if (emojiPixmap.save(tempPath)) {
-            // Add to scene with random position
-            QMetaObject::invokeMethod(m_previewRootItem, "addEmote", Qt::QueuedConnection,
-                                    Q_ARG(QVariant, QUrl::fromLocalFile(tempPath).toString()),
-                                    Q_ARG(QVariant, -1.0), Q_ARG(QVariant, -1.0), Q_ARG(QVariant, 0.3));
-        }
+
+        QImage image = emojiPixmap.toImage().convertToFormat(QImage::Format_RGBA8888);
+        auto *texData = new QQuick3DTextureData(m_previewRootItem);
+        texData->setTextureSize(image.size());
+        texData->setFormat(QQuick3DTextureData::RGBA8);
+        texData->setData(QByteArray(reinterpret_cast<const char*>(image.constBits()), image.sizeInBytes()));
+
+        QMetaObject::invokeMethod(m_previewRootItem, "addEmote", Qt::QueuedConnection,
+                                Q_ARG(QVariant, QVariant::fromValue(texData)),
+                                Q_ARG(QVariant, -1.0), Q_ARG(QVariant, -1.0), Q_ARG(QVariant, 0.3));
     }
 }
 
