@@ -137,10 +137,17 @@ Item {
 
     // Functions
 
-    function addEmote(emoteUrl, theta, phi, emoteSize) {
+    function addEmote(emoteSource, theta, phi, emoteSize) {
         // Add to QML scene for immediate visual feedback
         let radius = 50.02; // Default radius for chat emotes
         let opacity = 0.8; // Default opacity for chat emotes
+
+        var textureUrl = "";
+        var textureData = null;
+        if (typeof emoteSource === "string")
+            textureUrl = emoteSource;
+        else
+            textureData = emoteSource;
         
         // Handle random positioning (-1.0 means random position)
         let finalTheta = theta;
@@ -181,7 +188,8 @@ Item {
                         PrincipledMaterial {
                             alphaMode: PrincipledMaterial.Blend
                             baseColorMap: Texture {
-                                source: "` + emoteUrl + `"
+                                id: texMap
+                                source: "` + textureUrl + `"
                             }
                             cullMode: DefaultMaterial.NoCulling
                             opacity: ` + opacity + `
@@ -190,6 +198,9 @@ Item {
                 }
             }
         `, standAloneScene);
+
+        if (textureData !== null)
+            emote.children[0].materials[0].baseColorMap.textureData = textureData;
 
         emoteList.push(emote);
     }

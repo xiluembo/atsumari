@@ -22,8 +22,9 @@
 #include <QMap>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include <QFile>
+#include <QPixmap>
 #include <QUrl>
+#include <QQuick3DTextureData>
 
 class EmoteWriter : public QObject {
     Q_OBJECT
@@ -33,17 +34,18 @@ public:
     void saveEmote(const QString &id);
     void saveBigEmote(const QString &id);
     void saveEmoji(const QString &slug, const QString &emojiData);
+    QPixmap pixmapFor(const QString &id) const;
 
 signals:
-    void emoteWritten(QString path);
-    void bigEmoteWritten(QString path);
+    void emoteReady(const QString &id, QQuick3DTextureData *textureData, const QPixmap &pixmap);
+    void bigEmoteReady(const QString &id, QQuick3DTextureData *textureData, const QPixmap &pixmap);
 
 private:
     void handleNetworkReply(QNetworkReply *reply);
 
     QNetworkAccessManager *networkManager;
-    QMap<QString, QString> m_emotes;
-    QMap<QString, QString> pendingEmotes; // To track emotes being downloaded
+    QMap<QString, QQuick3DTextureData*> m_textures;
+    QMap<QString, QPixmap> m_pixmaps;
 };
 
 

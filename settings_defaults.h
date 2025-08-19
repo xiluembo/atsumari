@@ -47,8 +47,6 @@
 #define CFG_CLIENT_ID "client_id"
 #define CFG_TOKEN "token"
 #define CFG_EXPIRY_TOKEN "expiry_token"
-#define CFG_EMOJI_DIR "dirs/emoji"
-#define CFG_EMOTE_DIR "dirs/emotes"
 #define CFG_EMOJI_FONT "emoji_font"
 #define CFG_LANGUAGE "language"
 #define CFG_PROFILES "profiles"
@@ -89,12 +87,8 @@
 #define DEFAULT_CLIENT_ID "3x2mzlmm9mz8qpml51m5mxc8dbdk4d"
 
 #ifdef Q_OS_WIN
-# define DEFAULT_EMOJI_DIR QString("%1/%2").arg(qApp->applicationDirPath(), "emojiInfo")
-# define DEFAULT_EMOTE_DIR QString("%1/%2").arg(qApp->applicationDirPath(), "emoteInfo")
 # define DEFAULT_EMOJI_FONT "Segoe UI Emoji"
 #else
-# define DEFAULT_EMOJI_DIR QString("%1/%2").arg(qEnvironmentVariable("HOME"), ".atsumari/emojiInfo")
-# define DEFAULT_EMOTE_DIR QString("%1/%2").arg(qEnvironmentVariable("HOME"), ".atsumari/emoteInfo")
 # define DEFAULT_EMOJI_FONT "Noto Color Emoji"
 #endif
 

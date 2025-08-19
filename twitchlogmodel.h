@@ -46,7 +46,7 @@ public:
     QList<QPixmap> emotesForRow(int row) const;
 
 public slots:
-    void loadEmote(const QString &path);
+    void loadEmote(const QString &id, const QPixmap &pixmap);
 
 private:
     explicit TwitchLogModel(QObject *parent = nullptr);

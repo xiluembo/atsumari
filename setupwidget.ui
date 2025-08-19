@@ -728,60 +728,6 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tabDirectories">
-      <attribute name="title">
-       <string>Directories</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_3">
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="edtEmoteDir"/>
-       </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Emoji directory:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2">
-        <widget class="QPushButton" name="btnEmojiPath">
-         <property name="text">
-          <string>Select Directory...</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QPushButton" name="btnEmotePath">
-         <property name="text">
-          <string>Select Directory...</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="edtEmojiDir"/>
-       </item>
-       <item row="2" column="0" colspan="3">
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Orientation::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Twitch emote directory:</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
      <widget class="QWidget" name="tabTwitch">
       <attribute name="title">
        <string>Twitch</string>
@@ -944,13 +890,55 @@
           <string>Columns</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_cols">
-          <item><widget class="QCheckBox" name="chkDirection"><property name="text"><string>Direction</string></property></widget></item>
-          <item><widget class="QCheckBox" name="chkTimestamp"><property name="text"><string>Timestamp</string></property></widget></item>
-          <item><widget class="QCheckBox" name="chkCommand"><property name="text"><string>Command</string></property></widget></item>
-          <item><widget class="QCheckBox" name="chkSender"><property name="text"><string>Sender</string></property></widget></item>
-          <item><widget class="QCheckBox" name="chkMessage"><property name="text"><string>Message</string></property></widget></item>
-          <item><widget class="QCheckBox" name="chkTags"><property name="text"><string>Tags</string></property></widget></item>
-          <item><widget class="QCheckBox" name="chkEmotes"><property name="text"><string>Emotes</string></property></widget></item>
+          <item>
+           <widget class="QCheckBox" name="chkDirection">
+            <property name="text">
+             <string>Direction</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="chkTimestamp">
+            <property name="text">
+             <string>Timestamp</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="chkCommand">
+            <property name="text">
+             <string>Command</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="chkSender">
+            <property name="text">
+             <string>Sender</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="chkMessage">
+            <property name="text">
+             <string>Message</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="chkTags">
+            <property name="text">
+             <string>Tags</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="chkEmotes">
+            <property name="text">
+             <string>Emotes</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -1002,8 +990,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>933</width>
-            <height>605</height>
+            <width>935</width>
+            <height>611</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -1205,10 +1193,6 @@
   <tabstop>btnSelectDecoration</tabstop>
   <tabstop>btnResetDecoration</tabstop>
   <tabstop>cboEmojiFont</tabstop>
-  <tabstop>edtEmojiDir</tabstop>
-  <tabstop>btnEmojiPath</tabstop>
-  <tabstop>edtEmoteDir</tabstop>
-  <tabstop>btnEmotePath</tabstop>
   <tabstop>edtExcludeChat</tabstop>
   <tabstop>btnAddExcludeChat</tabstop>
   <tabstop>lstExcludeChat</tabstop>

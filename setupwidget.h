@@ -53,15 +53,12 @@ private:
     void resetDecoration();
     void selectDecoration();
     void openDevConsole();
-    void selectEmotePath();
-    void selectEmojiPath();
     void resetAuth();
     void setIcons();
     void populateLanguages();
     void populateMaterialTypes();
     void populateRefractionTypes();
     void setupPreview();
-    void validatePaths(QLineEdit* edt);
     void newProfile();
     void duplicateProfile();
     void renameProfile();
@@ -69,7 +66,6 @@ private:
     void createProfileMenus();
     void populateCurrentProfileControls();
     void closeEvent(QCloseEvent* event);
-    void cleanupTempFiles();
     void aboutQt();
     void loadLogSettings();
     void saveLogSettings();
