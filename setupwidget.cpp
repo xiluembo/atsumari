@@ -349,7 +349,7 @@ void SetupWidget::runPreview()
         texData->setParent(m_previewRootItem);
         texData->setSize(image.size());
         texData->setFormat(QQuick3DTextureData::RGBA8);
-        texData->setData(QByteArray(reinterpret_cast<const char*>(image.constBits()), image.sizeInBytes()));
+        texData->setTextureData(QByteArray(reinterpret_cast<const char*>(image.constBits()), image.sizeInBytes()));
 
         QMetaObject::invokeMethod(m_previewRootItem, "addEmote", Qt::QueuedConnection,
                                 Q_ARG(QVariant, QVariant::fromValue(texData)),

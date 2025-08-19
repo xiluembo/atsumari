@@ -92,7 +92,7 @@ void EmoteWriter::saveEmoji(const QString &slug, const QString& emojiData)
     texData->setParent(this);
     texData->setSize(image.size());
     texData->setFormat(QQuick3DTextureData::RGBA8);
-    texData->setData(QByteArray(reinterpret_cast<const char*>(image.constBits()), image.sizeInBytes()));
+    texData->setTextureData(QByteArray(reinterpret_cast<const char*>(image.constBits()), image.sizeInBytes()));
 
     m_textures.insert(slug, texData);
     m_pixmaps.insert(slug, pixmap);
@@ -118,7 +118,7 @@ void EmoteWriter::handleNetworkReply(QNetworkReply *reply)
     texData->setParent(this);
     texData->setSize(img.size());
     texData->setFormat(QQuick3DTextureData::RGBA8);
-    texData->setData(QByteArray(reinterpret_cast<const char*>(img.constBits()), img.sizeInBytes()));
+    texData->setTextureData(QByteArray(reinterpret_cast<const char*>(img.constBits()), img.sizeInBytes()));
 
     QString key = isBig ? QStringLiteral("big_") + id : id;
     m_textures.insert(key, texData);
