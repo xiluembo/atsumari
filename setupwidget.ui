@@ -1000,17 +1000,24 @@
              </property>
             </column>
             <column>
-             <property name="text">
-              <string>Background</string>
-             </property>
-            </column>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-      </layout>
-     </widget>
+            <property name="text">
+             <string>Background</string>
+            </property>
+           </column>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnResetCommandColors">
+           <property name="text">
+            <string>Reset to default</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
      <widget class="QWidget" name="tabAbout">
       <attribute name="title">
        <string>About</string>
