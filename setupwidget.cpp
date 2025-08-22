@@ -649,7 +649,7 @@ void SetupWidget::setIcons()
     ui->btnAboutQt->setIcon(QIcon::fromTheme("help-about"));
     ui->tabWidget->setTabIcon(0, QIcon::fromTheme("configure"));
     ui->tabWidget->setTabIcon(1, QIcon::fromTheme("computer"));
-    ui->tabWidget->setTabIcon(2, QIcon::fromTheme("text-x-generic"));
+    ui->tabWidget->setTabIcon(2, QIcon::fromTheme("dialog-messages"));
     ui->tabWidget->setTabIcon(3, QIcon::fromTheme("help-about"));
 }
 
