@@ -57,8 +57,8 @@ SetupWidget::SetupWidget(QWidget *parent)
     , m_duplicateProfileAction(nullptr)
     , m_renameProfileAction(nullptr)
     , m_deleteProfileAction(nullptr)
-    , m_previewVertFile(new QTemporaryFile(this))
-    , m_previewFragFile(new QTemporaryFile(this))
+    , m_previewVertFile(nullptr)
+    , m_previewFragFile(nullptr)
     , ui(new Ui::SetupWidget)
 {
     ui->setupUi(this);
@@ -330,15 +330,20 @@ void SetupWidget::runPreview()
     } else if (materialType == MaterialType::Custom) {
         m_previewRootItem->setProperty("useSpecularGlossyMaterial", false);
         m_previewRootItem->setProperty("useCustomMaterial", true);
+        if (m_previewVertFile)
+            delete m_previewVertFile;
+        if (m_previewFragFile)
+            delete m_previewFragFile;
+
+        m_previewVertFile = new QTemporaryFile(QDir::tempPath() + "/atsumariXXXXXX.vert", this);
+        m_previewFragFile = new QTemporaryFile(QDir::tempPath() + "/atsumariXXXXXX.frag", this);
 
         if (m_previewVertFile->open()) {
-            m_previewVertFile->resize(0);
             m_previewVertFile->write(m_profiles[m_currentProfile]->customVertexShader().toUtf8());
             m_previewVertFile->flush();
             m_previewVertFile->close();
         }
         if (m_previewFragFile->open()) {
-            m_previewFragFile->resize(0);
             m_previewFragFile->write(m_profiles[m_currentProfile]->customFragmentShader().toUtf8());
             m_previewFragFile->flush();
             m_previewFragFile->close();
