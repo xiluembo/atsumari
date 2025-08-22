@@ -699,6 +699,7 @@ void SetupWidget::setIcons()
     ui->btnSelectSpecular->setIcon(QIcon::fromTheme("color-picker"));
     ui->btnSelectAmbient->setIcon(QIcon::fromTheme("color-picker"));
     ui->btnSelectLight->setIcon(QIcon::fromTheme("color-picker"));
+    ui->btnResetCommandColors->setIcon(QIcon::fromTheme("edit-undo"));
     ui->btnResetDecoration->setIcon(QIcon::fromTheme("edit-undo"));
     ui->btnSelectDecoration->setIcon(QIcon::fromTheme("document-open"));
     ui->btnAddExcludeChat->setIcon(QIcon::fromTheme("list-add"));
@@ -1173,6 +1174,19 @@ void SetupWidget::loadLogSettings()
     connect(ui->chkMessage, &QCheckBox::checkStateChanged, this, markDirty);
     connect(ui->chkTags, &QCheckBox::checkStateChanged, this, markDirty);
     connect(ui->chkEmotes, &QCheckBox::checkStateChanged, this, markDirty);
+    connect(ui->btnResetCommandColors, &QPushButton::clicked, this, [=]() {
+        for (int r = 0; r < ui->tblCommandColors->rowCount(); ++r) {
+            QString cmd = ui->tblCommandColors->item(r,0)->text();
+            const auto defaults = defaultCommandColors(cmd);
+            QTableWidgetItem* fgItem = ui->tblCommandColors->item(r,2);
+            QTableWidgetItem* bgItem = ui->tblCommandColors->item(r,3);
+            fgItem->setForeground(defaults.first);
+            fgItem->setText(defaults.first.name());
+            bgItem->setBackground(defaults.second);
+            bgItem->setText(defaults.second.name());
+        }
+        markDirty();
+    });
 }
 
 void SetupWidget::saveLogSettings()
