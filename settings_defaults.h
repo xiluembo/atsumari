@@ -37,6 +37,8 @@
 #define CFG_REFRACTION_TYPE "refraction_type"
 #define CFG_REFRACTION "refraction_value"
 #define CFG_GLOSSINESS "glossiness"
+#define CFG_CUSTOM_VERT "custom_vert"
+#define CFG_CUSTOM_FRAG "custom_frag"
 
 #define CFG_COLORS_SPECULAR "colors/specular"
 #define CFG_COLORS_AMBIENT "colors/ambient"
@@ -78,6 +80,8 @@
 #define DEFAULT_LIGHT_BRIGHTNESS 100
 #define DEFAULT_GLOSSINESS 40
 #define DEFAULT_ITERATION_TIME 3
+#define DEFAULT_CUSTOM_VERT "void MAIN() {\\n    POSITION = MODELVIEWPROJECTION_MATRIX * vec4(inPosition, 1.0);\\n}"
+#define DEFAULT_CUSTOM_FRAG "void MAIN() {\\n    FRAGCOLOR = vec4(1.0);\\n}"
 #define DEFAULT_DECORATION_PATH ":/decoration/kata_deco.png"
 #define DEFAULT_CURRENT_PROFILE 0
 #define DEFAULT_EXCLUDE_CHAT (QStringList() << "nightbot" << "sery_bot" << "streamelements" << "fossabot" << "wizebot" << "botisimo" << "moobot")

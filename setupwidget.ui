@@ -690,10 +690,39 @@
             </widget>
            </item>
            <item row="0" column="0">
-            <widget class="QLabel" name="label_5">
-             <property name="text">
-              <string>Language:</string>
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Language:</string>
+            </property>
+           </widget>
+          </item>
+           <item row="13" column="0" colspan="2">
+            <widget class="QGroupBox" name="grpCustomMaterial">
+             <property name="title">
+              <string>Custom material shaders:</string>
              </property>
+             <layout class="QGridLayout" name="gridLayout_custom">
+              <item row="0" column="0">
+               <widget class="QLabel" name="lblVertexShader">
+                <property name="text">
+                 <string>Vertex Shader:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QPlainTextEdit" name="txtVertexShader"/>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="lblFragmentShader">
+                <property name="text">
+                 <string>Fragment Shader:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QPlainTextEdit" name="txtFragmentShader"/>
+              </item>
+             </layout>
             </widget>
            </item>
           </layout>
@@ -1187,6 +1216,8 @@
   <tabstop>btnSelectSpecular</tabstop>
   <tabstop>sldGlossiness</tabstop>
   <tabstop>spnGlossiness</tabstop>
+  <tabstop>txtVertexShader</tabstop>
+  <tabstop>txtFragmentShader</tabstop>
   <tabstop>sldLightBrightness</tabstop>
   <tabstop>spnLightBrightness</tabstop>
   <tabstop>spnIteration</tabstop>

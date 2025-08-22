@@ -24,6 +24,9 @@ Item {
     property color specularColor: Qt.rgba(0.266, 0.341, 0.517, 1.0)
     property real glossiness: 0.60
     property bool useSpecularGlossyMaterial : true
+    property bool useCustomMaterial: false
+    property url vertexShaderPath: ""
+    property url fragmentShaderPath: ""
     property var emoteList: []
     
     // Decoration path property
@@ -43,6 +46,12 @@ Item {
         indexOfRefraction: root.refraction
     }
 
+    property var customMaterial: CustomMaterial {
+        shadingMode: CustomMaterial.Shaded
+        vertexShader: root.vertexShaderPath
+        fragmentShader: root.fragmentShaderPath
+    }
+
     // The root scene
     Node {
         id: standAloneScene
@@ -51,7 +60,7 @@ Item {
             id: sphere
             source: "#Sphere"
             scale: Qt.vector3d(1, 1, 1)
-            materials: [ root.useSpecularGlossyMaterial ? root.specMaterial : root.princMaterial ]
+            materials: [ root.useCustomMaterial ? root.customMaterial : root.useSpecularGlossyMaterial ? root.specMaterial : root.princMaterial ]
         }
 
         // Main Camera

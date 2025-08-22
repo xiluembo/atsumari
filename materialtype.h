@@ -3,7 +3,8 @@
 
 enum class MaterialType {
     Principled = 0,
-    SpecularGlossy = 1
+    SpecularGlossy = 1,
+    Custom = 2
 };
 
 #endif // MATERIALTYPE_H

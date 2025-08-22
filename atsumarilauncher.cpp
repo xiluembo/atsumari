@@ -28,6 +28,8 @@
 #include <QTranslator>
 #include <QPixmap>
 #include <QQuick3DTextureData>
+#include <QTemporaryFile>
+#include <QDir>
 
 #include "settings_defaults.h"
 #include "materialtype.h"
@@ -97,6 +99,8 @@ void AtsumariLauncher::launch()
     int refraction = settings.value(CFG_REFRACTION, DEFAULT_REFRACTION).toInt();
     MaterialType materialType = static_cast<MaterialType>(settings.value(CFG_MATERIAL_TYPE, static_cast<int>(DEFAULT_MATERIAL_TYPE)).toInt());
     QString decorationPath = settings.value(CFG_DECORATION_PATH, DEFAULT_DECORATION_PATH).toString();
+    QString customVert = settings.value(CFG_CUSTOM_VERT, DEFAULT_CUSTOM_VERT).toString();
+    QString customFrag = settings.value(CFG_CUSTOM_FRAG, DEFAULT_CUSTOM_FRAG).toString();
     
     // Set QML properties based on settings
     rootItem->setProperty("baseColor", QColor(baseColor));
@@ -106,14 +110,44 @@ void AtsumariLauncher::launch()
     rootItem->setProperty("rotationInterval", iteration * 1000);
     
     if (materialType == MaterialType::Principled) {
+        rootItem->setProperty("useCustomMaterial", false);
         rootItem->setProperty("useSpecularGlossyMaterial", false);
         rootItem->setProperty("roughness", roughness / 100.0);
         rootItem->setProperty("metalness", metalness / 100.0);
         rootItem->setProperty("refraction", refraction / 100.0);
     } else if (materialType == MaterialType::SpecularGlossy) {
+        rootItem->setProperty("useCustomMaterial", false);
         rootItem->setProperty("useSpecularGlossyMaterial", true);
         rootItem->setProperty("specularColor", QColor(specularColor));
         rootItem->setProperty("glossiness", glossiness / 100.0);
+    } else if (materialType == MaterialType::Custom) {
+        rootItem->setProperty("useSpecularGlossyMaterial", false);
+        rootItem->setProperty("useCustomMaterial", true);
+
+        if (!m_vertexShaderFile) {
+            m_vertexShaderFile = new QTemporaryFile(this);
+            m_vertexShaderFile->setFileTemplate(QDir::tempPath() + "/atsumariXXXXXX.vert");
+        }
+        if (!m_fragmentShaderFile) {
+            m_fragmentShaderFile = new QTemporaryFile(this);
+            m_fragmentShaderFile->setFileTemplate(QDir::tempPath() + "/atsumariXXXXXX.frag");
+        }
+
+        if (m_vertexShaderFile->open()) {
+            m_vertexShaderFile->resize(0);
+            m_vertexShaderFile->write(customVert.toUtf8());
+            m_vertexShaderFile->flush();
+            m_vertexShaderFile->close();
+        }
+        if (m_fragmentShaderFile->open()) {
+            m_fragmentShaderFile->resize(0);
+            m_fragmentShaderFile->write(customFrag.toUtf8());
+            m_fragmentShaderFile->flush();
+            m_fragmentShaderFile->close();
+        }
+
+        rootItem->setProperty("vertexShaderPath", QUrl::fromLocalFile(m_vertexShaderFile->fileName()).toString());
+        rootItem->setProperty("fragmentShaderPath", QUrl::fromLocalFile(m_fragmentShaderFile->fileName()).toString());
     }
     
     // Set decoration path
