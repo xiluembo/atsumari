@@ -196,7 +196,7 @@
              </property>
             </widget>
            </item>
-           <item row="9" column="0">
+           <item row="10" column="0">
             <widget class="QLabel" name="lblLightBrightness">
              <property name="locale">
               <locale language="English" country="UnitedStates"/>
@@ -422,7 +422,7 @@
              </property>
             </widget>
            </item>
-           <item row="10" column="0">
+           <item row="11" column="0">
             <widget class="QLabel" name="lblIterationTime">
              <property name="locale">
               <locale language="English" country="UnitedStates"/>
@@ -432,7 +432,7 @@
              </property>
             </widget>
            </item>
-           <item row="11" column="1">
+           <item row="12" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_16">
              <item>
               <widget class="QLabel" name="lblDecoration">
@@ -478,7 +478,7 @@
              </item>
             </layout>
            </item>
-           <item row="9" column="1">
+           <item row="10" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_22">
              <item>
               <widget class="QSlider" name="sldLightBrightness">
@@ -510,14 +510,14 @@
              </item>
             </layout>
            </item>
-           <item row="12" column="0">
+           <item row="13" column="0">
             <widget class="QLabel" name="label">
              <property name="text">
               <string>Emoji Font:</string>
              </property>
             </widget>
            </item>
-           <item row="10" column="1">
+           <item row="11" column="1">
             <widget class="QDoubleSpinBox" name="spnIteration">
              <property name="statusTip">
               <string notr="true"/>
@@ -546,7 +546,7 @@
              </property>
             </widget>
            </item>
-           <item row="11" column="0">
+           <item row="12" column="0">
             <widget class="QLabel" name="lblLightColor_2">
              <property name="locale">
               <locale language="English" country="UnitedStates"/>
@@ -563,7 +563,7 @@
              </property>
             </widget>
            </item>
-           <item row="12" column="1">
+           <item row="13" column="1">
             <widget class="QFontComboBox" name="cboEmojiFont">
              <property name="currentFont">
               <font>
@@ -696,7 +696,7 @@
             </property>
            </widget>
           </item>
-           <item row="13" column="0" colspan="2">
+           <item row="9" column="0" colspan="2">
             <widget class="QGroupBox" name="grpCustomMaterial">
              <property name="title">
               <string>Custom material shaders:</string>
@@ -719,10 +719,20 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="1">
-               <widget class="QPlainTextEdit" name="txtFragmentShader"/>
+               <item row="1" column="1">
+                <widget class="QPlainTextEdit" name="txtFragmentShader"/>
+               </item>
+              <item row="2" column="1">
+               <widget class="QPushButton" name="btnReloadShaders">
+                <property name="text">
+                 <string>Reload shaders</string>
+                </property>
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+               </widget>
               </item>
-             </layout>
+              </layout>
             </widget>
            </item>
           </layout>

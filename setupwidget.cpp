@@ -35,6 +35,7 @@
 #include <QTableWidget>
 #include <QCheckBox>
 #include <QPlainTextEdit>
+#include <QSignalBlocker>
 #include <QPainter>
 #include <QPixmap>
 #include <QRandomGenerator>
@@ -115,6 +116,10 @@ SetupWidget::SetupWidget(QWidget *parent)
         ui->grpPrincipled->setVisible(ui->cboMaterialType->currentData() == static_cast<int>(MaterialType::Principled));
         ui->grpSpecularGlossy->setVisible(ui->cboMaterialType->currentData() == static_cast<int>(MaterialType::SpecularGlossy));
         ui->grpCustomMaterial->setVisible(ui->cboMaterialType->currentData() == static_cast<int>(MaterialType::Custom));
+        bool isCustom = ui->cboMaterialType->currentData() == static_cast<int>(MaterialType::Custom);
+        ui->frmBaseColor->setEnabled(!isCustom);
+        ui->btnSelectBaseColor->setEnabled(!isCustom);
+        ui->btnReloadShaders->setEnabled(false);
         m_shouldSave = true;
         ui->btnSaveSettings->setEnabled(true);
         runPreview();
@@ -229,14 +234,19 @@ SetupWidget::SetupWidget(QWidget *parent)
         m_profiles[m_currentProfile]->setCustomVertexShader(ui->txtVertexShader->toPlainText());
         m_shouldSave = true;
         ui->btnSaveSettings->setEnabled(true);
-        runPreview();
+        ui->btnReloadShaders->setEnabled(true);
     });
 
     connect(ui->txtFragmentShader, &QPlainTextEdit::textChanged, this, [=]() {
         m_profiles[m_currentProfile]->setCustomFragmentShader(ui->txtFragmentShader->toPlainText());
         m_shouldSave = true;
         ui->btnSaveSettings->setEnabled(true);
+        ui->btnReloadShaders->setEnabled(true);
+    });
+
+    connect(ui->btnReloadShaders, &QPushButton::clicked, this, [=]() {
         runPreview();
+        ui->btnReloadShaders->setEnabled(false);
     });
 
     connect(ui->btnResetDecoration, &QPushButton::clicked, this, &SetupWidget::resetDecoration);
@@ -986,9 +996,17 @@ void SetupWidget::populateCurrentProfileControls()
     ui->grpSpecularGlossy->setVisible(p->materialType() == MaterialType::SpecularGlossy);
     ui->grpCustomMaterial->setVisible(p->materialType() == MaterialType::Custom);
 
-    ui->txtVertexShader->setPlainText(p->customVertexShader());
-    ui->txtFragmentShader->setPlainText(p->customFragmentShader());
+    {
+        QSignalBlocker b1(ui->txtVertexShader);
+        QSignalBlocker b2(ui->txtFragmentShader);
+        ui->txtVertexShader->setPlainText(p->customVertexShader());
+        ui->txtFragmentShader->setPlainText(p->customFragmentShader());
+    }
+    ui->btnReloadShaders->setEnabled(false);
 
+    bool isCustom = p->materialType() == MaterialType::Custom;
+    ui->frmBaseColor->setEnabled(!isCustom);
+    ui->btnSelectBaseColor->setEnabled(!isCustom);
     ui->frmBaseColor->setStyleSheet(QString("background-color: %1;").arg(p->baseColor()));
     ui->frmAmbientColor->setStyleSheet(QString("background-color: %1;").arg(p->ambientColor()));
     ui->frmLightColor->setStyleSheet(QString("background-color: %1;").arg(p->lightColor()));
