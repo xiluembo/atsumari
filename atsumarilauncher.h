@@ -20,6 +20,7 @@
 
 #include <QMainWindow>
 #include <QSystemTrayIcon>
+#include <QTemporaryFile>
 
 #include "twitchauthflow.h"
 #include "twitchchatreader.h"
@@ -43,6 +44,8 @@ private:
     QWidget* m_container = new QWidget;
     QSystemTrayIcon* m_tray = nullptr;
     LogViewDialog* m_logDialog = nullptr;
+    QTemporaryFile* m_vertexShaderFile = nullptr;
+    QTemporaryFile* m_fragmentShaderFile = nullptr;
 };
 
 #endif // ATSUMARILAUNCHER_H

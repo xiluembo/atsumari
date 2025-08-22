@@ -34,6 +34,8 @@
 #include <QDir>
 #include <QTableWidget>
 #include <QCheckBox>
+#include <QPlainTextEdit>
+#include <QSignalBlocker>
 #include <QPainter>
 #include <QPixmap>
 #include <QRandomGenerator>
@@ -55,6 +57,8 @@ SetupWidget::SetupWidget(QWidget *parent)
     , m_duplicateProfileAction(nullptr)
     , m_renameProfileAction(nullptr)
     , m_deleteProfileAction(nullptr)
+    , m_previewVertFile(nullptr)
+    , m_previewFragFile(nullptr)
     , ui(new Ui::SetupWidget)
 {
     ui->setupUi(this);
@@ -111,7 +115,13 @@ SetupWidget::SetupWidget(QWidget *parent)
         m_profiles[m_currentProfile]->setMaterialType(static_cast<MaterialType>(ui->cboMaterialType->currentData().toInt()));
         ui->grpPrincipled->setVisible(ui->cboMaterialType->currentData() == static_cast<int>(MaterialType::Principled));
         ui->grpSpecularGlossy->setVisible(ui->cboMaterialType->currentData() == static_cast<int>(MaterialType::SpecularGlossy));
+        ui->grpCustomMaterial->setVisible(ui->cboMaterialType->currentData() == static_cast<int>(MaterialType::Custom));
+        bool isCustom = ui->cboMaterialType->currentData() == static_cast<int>(MaterialType::Custom);
+        ui->frmBaseColor->setEnabled(!isCustom);
+        ui->btnSelectBaseColor->setEnabled(!isCustom);
+        ui->btnReloadShaders->setEnabled(false);
         m_shouldSave = true;
+        ui->btnSaveSettings->setEnabled(true);
         runPreview();
     });
 
@@ -220,6 +230,25 @@ SetupWidget::SetupWidget(QWidget *parent)
         runPreview();
     });
 
+    connect(ui->txtVertexShader, &QPlainTextEdit::textChanged, this, [=]() {
+        m_profiles[m_currentProfile]->setCustomVertexShader(ui->txtVertexShader->toPlainText());
+        m_shouldSave = true;
+        ui->btnSaveSettings->setEnabled(true);
+        ui->btnReloadShaders->setEnabled(true);
+    });
+
+    connect(ui->txtFragmentShader, &QPlainTextEdit::textChanged, this, [=]() {
+        m_profiles[m_currentProfile]->setCustomFragmentShader(ui->txtFragmentShader->toPlainText());
+        m_shouldSave = true;
+        ui->btnSaveSettings->setEnabled(true);
+        ui->btnReloadShaders->setEnabled(true);
+    });
+
+    connect(ui->btnReloadShaders, &QPushButton::clicked, this, [=]() {
+        runPreview();
+        ui->btnReloadShaders->setEnabled(false);
+    });
+
     connect(ui->btnResetDecoration, &QPushButton::clicked, this, &SetupWidget::resetDecoration);
     connect(ui->btnSelectDecoration, &QPushButton::clicked, this, &SetupWidget::selectDecoration);
 
@@ -287,15 +316,41 @@ void SetupWidget::runPreview()
     MaterialType materialType = static_cast<MaterialType>(ui->cboMaterialType->currentData().toInt());
     if(materialType == MaterialType::Principled) {
         // principled material properties
+        m_previewRootItem->setProperty("useCustomMaterial", false);
         m_previewRootItem->setProperty("useSpecularGlossyMaterial", false);
         m_previewRootItem->setProperty("roughness", ui->spnRoughness->value());
         m_previewRootItem->setProperty("metalness", ui->spnMetalness->value());
         m_previewRootItem->setProperty("refraction", ui->spnRefraction->value());
     } else if (materialType == MaterialType::SpecularGlossy) {
         // specular glossy material properties
+        m_previewRootItem->setProperty("useCustomMaterial", false);
         m_previewRootItem->setProperty("useSpecularGlossyMaterial", true);
         m_previewRootItem->setProperty("specularColor", QColor(m_profiles[m_currentProfile]->specularColor()));
         m_previewRootItem->setProperty("glossiness", ui->spnGlossiness->value());
+    } else if (materialType == MaterialType::Custom) {
+        m_previewRootItem->setProperty("useSpecularGlossyMaterial", false);
+        m_previewRootItem->setProperty("useCustomMaterial", true);
+        if (m_previewVertFile)
+            delete m_previewVertFile;
+        if (m_previewFragFile)
+            delete m_previewFragFile;
+
+        m_previewVertFile = new QTemporaryFile(QDir::tempPath() + "/atsumariXXXXXX.vert", this);
+        m_previewFragFile = new QTemporaryFile(QDir::tempPath() + "/atsumariXXXXXX.frag", this);
+
+        if (m_previewVertFile->open()) {
+            m_previewVertFile->write(m_profiles[m_currentProfile]->customVertexShader().toUtf8());
+            m_previewVertFile->flush();
+            m_previewVertFile->close();
+        }
+        if (m_previewFragFile->open()) {
+            m_previewFragFile->write(m_profiles[m_currentProfile]->customFragmentShader().toUtf8());
+            m_previewFragFile->flush();
+            m_previewFragFile->close();
+        }
+
+        m_previewRootItem->setProperty("vertexShaderPath", QUrl::fromLocalFile(m_previewVertFile->fileName()).toString());
+        m_previewRootItem->setProperty("fragmentShaderPath", QUrl::fromLocalFile(m_previewFragFile->fileName()).toString());
     }
 
     // other common properties
@@ -422,6 +477,8 @@ void SetupWidget::loadSettings()
                 profileData->setIteration(settings.value(CFG_ITERATION_TIME, DEFAULT_ITERATION_TIME).toDouble());
                 profileData->setDecorationPath(settings.value(CFG_DECORATION_PATH, DEFAULT_DECORATION_PATH).toString());
                 profileData->setFont(settings.value(CFG_EMOJI_FONT, DEFAULT_EMOJI_FONT).toString());
+                profileData->setCustomVertexShader(DEFAULT_CUSTOM_VERT);
+                profileData->setCustomFragmentShader(DEFAULT_CUSTOM_FRAG);
             } else if ( version == 2 ) {
                 int materialType = settings.value(CFG_MATERIAL_TYPE).toInt();
                 profileData->setMaterialType(static_cast<MaterialType>(materialType));
@@ -444,6 +501,8 @@ void SetupWidget::loadSettings()
                 profileData->setIteration(settings.value(CFG_ITERATION_TIME, DEFAULT_ITERATION_TIME).toDouble());
                 profileData->setDecorationPath(settings.value(CFG_DECORATION_PATH, DEFAULT_DECORATION_PATH).toString());
                 profileData->setFont(settings.value(CFG_EMOJI_FONT, DEFAULT_EMOJI_FONT).toString());
+                profileData->setCustomVertexShader(settings.value(CFG_CUSTOM_VERT, DEFAULT_CUSTOM_VERT).toString());
+                profileData->setCustomFragmentShader(settings.value(CFG_CUSTOM_FRAG, DEFAULT_CUSTOM_FRAG).toString());
             }
 
             ui->cboProfile->addItem(profileName);
@@ -498,6 +557,8 @@ void SetupWidget::saveSettings()
         settings.setValue(CFG_LIGHT_BRIGHTNESS, m_profiles[i]->lightBrightness());
         settings.setValue(CFG_ITERATION_TIME, m_profiles[i]->iteration());
         settings.setValue(CFG_DECORATION_PATH, m_profiles[i]->decorationPath());
+        settings.setValue(CFG_CUSTOM_VERT, m_profiles[i]->customVertexShader());
+        settings.setValue(CFG_CUSTOM_FRAG, m_profiles[i]->customFragmentShader());
 
         QString newFont = m_profiles[i]->font();
         QString previousFont = settings.value(CFG_EMOJI_FONT, DEFAULT_EMOJI_FONT).toString();
@@ -682,6 +743,7 @@ void SetupWidget::populateMaterialTypes()
     ui->cboMaterialType->clear();
     ui->cboMaterialType->addItem(tr("Principled Material"), static_cast<int>(MaterialType::Principled));
     ui->cboMaterialType->addItem(tr("Specular Glossy Material"), static_cast<int>(MaterialType::SpecularGlossy));
+    ui->cboMaterialType->addItem(tr("Custom Material"), static_cast<int>(MaterialType::Custom));
 }
 
 void SetupWidget::populateRefractionTypes()
@@ -749,6 +811,8 @@ void SetupWidget::newProfile()
     profile->setRefraction(DEFAULT_REFRACTION);
     profile->setSpecularColor(DEFAULT_COLORS_SPECULAR);
     profile->setGlossiness(DEFAULT_GLOSSINESS);
+    profile->setCustomVertexShader(DEFAULT_CUSTOM_VERT);
+    profile->setCustomFragmentShader(DEFAULT_CUSTOM_FRAG);
     profile->setDecorationPath(DEFAULT_DECORATION_PATH);
     profile->setLightBrightness(DEFAULT_LIGHT_BRIGHTNESS);
     profile->setIteration(DEFAULT_ITERATION_TIME);
@@ -935,7 +999,19 @@ void SetupWidget::populateCurrentProfileControls()
     // Initialize GroupBox visibility based on material type
     ui->grpPrincipled->setVisible(p->materialType() == MaterialType::Principled);
     ui->grpSpecularGlossy->setVisible(p->materialType() == MaterialType::SpecularGlossy);
+    ui->grpCustomMaterial->setVisible(p->materialType() == MaterialType::Custom);
 
+    {
+        QSignalBlocker b1(ui->txtVertexShader);
+        QSignalBlocker b2(ui->txtFragmentShader);
+        ui->txtVertexShader->setPlainText(p->customVertexShader());
+        ui->txtFragmentShader->setPlainText(p->customFragmentShader());
+    }
+    ui->btnReloadShaders->setEnabled(false);
+
+    bool isCustom = p->materialType() == MaterialType::Custom;
+    ui->frmBaseColor->setEnabled(!isCustom);
+    ui->btnSelectBaseColor->setEnabled(!isCustom);
     ui->frmBaseColor->setStyleSheet(QString("background-color: %1;").arg(p->baseColor()));
     ui->frmAmbientColor->setStyleSheet(QString("background-color: %1;").arg(p->ambientColor()));
     ui->frmLightColor->setStyleSheet(QString("background-color: %1;").arg(p->lightColor()));

@@ -37,6 +37,8 @@
 #define CFG_REFRACTION_TYPE "refraction_type"
 #define CFG_REFRACTION "refraction_value"
 #define CFG_GLOSSINESS "glossiness"
+#define CFG_CUSTOM_VERT "custom_vert"
+#define CFG_CUSTOM_FRAG "custom_frag"
 
 #define CFG_COLORS_SPECULAR "colors/specular"
 #define CFG_COLORS_AMBIENT "colors/ambient"
@@ -78,6 +80,19 @@
 #define DEFAULT_LIGHT_BRIGHTNESS 100
 #define DEFAULT_GLOSSINESS 40
 #define DEFAULT_ITERATION_TIME 3
+#define DEFAULT_CUSTOM_VERT "VARYING vec3 pos;\n" \
+"void MAIN()\n" \
+"{\n" \
+"    pos = VERTEX;\n" \
+"    pos.x += sin(1.0 * 4.0 + pos.y) * 1.0;\n" \
+"    POSITION = MODELVIEWPROJECTION_MATRIX * vec4(pos, 1.0);\n" \
+"}\n"
+#define DEFAULT_CUSTOM_FRAG "VARYING vec3 pos;\n" \
+"void MAIN()\n" \
+"{\n" \
+"    BASE_COLOR = vec4(vec3(pos.x * 0.02, pos.y * 0.02, pos.z * 0.02), 1.0);\n" \
+"    FRAGCOLOR = vec4(vec3(pos.x * 0.02, pos.y * 0.02, pos.z * 0.02), 1.0);\n" \
+"}\n"
 #define DEFAULT_DECORATION_PATH ":/decoration/kata_deco.png"
 #define DEFAULT_CURRENT_PROFILE 0
 #define DEFAULT_EXCLUDE_CHAT (QStringList() << "nightbot" << "sery_bot" << "streamelements" << "fossabot" << "wizebot" << "botisimo" << "moobot")

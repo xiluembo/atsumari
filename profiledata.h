@@ -61,6 +61,11 @@ public:
     MaterialType materialType() const;
     void setMaterialType(MaterialType newMaterialType);
 
+    QString customVertexShader() const;
+    void setCustomVertexShader(const QString &code);
+    QString customFragmentShader() const;
+    void setCustomFragmentShader(const QString &code);
+
 private:
     QString m_profileName;
     QString m_baseColor;
@@ -82,6 +87,8 @@ private:
     double m_iteration;
     QString m_decorationPath;
     QString m_font;
+    QString m_customVertexShader;
+    QString m_customFragmentShader;
 };
 
 #endif // PROFILEDATA_H

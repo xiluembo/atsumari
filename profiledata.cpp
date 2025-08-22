@@ -168,3 +168,23 @@ void ProfileData::setMaterialType(MaterialType newMaterialType)
 {
     m_materialType = newMaterialType;
 }
+
+QString ProfileData::customVertexShader() const
+{
+    return m_customVertexShader;
+}
+
+void ProfileData::setCustomVertexShader(const QString &code)
+{
+    m_customVertexShader = code;
+}
+
+QString ProfileData::customFragmentShader() const
+{
+    return m_customFragmentShader;
+}
+
+void ProfileData::setCustomFragmentShader(const QString &code)
+{
+    m_customFragmentShader = code;
+}

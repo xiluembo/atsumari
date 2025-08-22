@@ -23,6 +23,7 @@
 #include <QFrame>
 #include <QQuickView>
 #include <QQuickItem>
+#include <QTemporaryFile>
 
 #include "profiledata.h"
 
@@ -75,6 +76,9 @@ private:
 
     QQuickView* m_previewWindow;
     QQuickItem* m_previewRootItem;
+
+    QTemporaryFile* m_previewVertFile;
+    QTemporaryFile* m_previewFragFile;
 
     bool m_shouldSave;
     bool m_rebuildingCombo;
