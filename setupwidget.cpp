@@ -117,8 +117,6 @@ SetupWidget::SetupWidget(QWidget *parent)
         ui->grpSpecularGlossy->setVisible(ui->cboMaterialType->currentData() == static_cast<int>(MaterialType::SpecularGlossy));
         ui->grpCustomMaterial->setVisible(ui->cboMaterialType->currentData() == static_cast<int>(MaterialType::Custom));
         bool isCustom = ui->cboMaterialType->currentData() == static_cast<int>(MaterialType::Custom);
-        ui->frmBaseColor->setEnabled(!isCustom);
-        ui->btnSelectBaseColor->setEnabled(!isCustom);
         ui->btnReloadShaders->setEnabled(false);
         m_shouldSave = true;
         ui->btnSaveSettings->setEnabled(true);
@@ -1011,8 +1009,6 @@ void SetupWidget::populateCurrentProfileControls()
     ui->btnReloadShaders->setEnabled(false);
 
     bool isCustom = p->materialType() == MaterialType::Custom;
-    ui->frmBaseColor->setEnabled(!isCustom);
-    ui->btnSelectBaseColor->setEnabled(!isCustom);
     ui->frmBaseColor->setStyleSheet(QString("background-color: %1;").arg(p->baseColor()));
     ui->frmAmbientColor->setStyleSheet(QString("background-color: %1;").arg(p->ambientColor()));
     ui->frmLightColor->setStyleSheet(QString("background-color: %1;").arg(p->lightColor()));

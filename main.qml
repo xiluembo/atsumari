@@ -47,6 +47,11 @@ Item {
     }
 
     property var customMaterial: CustomMaterial {
+        property real uTime: 0
+        property color baseColor: root.baseColor
+        NumberAnimation on uTime {
+            from: 1; to: 3600; duration: 60000; loops: -1
+        }
         shadingMode: CustomMaterial.Shaded
         vertexShader: root.vertexShaderPath
         fragmentShader: root.fragmentShaderPath

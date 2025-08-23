@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>977</width>
-    <height>717</height>
+    <height>1030</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -690,49 +690,63 @@
             </widget>
            </item>
            <item row="0" column="0">
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>Language:</string>
-            </property>
-           </widget>
-          </item>
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>Language:</string>
+             </property>
+            </widget>
+           </item>
            <item row="9" column="0" colspan="2">
             <widget class="QGroupBox" name="grpCustomMaterial">
              <property name="title">
               <string>Custom material shaders:</string>
              </property>
              <layout class="QGridLayout" name="gridLayout_custom">
-              <item row="0" column="0">
-               <widget class="QLabel" name="lblVertexShader">
-                <property name="text">
-                 <string>Vertex Shader:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QPlainTextEdit" name="txtVertexShader"/>
-              </item>
-              <item row="1" column="0">
+              <item row="2" column="0">
                <widget class="QLabel" name="lblFragmentShader">
                 <property name="text">
                  <string>Fragment Shader:</string>
                 </property>
                </widget>
               </item>
-               <item row="1" column="1">
-                <widget class="QPlainTextEdit" name="txtFragmentShader"/>
-               </item>
-              <item row="2" column="1">
-               <widget class="QPushButton" name="btnReloadShaders">
+              <item row="1" column="0">
+               <widget class="QLabel" name="lblVertexShader">
                 <property name="text">
-                 <string>Reload shaders</string>
-                </property>
-                <property name="enabled">
-                 <bool>false</bool>
+                 <string>Vertex Shader:</string>
                 </property>
                </widget>
               </item>
-              </layout>
+              <item row="3" column="1">
+               <widget class="QPushButton" name="btnReloadShaders">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="text">
+                 <string>Reload shaders</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QPlainTextEdit" name="txtVertexShader"/>
+              </item>
+              <item row="2" column="1">
+               <widget class="QPlainTextEdit" name="txtFragmentShader"/>
+              </item>
+              <item row="0" column="0" colspan="2">
+               <widget class="QLabel" name="label_2">
+                <property name="text">
+                 <string>Refer to [https://doc.qt.io/qt-6/qtquick3d-custom.html]
+
+Custom properties available:
+ - **uTime**: ranges from 1 to 3600 over the period of 60 seconds
+ - **baseColor**: the *Base Color* you selected above</string>
+                </property>
+                <property name="textFormat">
+                 <enum>Qt::TextFormat::MarkdownText</enum>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
           </layout>
@@ -1000,24 +1014,24 @@
              </property>
             </column>
             <column>
+             <property name="text">
+              <string>Background</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnResetCommandColors">
             <property name="text">
-             <string>Background</string>
+             <string>Reset to default</string>
             </property>
-           </column>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="btnResetCommandColors">
-           <property name="text">
-            <string>Reset to default</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-     </layout>
-    </widget>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="tabAbout">
       <attribute name="title">
        <string>About</string>
@@ -1037,7 +1051,7 @@
             <x>0</x>
             <y>0</y>
             <width>935</width>
-            <height>611</height>
+            <height>924</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_8">
