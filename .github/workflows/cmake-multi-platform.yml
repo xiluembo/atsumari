@@ -74,14 +74,14 @@ jobs:
         arch: 'win64_mingw'
         modules: 'qtquick3d qtwebsockets qtnetworkauth qtshadertools'
 
-     - name: Set MinGW-w64 path
-        if: matrix.is_mingw == 'yes'
-        shell: bash
-        run: |
-         echo "Adjusting PATH for MinGW on Windows"
-         export PATH="/c/mingw64/bin:$PATH"
-         echo "Adjusted PATH: $PATH"
-         /c/mingw64/bin/g++ --version
+    - name: Set MinGW-w64 path
+      if: matrix.is_mingw == 'yes'
+      shell: bash
+      run: |
+       echo "Adjusting PATH for MinGW on Windows"
+       export PATH="/c/mingw64/bin:$PATH"
+       echo "Adjusted PATH: $PATH"
+       /c/mingw64/bin/g++ --version
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
