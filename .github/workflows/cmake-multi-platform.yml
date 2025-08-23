@@ -30,15 +30,20 @@ jobs:
           - os: windows-latest
             c_compiler: cl
             cpp_compiler: cl
+            is_mingw: no
+          - os: windows-latest
+            c_compiler: gcc
+            cpp_compiler: g++
+            is_mingw: yes
           - os: ubuntu-latest
             c_compiler: gcc
             cpp_compiler: g++
+            is_mingw: no
           - os: ubuntu-latest
             c_compiler: clang
             cpp_compiler: clang++
+            is_mingw: no
         exclude:
-          - os: windows-latest
-            c_compiler: gcc
           - os: windows-latest
             c_compiler: clang
           - os: ubuntu-latest
@@ -47,18 +52,49 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install Qt
-      uses: jurplel/install-qt-action@v4
-      with:
-        version: '6.9.0'
-        modules: 'qtquick3d qtwebview qtwebsockets qtwebchannel qtnetworkauth qtshadertools'
-
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
       id: strings
       shell: bash
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Install MSYS2 and MinGW
+      if: matrix.is_mingw == 'yes'
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        install: mingw-w64-x86_64-gcc
+        update: true
+
+    - name: Setup MSYS2 packages
+      if: matrix.is_mingw == 'yes'
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: ${{matrix.sys}}
+        update: true
+        install: >-
+          git
+          make
+        pacboy: >-
+          toolchain:p
+          cmake:p
+          ninja:p
+
+    - name: Install Qt
+      if: matrix.is_mingw == 'no'
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.9.0'
+        modules: 'qtquick3d qtwebsockets qtnetworkauth qtshadertools'
+
+    - name: Install Qt (MinGW64)
+      if: matrix.is_mingw == 'yes'
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.9.0'
+        arch: 'win64_mingw'
+        modules: 'qtquick3d qtwebsockets qtnetworkauth qtshadertools'
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
