@@ -79,46 +79,19 @@ jobs:
       uses: jurplel/install-qt-action@v4
       with:
         version: '6.9.0'
+        tools: 'tools_ninja tools_mingw,qt.tools.win64_mingw900'
+        add-tools-to-path: true
         arch: 'win64_mingw'
         modules: 'qtquick3d qtwebsockets qtnetworkauth qtshadertools'
-
-    - name: Set up MSYS2_MinGW64
-      uses: msys2/setup-msys2@v2
-      id: msys2
-      if: matrix.is_mingw == 'yes'
-      with:
-        msystem: mingw64
-        update: true
-        install: >-
-          mingw-w64-x86_64-toolchain
-          mingw-w64-x86_64-cmake
-          mingw-w64-x86_64-ninja
-
-    - name: Put MSYS2_MinGW64 on PATH
-      if: matrix.is_mingw == 'yes'
-      run: echo "${{ steps.msys2.outputs.msys2-location }}/mingw64/bin" >> $GITHUB_PATH
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      if: matrix.is_mingw == 'no'
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
         -G "${{ matrix.generator }}"
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        -S ${{ github.workspace }}
-    
-    - name: Configure CMake (MinGW64)
-      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      if: matrix.is_mingw == 'yes'
-      run: >
-        cmake -B ${{ steps.strings.outputs.build-output-dir }}
-        -G "${{ matrix.generator }}"
-        -DCMAKE_CXX_COMPILER=${{ steps.msys2.outputs.msys2-location }}/mingw64/bin/${{ matrix.cpp_compiler }}
-        -DCMAKE_C_COMPILER=${{ steps.msys2.outputs.msys2-location }}/mingw64/bin/${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -S ${{ github.workspace }}
 
