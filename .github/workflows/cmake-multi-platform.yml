@@ -25,33 +25,40 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
         build_type: [Release]
-        c_compiler: [gcc, clang, cl]
+        compiler_type: [gcc, clang, cl]
         include:
           - os: windows-latest
+            compiler_type: cl
             c_compiler: cl
             cpp_compiler: cl
-          - os: ubuntu-latest
+            generator: "Visual Studio 17 2022"
+            is_mingw: no
+          - os: windows-latest
+            compiler_type: gcc
             c_compiler: gcc
             cpp_compiler: g++
+            generator: Ninja
+            is_mingw: yes
           - os: ubuntu-latest
+            compiler_type: gcc
+            c_compiler: gcc
+            cpp_compiler: g++
+            generator: Ninja
+            is_mingw: no
+          - os: ubuntu-latest
+            compiler_type: clang
             c_compiler: clang
             cpp_compiler: clang++
+            generator: Ninja
+            is_mingw: no
         exclude:
           - os: windows-latest
-            c_compiler: gcc
-          - os: windows-latest
-            c_compiler: clang
+            compiler_type: clang
           - os: ubuntu-latest
-            c_compiler: cl
+            compiler_type: cl
 
     steps:
     - uses: actions/checkout@v4
-
-    - name: Install Qt
-      uses: jurplel/install-qt-action@v4
-      with:
-        version: '6.9.0'
-        modules: 'qtquick3d qtwebview qtwebsockets qtwebchannel qtnetworkauth qtshadertools'
 
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
@@ -60,11 +67,48 @@ jobs:
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
+    - name: Install Qt
+      if: matrix.is_mingw == 'no'
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.9.0'
+        modules: 'qtquick3d qtwebsockets qtnetworkauth qtshadertools'
+
+    - name: Install Qt (MinGW64)
+      if: matrix.is_mingw == 'yes'
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.9.0'
+        arch: 'win64_mingw'
+        modules: 'qtquick3d qtwebsockets qtnetworkauth qtshadertools'
+
+    - name: Download custom MinGW (from URL)
+      if: matrix.is_mingw == 'yes'
+      shell: pwsh
+      run: |
+        $url = "https://qt.mirror.constant.com/online/qtsdkrepository/windows_x86/desktop/tools_mingw1310/qt.tools.win64_mingw1310/13.1.0-202407240918mingw1310.7z"
+        $dst = "$env:RUNNER_TEMP\mingw.7z"
+        Invoke-WebRequest -Uri $url -OutFile $dst
+        & "C:\Program Files\7-Zip\7z.exe" x $dst -o"$env:RUNNER_TEMP\mingw" -y
+    
+        # Find a "bin" directory containing g++.exe
+        $bin = Get-ChildItem "$env:RUNNER_TEMP\mingw" -Recurse -Directory -Filter bin `
+               | Where-Object { Test-Path (Join-Path $_.FullName "g++.exe") } `
+               | Select-Object -First 1 -Expand FullName
+    
+        if (-not $bin) { throw "g++.exe not found in package." }
+    
+        # Remove C:\mingw64\bin from PATH and prepend the new MinGW
+        $parts = $env:PATH -split ';' | Where-Object { $_ -and ($_ -ne 'C:\mingw64\bin') }
+        $newPath = "$bin;" + ($parts -join ';')
+        "PATH=$newPath" >> $env:GITHUB_ENV
+
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -G "${{ matrix.generator }}"
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
@@ -72,7 +116,7 @@ jobs:
 
     - name: Build
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
-      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config "${{ matrix.build_type }}"
 
     - name: Test
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
