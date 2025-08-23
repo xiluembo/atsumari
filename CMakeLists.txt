@@ -112,10 +112,6 @@ qt_add_executable(emojimapper_tests
     emojimapper.h
 )
 
-if (MINGW)
-  target_compile_options(atsumari PRIVATE -fno-stack-protector)
-endif()
-
 target_link_libraries(emojimapper_tests PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Test)
 
 add_test(NAME emojimapper_tests COMMAND emojimapper_tests)
