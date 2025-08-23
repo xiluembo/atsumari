@@ -71,7 +71,7 @@ jobs:
       if: matrix.is_mingw == 'yes'
       uses: msys2/setup-msys2@v2
       with:
-        msystem: ${{matrix.sys}}
+        msystem: MINGW64
         update: true
         install: >-
           git
