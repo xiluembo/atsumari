@@ -79,7 +79,7 @@ jobs:
       uses: jurplel/install-qt-action@v4
       with:
         version: '6.9.0'
-        tools: 'tools_ninja tools_mingw,qt.tools.win64_mingw900'
+        tools: 'tools_ninja tools_mingw90,qt.tools.win64_mingw900'
         add-tools-to-path: true
         arch: 'win64_mingw'
         modules: 'qtquick3d qtwebsockets qtnetworkauth qtshadertools'
