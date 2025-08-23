@@ -31,12 +31,12 @@ jobs:
             compiler_type: cl
             c_compiler: cl
             cpp_compiler: cl
-            generator: Visual Studio 17 2022
+            generator: "Visual Studio 17 2022"
             is_mingw: no
           - os: windows-latest
             compiler_type: gcc
-            c_compiler: mingw-w64-i686-gcc
-            cpp_compiler: mingw-w64-i686-g++
+            c_compiler: gcc
+            cpp_compiler: g++
             generator: Ninja
             is_mingw: yes
           - os: ubuntu-latest
@@ -92,7 +92,7 @@ jobs:
 
     - name: Put MSYS2_MinGW64 on PATH
       if: matrix.is_mingw == 'yes'
-      run: echo "D:/a/_temp/msys64/mingw64/bin" >> $GITHUB_PATH
+      run: echo "${{ steps.msys2.outputs.msys2-location }}/ucrt64/bin" >> $GITHUB_PATH
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
