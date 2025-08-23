@@ -92,9 +92,10 @@ jobs:
           mingw-w64-x86_64-cmake
           mingw-w64-x86_64-ninja
 
-    - name: Put MSYS2_MinGW64 on PATH
+    - name: Put MSYS2_MinGW64 on PATH (prepend)
       if: matrix.is_mingw == 'yes'
-      run: echo "${{ steps.msys2.outputs.msys2-location }}/mingw64/bin" >> $GITHUB_PATH
+      run: echo "${{ steps.msys2.outputs.msys2-location }}/mingw64/bin;${env:PATH}" > $env:GITHUB_PATH
+      shell: pwsh
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
