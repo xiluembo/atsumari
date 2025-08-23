@@ -94,8 +94,19 @@ jobs:
 
     - name: Put MSYS2_MinGW64 on PATH (prepend)
       if: matrix.is_mingw == 'yes'
-      run: echo "${{ steps.msys2.outputs.msys2-location }}/mingw64/bin;${env:PATH}" > $env:GITHUB_PATH
       shell: pwsh
+      run: |
+        # Prepend MSYS2 mingw64/bin to PATH to override C:\mingw64
+        $msysPath = "${{ steps.msys2.outputs.msys2-location }}\mingw64\bin"
+        echo "$msysPath;$env:PATH" > $env:GITHUB_PATH
+
+    # Debug para confirmar qual g++ está sendo usado
+    - name: Check compiler path
+      if: matrix.is_mingw == 'yes'
+      shell: pwsh
+      run: |
+        where g++
+        g++ --version
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
