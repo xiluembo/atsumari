@@ -35,8 +35,8 @@ jobs:
             is_mingw: no
           - os: windows-latest
             compiler_type: gcc
-            c_compiler: gcc
-            cpp_compiler: g++
+            c_compiler: x86_64-w64-mingw32-gcc
+            cpp_compiler: x86_64-w64-mingw32-g++
             generator: Ninja
             is_mingw: yes
           - os: ubuntu-latest
