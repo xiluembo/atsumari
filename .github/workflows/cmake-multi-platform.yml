@@ -67,6 +67,27 @@ jobs:
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
+    - name: Set up MSYS2_MinGW64
+      uses: msys2/setup-msys2@v2
+      if: matrix.is_mingw == 'yes'
+      with:
+        update: true
+        install: >-
+          mingw-w64-x86_64-toolchain
+          mingw-w64-x86_64-cmake
+          mingw-w64-x86_64-ninja
+
+    - name: Put MSYS2_MinGW64 on PATH (prepend & clean)
+      if: matrix.is_mingw == 'yes'
+      shell: pwsh
+      run: |
+        $msysBin = "${{ steps.msys2.outputs.msys2-location }}\mingw64\bin"
+        # Remove C:\mingw64\bin which comes from runner
+        $parts = $env:PATH -split ';' | Where-Object { $_ -and ($_ -ne 'C:\mingw64\bin') }
+        # Prepend from MSYS2 mingw64/bin
+        $newPath = "$msysBin;" + ($parts -join ';')
+        "PATH=$newPath" >> $env:GITHUB_ENV
+
     - name: Install Qt
       if: matrix.is_mingw == 'no'
       uses: jurplel/install-qt-action@v4
@@ -81,24 +102,6 @@ jobs:
         version: '6.9.0'
         arch: 'win64_mingw'
         modules: 'qtquick3d qtwebsockets qtnetworkauth qtshadertools'
-
-    - name: Set up MSYS2_MinGW64
-      uses: msys2/setup-msys2@v2
-      if: matrix.is_mingw == 'yes'
-      with:
-        update: true
-        install: >-
-          mingw-w64-x86_64-toolchain
-          mingw-w64-x86_64-cmake
-          mingw-w64-x86_64-ninja
-
-    - name: Put MSYS2_MinGW64 on PATH (prepend)
-      if: matrix.is_mingw == 'yes'
-      shell: pwsh
-      run: |
-        # Prepend MSYS2 mingw64/bin to PATH to override C:\mingw64
-        $msysPath = "${{ steps.msys2.outputs.msys2-location }}\mingw64\bin"
-        echo "$msysPath;$env:PATH" > $env:GITHUB_PATH
 
     # Debug para confirmar qual g++ está sendo usado
     - name: Check compiler path
