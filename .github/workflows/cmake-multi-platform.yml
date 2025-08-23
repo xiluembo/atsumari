@@ -25,29 +25,37 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
         build_type: [Release]
-        c_compiler: [gcc, clang, cl]
+        compiler_type: [gcc, clang, cl]
         include:
           - os: windows-latest
+            compiler_type: cl
             c_compiler: cl
             cpp_compiler: cl
+            generator: Visual Studio 17 2022
             is_mingw: no
           - os: windows-latest
-            c_compiler: gcc
-            cpp_compiler: g++
+            compiler_type: gcc
+            c_compiler: mingw-w64-i686-gcc
+            cpp_compiler: mingw-w64-i686-g++
+            generator: Ninja
             is_mingw: yes
           - os: ubuntu-latest
+            compiler_type: gcc
             c_compiler: gcc
             cpp_compiler: g++
+            generator: Ninja
             is_mingw: no
           - os: ubuntu-latest
+            compiler_type: clang
             c_compiler: clang
             cpp_compiler: clang++
+            generator: Ninja
             is_mingw: no
         exclude:
           - os: windows-latest
-            c_compiler: clang
+            compiler_type: clang
           - os: ubuntu-latest
-            c_compiler: cl
+            compiler_type: cl
 
     steps:
     - uses: actions/checkout@v4
@@ -91,7 +99,7 @@ jobs:
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
-        -G Ninja
+        -G ${{ matrix.generator }}
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
