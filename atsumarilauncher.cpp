@@ -188,7 +188,7 @@ void AtsumariLauncher::launch()
                      [=](const QString &id, QQuick3DTextureData *tex, const QPixmap &pix) {
         QMetaObject::invokeMethod(rootItem, "addEmote", Qt::QueuedConnection,
                                  Q_ARG(QVariant, QVariant::fromValue(tex)),
-                                 Q_ARG(QVariant, -1.0), Q_ARG(QVariant, -1.0), Q_ARG(QVariant, 0.3));
+                                 Q_ARG(QVariant, -1.0), Q_ARG(QVariant, -1.0), Q_ARG(QVariant, 0.25));
         TwitchLogModel::instance()->loadEmote(id, pix);
     });
 
@@ -196,7 +196,7 @@ void AtsumariLauncher::launch()
                      [=](const QString &id, QQuick3DTextureData *tex, const QPixmap &pix) {
         QMetaObject::invokeMethod(rootItem, "addEmote", Qt::QueuedConnection,
                                  Q_ARG(QVariant, QVariant::fromValue(tex)),
-                                 Q_ARG(QVariant, -1.0), Q_ARG(QVariant, -1.0), Q_ARG(QVariant, 0.35));
+                                 Q_ARG(QVariant, -1.0), Q_ARG(QVariant, -1.0), Q_ARG(QVariant, 0.30));
         TwitchLogModel::instance()->loadEmote(id, pix);
     });
 
