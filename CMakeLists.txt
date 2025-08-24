@@ -15,7 +15,7 @@
 
 cmake_minimum_required(VERSION 3.5)
 
-project(atsumari VERSION 2.0.0 LANGUAGES CXX)
+project(atsumari VERSION 2.1.0 LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
