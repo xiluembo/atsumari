@@ -58,7 +58,6 @@ TwitchChatReader::~TwitchChatReader()
 
 void TwitchChatReader::onConnected()
 {
-    qDebug() << "Sending Commands";
     // Send required IRC commands
     m_webSocket->sendTextMessage(QStringLiteral("PASS oauth:") + m_token);
     TwitchLogModel::instance()->addEntry(TwitchLogModel::Sent, "PASS", m_channel, QStringLiteral("oauth:***"), QString());
