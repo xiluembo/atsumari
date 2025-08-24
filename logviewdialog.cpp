@@ -9,6 +9,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QHeaderView>
+#include <QCoreApplication>
 
 #include "twitchlogmodel.h"
 #include "settings_defaults.h"
@@ -45,9 +46,12 @@ void LogViewDialog::applyColumnVisibility()
 {
     QSettings settings;
     QStringList cols = settings.value(CFG_LOG_COLUMNS, DEFAULT_LOG_COLUMNS).toStringList();
+    QStringList translated;
+    for (const QString &c : cols)
+        translated << QCoreApplication::translate("TwitchLogModel", c.toUtf8().constData());
     for (int i = 0; i < TwitchLogModel::ColumnCount; ++i) {
         QString name = TwitchLogModel::instance()->headerData(i, Qt::Horizontal, Qt::DisplayRole).toString();
-        m_table->setColumnHidden(i, !cols.contains(name));
+        m_table->setColumnHidden(i, !translated.contains(name));
     }
 }
 
