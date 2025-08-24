@@ -209,6 +209,10 @@ void AtsumariLauncher::launch()
         QAction* quitAct = menu->addAction(tr("Quit"));
         QObject::connect(quitAct, &QAction::triggered, this, &QCoreApplication::quit);
         m_tray->setContextMenu(menu);
+        QObject::connect(m_tray, &QSystemTrayIcon::activated, this, [this](QSystemTrayIcon::ActivationReason reason) {
+            if (reason == QSystemTrayIcon::DoubleClick)
+                m_logDialog->show();
+        });
         m_tray->show();
     } else {
         m_container->setContextMenuPolicy(Qt::CustomContextMenu);
