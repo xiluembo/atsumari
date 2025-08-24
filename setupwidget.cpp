@@ -255,18 +255,19 @@ SetupWidget::SetupWidget(QWidget *parent)
                 }
             };
             if (isVertex) {
-                presetMenu->addAction(tr("Base"), [=]() { loadPreset(":/shaders/base.vert"); });
-                presetMenu->addAction(tr("Ondulation"), [=]() { loadPreset(":/shaders/ondulation.vert"); });
+                presetMenu->addAction(tr("Base"), [=]() { loadPreset(":/custom_shaders/base.vert"); });
+                presetMenu->addAction(tr("Ondulation"), [=]() { loadPreset(":/custom_shaders/ondulation.vert"); });
             } else {
-                presetMenu->addAction(tr("Base"), [=]() { loadPreset(":/shaders/base.frag"); });
-                presetMenu->addAction(tr("Dissolve"), [=]() { loadPreset(":/shaders/dissolve.frag"); });
-                presetMenu->addAction(tr("Alternate"), [=]() { loadPreset(":/shaders/alternate.frag"); });
-                presetMenu->addAction(tr("Stripes"), [=]() { loadPreset(":/shaders/stripes.frag"); });
+                presetMenu->addAction(tr("Base"), [=]() { loadPreset(":/custom_shaders/base.frag"); });
+                presetMenu->addAction(tr("Dissolve"), [=]() { loadPreset(":/custom_shaders/dissolve.frag"); });
+                presetMenu->addAction(tr("Alternate"), [=]() { loadPreset(":/custom_shaders/alternate.frag"); });
+                presetMenu->addAction(tr("Stripes"), [=]() { loadPreset(":/custom_shaders/stripes.frag"); });
             }
             menu->exec(editor->mapToGlobal(pos));
             delete menu;
         });
     };
+
     addShaderPresetMenu(ui->txtVertexShader, true);
     addShaderPresetMenu(ui->txtFragmentShader, false);
 

@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/shaders">
+    <qresource prefix="/">
         <file>custom_shaders/base.frag</file>
         <file>custom_shaders/base.vert</file>
         <file>custom_shaders/dissolve.frag</file>
