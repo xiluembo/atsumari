@@ -25,6 +25,7 @@
 #include <QColorDialog>
 #include <QInputDialog>
 #include <QFileDialog>
+#include <QFile>
 #include <QDesktopServices>
 #include <QMessageBox>
 #include <QStyleHints>
@@ -241,6 +242,33 @@ SetupWidget::SetupWidget(QWidget *parent)
         ui->btnSaveSettings->setEnabled(true);
         ui->btnReloadShaders->setEnabled(true);
     });
+
+    auto addShaderPresetMenu = [=](QPlainTextEdit *editor, bool isVertex) {
+        editor->setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(editor, &QPlainTextEdit::customContextMenuRequested, this, [=](const QPoint &pos) {
+            QMenu *menu = editor->createStandardContextMenu();
+            QMenu *presetMenu = menu->addMenu(tr("Presets"));
+            auto loadPreset = [=](const QString &resource) {
+                QFile f(resource);
+                if (f.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                    editor->setPlainText(QString::fromUtf8(f.readAll()));
+                }
+            };
+            if (isVertex) {
+                presetMenu->addAction(tr("Base"), [=]() { loadPreset(":/shaders/base.vert"); });
+                presetMenu->addAction(tr("Ondulation"), [=]() { loadPreset(":/shaders/ondulation.vert"); });
+            } else {
+                presetMenu->addAction(tr("Base"), [=]() { loadPreset(":/shaders/base.frag"); });
+                presetMenu->addAction(tr("Dissolve"), [=]() { loadPreset(":/shaders/dissolve.frag"); });
+                presetMenu->addAction(tr("Alternate"), [=]() { loadPreset(":/shaders/alternate.frag"); });
+                presetMenu->addAction(tr("Stripes"), [=]() { loadPreset(":/shaders/stripes.frag"); });
+            }
+            menu->exec(editor->mapToGlobal(pos));
+            delete menu;
+        });
+    };
+    addShaderPresetMenu(ui->txtVertexShader, true);
+    addShaderPresetMenu(ui->txtFragmentShader, false);
 
     connect(ui->btnReloadShaders, &QPushButton::clicked, this, [=]() {
         runPreview();

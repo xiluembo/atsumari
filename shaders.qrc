@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/shaders">
+        <file>custom_shaders/base.frag</file>
+        <file>custom_shaders/base.vert</file>
+        <file>custom_shaders/dissolve.frag</file>
+        <file>custom_shaders/ondulation.vert</file>
+        <file>custom_shaders/alternate.frag</file>
+        <file>custom_shaders/stripes.frag</file>
+    </qresource>
+</RCC>
