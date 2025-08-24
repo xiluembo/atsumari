@@ -21,6 +21,7 @@
 #include <QMainWindow>
 #include <QSystemTrayIcon>
 #include <QTemporaryFile>
+#include <QEvent>
 
 #include "twitchauthflow.h"
 #include "twitchchatreader.h"
@@ -35,6 +36,9 @@ public:
     AtsumariLauncher(const AtsumariLauncher&) = delete;
     AtsumariLauncher& operator=(const AtsumariLauncher&) = delete;
     void launch();
+
+protected:
+    bool eventFilter(QObject* obj, QEvent* event) override;
 
 private:
     TwitchAuthFlow* m_twFlow;

@@ -30,6 +30,8 @@
 #include <QQuick3DTextureData>
 #include <QTemporaryFile>
 #include <QDir>
+#include <QMessageBox>
+#include <QFileDialog>
 
 #include "settings_defaults.h"
 #include "materialtype.h"
@@ -67,6 +69,7 @@ void AtsumariLauncher::launch()
 
     // Create main window
     m_mw = new QMainWindow;
+    m_mw->installEventFilter(this);
     m_container = new QWidget;
     m_mw->resize(300, 300);
     m_container->setLayout(new QVBoxLayout);
@@ -226,4 +229,34 @@ void AtsumariLauncher::launch()
 
     // now we can close the app if the window is closed
     qGuiApp->setQuitOnLastWindowClosed(true);
+}
+
+bool AtsumariLauncher::eventFilter(QObject* obj, QEvent* event)
+{
+    if (obj == m_mw && event->type() == QEvent::Close) {
+        int ret = QMessageBox::question(m_mw,
+                                        tr("Save logs"),
+                                        tr("Do you want to save logs before closing?"),
+                                        QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+                                        QMessageBox::Cancel);
+
+        if (ret == QMessageBox::Yes) {
+            QString fn = QFileDialog::getSaveFileName(m_mw,
+                                                     tr("Export logs"),
+                                                     QString(),
+                                                     tr("Text Files (*.txt)"));
+            if (!fn.isEmpty()) {
+                TwitchLogModel::instance()->exportToFile(fn);
+            }
+            event->accept();
+            return false;
+        } else if (ret == QMessageBox::No) {
+            event->accept();
+            return false;
+        } else {
+            event->ignore();
+            return true;
+        }
+    }
+    return QObject::eventFilter(obj, event);
 }
