@@ -102,8 +102,11 @@ void EmoteWriter::saveEmoji(const QString &slug, const QString& emojiData)
 
 void EmoteWriter::handleNetworkReply(QNetworkReply *reply)
 {
-    if (!reply || reply->error() != QNetworkReply::NoError)
+    if (!reply || reply->error() != QNetworkReply::NoError) {
+        if (reply)
+            reply->deleteLater();
         return;
+    }
 
     QString id = reply->property("emoteId").toString();
     bool isBig = reply->property("isBig").toBool();
