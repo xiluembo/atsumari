@@ -126,6 +126,9 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs)
         if (nameMatch.hasMatch()) {
             QSettings settings;
             QStringList exceptNames = settings.value(CFG_EXCLUDE_CHAT).toStringList();
+            for (QString &exceptName : exceptNames) {
+                exceptName = exceptName.toLower();
+            }
             QString nameData = nameMatch.captured(1).toLower();
             if (exceptNames.contains(nameData)) {
                 continue;
