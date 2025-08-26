@@ -20,6 +20,7 @@
 #include "./ui_setupwidget.h"
 
 #include <algorithm>
+#include <QtAlgorithms>
 
 #include <QSettings>
 #include <QColorDialog>
@@ -324,6 +325,9 @@ SetupWidget::SetupWidget(QWidget *parent)
 
 SetupWidget::~SetupWidget()
 {
+    qDeleteAll(m_profiles);
+    m_profiles.clear();
+
     delete ui;
     if (m_previewWindow) m_previewWindow->deleteLater();
 }
