@@ -36,7 +36,6 @@ void LocaleHelper::loadBestTranslation(const QString &baseName, const QString &d
     if (result) {
         qApp->installTranslator(&translator);
     }
-    return;
 }
 
 void LocaleHelper::loadTranslation(const QLocale &locale, const QString &baseName, const QString &directory)
@@ -46,7 +45,6 @@ void LocaleHelper::loadTranslation(const QLocale &locale, const QString &baseNam
     if (result) {
         qApp->installTranslator(&translator);
     }
-    return;
 }
 
 QLocale LocaleHelper::findBestLocale(const QLocale &locale, const QString &baseName, const QString &directory)
