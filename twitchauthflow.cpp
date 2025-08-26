@@ -27,9 +27,6 @@
 #include <QDateTime>
 #include <QDebug>
 #include <QDesktopServices>
-#include <QUrlQuery>
-#include <QJsonDocument>
-#include <QJsonObject>
 
 #include "settings_defaults.h"
 
