@@ -54,6 +54,10 @@ TwitchChatReader::TwitchChatReader(const QString &url, const QString &token, con
 TwitchChatReader::~TwitchChatReader()
 {
     m_webSocket->close();
+    if (m_pingTimer) {
+        m_pingTimer->stop();
+        m_pingTimer->deleteLater();
+    }
 }
 
 void TwitchChatReader::onConnected()
@@ -213,9 +217,11 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs)
 
 void TwitchChatReader::startPingTimer()
 {
-    QTimer* pingTimer = new QTimer(this);
-    connect(pingTimer, &QTimer::timeout, this, [=]() {
-        m_webSocket->sendTextMessage("PING");
-    });
-    pingTimer->start(180000); // Send a PING every 3 minutes
+    if (!m_pingTimer) {
+        m_pingTimer = new QTimer(this);
+        connect(m_pingTimer, &QTimer::timeout, this, [=]() {
+            m_webSocket->sendTextMessage("PING");
+        });
+    }
+    m_pingTimer->start(180000); // Send a PING every 3 minutes
 }
