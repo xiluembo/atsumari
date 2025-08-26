@@ -21,6 +21,7 @@
 #include <QCoreApplication>
 #include <QtWebSockets/QWebSocket>
 #include <QtCore/QUrl>
+#include <QTimer>
 
 #include "emojimapper.h"
 
@@ -45,6 +46,7 @@ private:
     QWebSocket* m_webSocket;
     QString m_token;
     QString m_channel;
+    QTimer* m_pingTimer = nullptr;
 
     EmojiMapper m_emojiMapper;
     EmoteWriter* m_emoteWriter;
