@@ -47,6 +47,7 @@ private:
     QString m_token;
     QString m_channel;
     QTimer* m_pingTimer = nullptr;
+    int m_reconnectAttempts = 0;
 
     EmojiMapper m_emojiMapper;
     EmoteWriter* m_emoteWriter;
