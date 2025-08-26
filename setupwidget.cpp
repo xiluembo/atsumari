@@ -206,7 +206,7 @@ SetupWidget::SetupWidget(QWidget *parent)
     });
 
     connect(ui->spnLightBrightness, &QDoubleSpinBox::valueChanged, this, [=]() {
-        m_profiles[m_currentProfile]->setRefraction(ui->spnLightBrightness->value() * 100);
+        m_profiles[m_currentProfile]->setLightBrightness(ui->spnLightBrightness->value() * 100);
         ui->sldLightBrightness->setValue(ui->spnLightBrightness->value() * 100);
         m_shouldSave = true;
         ui->btnSaveSettings->setEnabled(true);
@@ -222,7 +222,7 @@ SetupWidget::SetupWidget(QWidget *parent)
     });
 
     connect(ui->spnGlossiness, &QDoubleSpinBox::valueChanged, this, [=]() {
-        m_profiles[m_currentProfile]->setRefraction(ui->spnGlossiness->value() * 100);
+        m_profiles[m_currentProfile]->setGlossiness(ui->spnGlossiness->value() * 100);
         ui->sldGlossiness->setValue(ui->spnGlossiness->value() * 100);
         m_shouldSave = true;
         ui->btnSaveSettings->setEnabled(true);
