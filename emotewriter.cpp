@@ -25,6 +25,7 @@
 #include <QFontDatabase>
 #include <QSettings>
 #include <QImage>
+#include <QDebug>
 
 #include "settings_defaults.h"
 
@@ -113,7 +114,11 @@ void EmoteWriter::handleNetworkReply(QNetworkReply *reply)
 
     QByteArray data = reply->readAll();
     QImage image;
-    image.loadFromData(data);
+    if (!image.loadFromData(data)) {
+        qWarning() << "Failed to load emote image for id" << id;
+        reply->deleteLater();
+        return;
+    }
     QPixmap pixmap = QPixmap::fromImage(image);
 
     QImage img = pixmap.toImage().convertToFormat(QImage::Format_RGBA8888);
