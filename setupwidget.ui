@@ -156,16 +156,29 @@
                       <property name="tickInterval">
                        <number>10</number>
                       </property>
+                    </widget>
+                   </item>
+                   <item>
+                     <widget class="QDoubleSpinBox" name="spnGlossiness">
+                      <property name="minimum">
+                       <double>0.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>1.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.010000000000000</double>
+                      </property>
+                      <property name="decimals">
+                       <number>2</number>
+                      </property>
                      </widget>
-                    </item>
-                    <item>
-                     <widget class="QDoubleSpinBox" name="spnGlossiness"/>
-                    </item>
-                   </layout>
-                  </item>
-                 </layout>
-                </widget>
-               </item>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </widget>
+              </item>
                <item row="2" column="1">
                 <layout class="QHBoxLayout" name="horizontalLayout_17">
                  <item>
@@ -337,15 +350,28 @@
                       <property name="tickInterval">
                        <number>10</number>
                       </property>
+                    </widget>
+                   </item>
+                   <item>
+                     <widget class="QDoubleSpinBox" name="spnRoughness">
+                      <property name="minimum">
+                       <double>0.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>1.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.010000000000000</double>
+                      </property>
+                      <property name="decimals">
+                       <number>2</number>
+                      </property>
                      </widget>
-                    </item>
-                    <item>
-                     <widget class="QDoubleSpinBox" name="spnRoughness"/>
-                    </item>
-                   </layout>
-                  </item>
-                  <item row="1" column="1">
-                   <layout class="QHBoxLayout" name="horizontalLayout_18">
+                   </item>
+                  </layout>
+                 </item>
+                 <item row="1" column="1">
+                  <layout class="QHBoxLayout" name="horizontalLayout_18">
                     <item>
                      <widget class="QSlider" name="sldMetalness">
                       <property name="maximum">
@@ -368,15 +394,28 @@
                       </property>
                       <property name="tickInterval">
                        <number>10</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                     <widget class="QDoubleSpinBox" name="spnMetalness">
+                      <property name="minimum">
+                       <double>0.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>1.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.010000000000000</double>
+                      </property>
+                      <property name="decimals">
+                       <number>2</number>
                       </property>
                      </widget>
-                    </item>
-                    <item>
-                     <widget class="QDoubleSpinBox" name="spnMetalness"/>
-                    </item>
-                   </layout>
-                  </item>
-                  <item row="2" column="1">
+                   </item>
+                  </layout>
+                 </item>
+                 <item row="2" column="1">
                    <layout class="QHBoxLayout" name="horizontalLayout_19">
                     <item>
                      <widget class="QComboBox" name="cboRefraction"/>
@@ -520,16 +559,29 @@
                    </property>
                    <property name="tickInterval">
                     <number>10</number>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QDoubleSpinBox" name="spnLightBrightness"/>
-                 </item>
-                </layout>
-               </item>
-               <item row="13" column="0">
-                <widget class="QLabel" name="label">
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QDoubleSpinBox" name="spnLightBrightness">
+                  <property name="minimum">
+                   <double>0.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>1.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
+                  </property>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="13" column="0">
+               <widget class="QLabel" name="label">
                  <property name="text">
                   <string>Emoji Font:</string>
                  </property>
