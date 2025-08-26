@@ -123,6 +123,7 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs)
 
         static QRegularExpression displayNameRegex("display.name=([^;\\s]+)");
         QRegularExpressionMatch nameMatch = displayNameRegex.match(metadata);
+        bool skipEmoteProcessing = false;
         if (nameMatch.hasMatch()) {
             QSettings settings;
             QStringList exceptNames = settings.value(CFG_EXCLUDE_CHAT).toStringList();
@@ -130,88 +131,88 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs)
                 exceptName = exceptName.toLower();
             }
             QString nameData = nameMatch.captured(1).toLower();
-            if (exceptNames.contains(nameData)) {
-                continue;
-            }
+            skipEmoteProcessing = exceptNames.contains(nameData);
             sender = nameMatch.captured(1);
         }
 
-        bool isGigantifiedEmoteMessage = metadata.contains("msg-id=gigantified-emote-message");
-
-        static QRegularExpression emoteRegex("emotes=([^;\\s]+)");
-        QRegularExpressionMatch match = emoteRegex.match(metadata);
-
         QList<QPixmap> emotePixmaps;
         QStringList missingEmotes;
-        if (match.hasMatch()) {
-            QString emotesData = match.captured(1);
-            QStringList emoteList = emotesData.split('/');
+        if (!skipEmoteProcessing) {
+            bool isGigantifiedEmoteMessage = metadata.contains("msg-id=gigantified-emote-message");
 
-            QString lastEmoteId;
-            QString lastEmoteName;
-            int lastEmoteEndPos = -1;
+            static QRegularExpression emoteRegex("emotes=([^;\\s]+)");
+            QRegularExpressionMatch match = emoteRegex.match(metadata);
 
-            QMap<QString, QString> processedEmotes;
-            for (const QString& emote : emoteList) {
-                QStringList parts = emote.split(':');
-                if (parts.length() < 2) continue;
+            if (match.hasMatch()) {
+                QString emotesData = match.captured(1);
+                QStringList emoteList = emotesData.split('/');
 
-                QString emoteId = parts[0];
-                QString position = parts[1].split(',')[parts[1].split(',').length() - 1];
+                QString lastEmoteId;
+                QString lastEmoteName;
+                int lastEmoteEndPos = -1;
 
-                QStringList range = position.split('-');
-                if (range.length() != 2) continue;
+                QMap<QString, QString> processedEmotes;
+                for (const QString& emote : emoteList) {
+                    QStringList parts = emote.split(':');
+                    if (parts.length() < 2) continue;
 
-                int start = range[0].toInt();
-                int end = range[1].toInt() + 1;
-                QString emoteName = content.mid(start, end - start);
+                    QString emoteId = parts[0];
+                    QString position = parts[1].split(',')[parts[1].split(',').length() - 1];
 
-                if (isGigantifiedEmoteMessage && end > lastEmoteEndPos) {
-                    lastEmoteId = emoteId;
-                    lastEmoteName = emoteName;
-                    lastEmoteEndPos = end;
+                    QStringList range = position.split('-');
+                    if (range.length() != 2) continue;
+
+                    int start = range[0].toInt();
+                    int end = range[1].toInt() + 1;
+                    QString emoteName = content.mid(start, end - start);
+
+                    if (isGigantifiedEmoteMessage && end > lastEmoteEndPos) {
+                        lastEmoteId = emoteId;
+                        lastEmoteName = emoteName;
+                        lastEmoteEndPos = end;
+                    }
+
+                    processedEmotes[emoteId] = emoteName.trimmed();
+
+                    QPixmap pix = m_emoteWriter ? m_emoteWriter->pixmapFor(emoteId) : QPixmap();
+                    if (!pix.isNull())
+                        emotePixmaps.append(pix);
+                    else
+                        missingEmotes.append(emoteId);
                 }
 
-                processedEmotes[emoteId] = emoteName.trimmed();
+                if (isGigantifiedEmoteMessage && !lastEmoteId.isEmpty()) {
+                    emit bigEmoteSent(lastEmoteId, lastEmoteName.trimmed());
+                    processedEmotes.remove(lastEmoteId);
+                }
 
-                QPixmap pix = m_emoteWriter ? m_emoteWriter->pixmapFor(emoteId) : QPixmap();
+                for (const QString& emoteId: processedEmotes.keys()) {
+                    emit emoteSent(emoteId, processedEmotes[emoteId]);
+                }
+            }
+
+            QMap<QString, QString> emojisFound;
+            while (!content.isEmpty()) {
+                QPair<QString, QString> emojidata = m_emojiMapper.findBestMatch(content);
+                QString emojiStr = emojidata.first;
+                QString emojiSlug = emojidata.second;
+                if (!emojiStr.isEmpty()) {
+                    emojisFound[emojiSlug] = emojiStr;
+                    content.remove(0, emojiStr.length());
+                } else {
+                    content.remove(0, 1);
+                }
+            }
+
+            for (const QString& slug: emojisFound.keys()) {
+                emit emojiSent(slug, emojisFound[slug]);
+
+                QPixmap pix = m_emoteWriter ? m_emoteWriter->pixmapFor(slug) : QPixmap();
                 if (!pix.isNull())
                     emotePixmaps.append(pix);
                 else
-                    missingEmotes.append(emoteId);
+                    missingEmotes.append(slug);
             }
-
-            if (isGigantifiedEmoteMessage && !lastEmoteId.isEmpty()) {
-                emit bigEmoteSent(lastEmoteId, lastEmoteName.trimmed());
-                processedEmotes.remove(lastEmoteId);
-            }
-
-            for (const QString& emoteId: processedEmotes.keys()) {
-                emit emoteSent(emoteId, processedEmotes[emoteId]);
-            }
-        }
-
-        QMap<QString, QString> emojisFound;
-        while (!content.isEmpty()) {
-            QPair<QString, QString> emojidata = m_emojiMapper.findBestMatch(content);
-            QString emojiStr = emojidata.first;
-            QString emojiSlug = emojidata.second;
-            if (!emojiStr.isEmpty()) {
-                emojisFound[emojiSlug] = emojiStr;
-                content.remove(0, emojiStr.length());
-            } else {
-                content.remove(0, 1);
-            }
-        }
-
-        for (const QString& slug: emojisFound.keys()) {
-            emit emojiSent(slug, emojisFound[slug]);
-
-            QPixmap pix = m_emoteWriter ? m_emoteWriter->pixmapFor(slug) : QPixmap();
-            if (!pix.isNull())
-                emotePixmaps.append(pix);
-            else
-                missingEmotes.append(slug);
         }
 
         TwitchLogModel::instance()->addEntry(TwitchLogModel::Received, command, sender, trailing, metadata, emotePixmaps, missingEmotes);
