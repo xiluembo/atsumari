@@ -40,8 +40,11 @@ TwitchChatReader::TwitchChatReader(const QString &url, const QString &token, con
     connect(m_webSocket, &QWebSocket::textMessageReceived, this, &TwitchChatReader::onTextMessageReceived);
 
     connect(m_webSocket, &QWebSocket::disconnected, this, [=] {
-        m_webSocket->open(QUrl(url + "?oauth_token=" + token));
-        qDebug() << QUrl(url + "?oauth_token=" + token);
+        ++m_reconnectAttempts;
+        int delay = qMin(30000, 1000 * (1 << (m_reconnectAttempts - 1)));
+        QTimer::singleShot(delay, this, [=] {
+            m_webSocket->open(QUrl(url + "?oauth_token=" + token));
+        });
     });
 
     m_token = token;
@@ -62,6 +65,7 @@ TwitchChatReader::~TwitchChatReader()
 
 void TwitchChatReader::onConnected()
 {
+    m_reconnectAttempts = 0;
     // Send required IRC commands
     m_webSocket->sendTextMessage(QStringLiteral("PASS oauth:") + m_token);
     TwitchLogModel::instance()->addEntry(TwitchLogModel::Sent, "PASS", m_channel, QStringLiteral("oauth:***"), QString());
