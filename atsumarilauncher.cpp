@@ -20,7 +20,6 @@
 #include <QQuickView>
 #include <QQuickItem>
 #include <QUrl>
-#include <QRandomGenerator64>
 #include <QSettings>
 #include <QVBoxLayout>
 #include <QGuiApplication>
@@ -40,7 +39,7 @@
 
 AtsumariLauncher::AtsumariLauncher(QObject *parent)
     : QObject(parent)
-    , m_twFlow(new TwitchAuthFlow(QString("a123%1").arg(QRandomGenerator64::global()->generate())))
+    , m_twFlow(new TwitchAuthFlow(this))
     , m_emw(new EmoteWriter())
     , m_tReader(nullptr)
     , m_mw(new QMainWindow)

@@ -30,7 +30,7 @@
 
 #include "settings_defaults.h"
 
-TwitchAuthFlow::TwitchAuthFlow(const QString& state, QObject *parent)
+TwitchAuthFlow::TwitchAuthFlow(QObject *parent)
     : QObject{parent}
     , m_token(QString())
     , m_authInProgress(false)
@@ -90,9 +90,6 @@ void TwitchAuthFlow::requestTokenValidation()
         onValidateReply(reply);
     });
 }
-
-// parseToken function removed - no longer needed with external browser approach
-
 void TwitchAuthFlow::requestUserinfo()
 {
     QSettings settings;

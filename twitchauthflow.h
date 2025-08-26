@@ -27,7 +27,7 @@
 class TwitchAuthFlow : public QObject {
     Q_OBJECT
 public:
-    explicit TwitchAuthFlow(const QString& state, QObject *parent = nullptr);
+    explicit TwitchAuthFlow(QObject *parent = nullptr);
     ~TwitchAuthFlow();
     QString token() const;
 
@@ -37,7 +37,6 @@ signals:
     void loginFetched(QString login);
 
 private:
-    void parseToken(QUrl newUrl);
     void requestUserinfo();
     void onUserinfoReply(QNetworkReply* reply);
     void requestTokenValidation();
