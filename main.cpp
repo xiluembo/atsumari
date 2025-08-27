@@ -33,8 +33,8 @@ int main(int argc, char *argv[])
 
     LocaleHelper::loadBestTranslation();
 
-    SetupWidget setupw;
-    setupw.show();
+    SetupWidget* setupw = new SetupWidget();
+    setupw->show();
 
     return app.exec();
 }
