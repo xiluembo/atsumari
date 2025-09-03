@@ -60,6 +60,7 @@ private:
     void populateMaterialTypes();
     void populateRefractionTypes();
     void setupPreview();
+    void checkForUpdates();
     void newProfile();
     void duplicateProfile();
     void renameProfile();

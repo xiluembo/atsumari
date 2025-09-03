@@ -29,6 +29,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     QApplication::setOrganizationName("Push X!");
     QApplication::setApplicationName("Atsumari");
+    QApplication::setApplicationVersion(QStringLiteral(ATSUMARI_VERSION));
     app.setQuitOnLastWindowClosed(false);
 
     LocaleHelper::loadBestTranslation();
