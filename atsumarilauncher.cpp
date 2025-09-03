@@ -90,6 +90,7 @@ void AtsumariLauncher::launch()
     
     // Load settings from current profile
     QString baseColor = settings.value(CFG_COLORS_BASE, DEFAULT_COLORS_BASE).toString();
+    QString baseTexture = settings.value(CFG_BASE_TEXTURE, DEFAULT_BASE_TEXTURE).toString();
     QString ambientColor = settings.value(CFG_COLORS_AMBIENT, DEFAULT_COLORS_AMBIENT).toString();
     QString specularColor = settings.value(CFG_COLORS_SPECULAR, DEFAULT_COLORS_SPECULAR).toString();
     QString lightColor = settings.value(CFG_COLORS_LIGHT, DEFAULT_COLORS_LIGHT).toString();
@@ -106,6 +107,10 @@ void AtsumariLauncher::launch()
     
     // Set QML properties based on settings
     rootItem->setProperty("baseColor", QColor(baseColor));
+    if (baseTexture.startsWith(":/"))
+        rootItem->setProperty("baseColorTexture", QString("qrc") + baseTexture);
+    else if (!baseTexture.isEmpty())
+        rootItem->setProperty("baseColorTexture", QUrl::fromLocalFile(baseTexture).toString());
     rootItem->setProperty("ambientColor", QColor(ambientColor));
     rootItem->setProperty("lightColor", QColor(lightColor));
     rootItem->setProperty("brightness", lightBrightness / 100.0);

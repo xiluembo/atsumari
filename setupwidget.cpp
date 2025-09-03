@@ -285,6 +285,8 @@ SetupWidget::SetupWidget(QWidget *parent)
 
     connect(ui->btnResetDecoration, &QPushButton::clicked, this, &SetupWidget::resetDecoration);
     connect(ui->btnSelectDecoration, &QPushButton::clicked, this, &SetupWidget::selectDecoration);
+    connect(ui->btnResetBaseTexture, &QPushButton::clicked, this, &SetupWidget::resetBaseTexture);
+    connect(ui->btnSelectBaseTexture, &QPushButton::clicked, this, &SetupWidget::selectBaseTexture);
 
     setupPreview();
     runPreview();
@@ -348,6 +350,13 @@ void SetupWidget::runPreview()
 
     // common material properties
     m_previewRootItem->setProperty("baseColor", QColor(m_profiles[m_currentProfile]->baseColor()));
+    QString tex = m_profiles[m_currentProfile]->baseTexture();
+    QString texUrl;
+    if (tex.startsWith(":/"))
+        texUrl = QString("qrc") + tex;
+    else if (!tex.isEmpty())
+        texUrl = QUrl::fromLocalFile(tex).toString();
+    m_previewRootItem->setProperty("baseColorTexture", texUrl);
     m_previewRootItem->setProperty("ambientColor", QColor(m_profiles[m_currentProfile]->ambientColor()));
 
     MaterialType materialType = static_cast<MaterialType>(ui->cboMaterialType->currentData().toInt());
@@ -443,6 +452,32 @@ void SetupWidget::resetDecoration()
     runPreview();
 }
 
+void SetupWidget::resetBaseTexture()
+{
+    m_profiles[m_currentProfile]->setBaseTexture(QString());
+    ui->lblBaseTexture->setPixmap(QPixmap());
+    m_shouldSave = true;
+    ui->btnSaveSettings->setEnabled(true);
+    runPreview();
+}
+
+void SetupWidget::selectBaseTexture()
+{
+    QFileDialog* dlg = new QFileDialog(this, tr("Select base texture file"), QString(), tr("Image Files (*.svg *.png *.jpg *.bmp)"));
+    dlg->setWindowIcon(QIcon(":/appicon/atsumari.svg"));
+
+    connect(dlg, &QFileDialog::fileSelected, this, [=](const QString& file) {
+        m_profiles[m_currentProfile]->setBaseTexture(file);
+        ui->lblBaseTexture->setPixmap(QPixmap(file));
+        m_shouldSave = true;
+        ui->btnSaveSettings->setEnabled(true);
+        runPreview();
+        dlg->deleteLater();
+    });
+
+    dlg->open();
+}
+
 void SetupWidget::loadSettings()
 {
     QSettings settings;
@@ -467,6 +502,7 @@ void SetupWidget::loadSettings()
         profileData->setProfileName(defaultProfileName);
         profileData->setMaterialType(DEFAULT_MATERIAL_TYPE);
         profileData->setBaseColor(DEFAULT_COLORS_BASE);
+        profileData->setBaseTexture(DEFAULT_BASE_TEXTURE);
         profileData->setAmbientColor(DEFAULT_COLORS_AMBIENT);
         profileData->setLightColor(DEFAULT_COLORS_LIGHT);
         profileData->setRoughness(DEFAULT_ROUGHNESS);
@@ -498,6 +534,7 @@ void SetupWidget::loadSettings()
                 // migrate to Specular Glossy
                 profileData->setMaterialType(DEFAULT_MATERIAL_TYPE);
                 profileData->setBaseColor(settings.value(CFG_V1_COLORS_DIFFUSE, DEFAULT_COLORS_BASE).toString()); // from v1
+                profileData->setBaseTexture(settings.value(CFG_BASE_TEXTURE, DEFAULT_BASE_TEXTURE).toString());
                 profileData->setAmbientColor(settings.value(CFG_COLORS_AMBIENT, DEFAULT_COLORS_AMBIENT).toString());
                 profileData->setLightColor(settings.value(CFG_COLORS_LIGHT, DEFAULT_COLORS_LIGHT).toString());
 
@@ -520,6 +557,7 @@ void SetupWidget::loadSettings()
                 int materialType = settings.value(CFG_MATERIAL_TYPE).toInt();
                 profileData->setMaterialType(static_cast<MaterialType>(materialType));
                 profileData->setBaseColor(settings.value(CFG_COLORS_BASE, DEFAULT_COLORS_BASE).toString());
+                profileData->setBaseTexture(settings.value(CFG_BASE_TEXTURE, DEFAULT_BASE_TEXTURE).toString());
                 profileData->setAmbientColor(settings.value(CFG_COLORS_AMBIENT, DEFAULT_COLORS_AMBIENT).toString());
                 profileData->setLightColor(settings.value(CFG_COLORS_LIGHT, DEFAULT_COLORS_LIGHT).toString());
 
@@ -578,6 +616,7 @@ void SetupWidget::saveSettings()
         settings.setValue(CFG_MATERIAL_TYPE, static_cast<int>(m_profiles[i]->materialType()));
         settings.setValue(CFG_PROFILE_NAME, m_profiles[i]->profileName());
         settings.setValue(CFG_COLORS_BASE, m_profiles[i]->baseColor());
+        settings.setValue(CFG_BASE_TEXTURE, m_profiles[i]->baseTexture());
         settings.setValue(CFG_COLORS_AMBIENT, m_profiles[i]->ambientColor());
         settings.setValue(CFG_COLORS_LIGHT, m_profiles[i]->lightColor());
 
@@ -739,6 +778,8 @@ void SetupWidget::setIcons()
     ui->btnResetCommandColors->setIcon(QIcon::fromTheme("edit-undo"));
     ui->btnResetDecoration->setIcon(QIcon::fromTheme("edit-undo"));
     ui->btnSelectDecoration->setIcon(QIcon::fromTheme("document-open"));
+    ui->btnResetBaseTexture->setIcon(QIcon::fromTheme("edit-undo"));
+    ui->btnSelectBaseTexture->setIcon(QIcon::fromTheme("document-open"));
     ui->btnAddExcludeChat->setIcon(QIcon::fromTheme("list-add"));
     ui->btnRemoveExcludeChat->setIcon(QIcon::fromTheme("list-remove"));
     ui->btnSaveSettings->setIcon(QIcon::fromTheme("document-save"));
@@ -841,6 +882,7 @@ void SetupWidget::newProfile()
     profile->setProfileName(profileName);
     profile->setMaterialType(DEFAULT_MATERIAL_TYPE);
     profile->setBaseColor(DEFAULT_COLORS_BASE);
+    profile->setBaseTexture(DEFAULT_BASE_TEXTURE);
     profile->setAmbientColor(DEFAULT_COLORS_AMBIENT);
     profile->setLightColor(DEFAULT_COLORS_LIGHT);
     profile->setRoughness(DEFAULT_ROUGHNESS);
@@ -1070,6 +1112,7 @@ void SetupWidget::populateCurrentProfileControls()
     ui->spnLightBrightness->setValue(p->lightBrightness() / 100.0);
     ui->spnIteration->setValue(p->iteration());
     ui->lblDecoration->setPixmap(p->decorationPath());
+    ui->lblBaseTexture->setPixmap(p->baseTexture());
     ui->cboEmojiFont->setCurrentFont(QFont(p->font(), -1));
 }
 

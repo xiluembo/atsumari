@@ -39,6 +39,16 @@ void ProfileData::setBaseColor(const QString &newBaseColor)
     m_baseColor = newBaseColor;
 }
 
+QString ProfileData::baseTexture() const
+{
+    return m_baseTexture;
+}
+
+void ProfileData::setBaseTexture(const QString &newBaseTexture)
+{
+    m_baseTexture = newBaseTexture;
+}
+
 QString ProfileData::specularColor() const
 {
     return m_specularColor;
