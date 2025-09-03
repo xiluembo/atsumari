@@ -43,6 +43,11 @@
 #include <QRandomGenerator>
 #include <QQuick3DTextureData>
 #include <QImage>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QVersionNumber>
 
 #include "settings_defaults.h"
 #include "logcommandcolors.h"
@@ -69,6 +74,7 @@ SetupWidget::SetupWidget(QWidget *parent)
     populateMaterialTypes();
     populateRefractionTypes();
     loadSettings();
+    checkForUpdates();
 
     // Appearance tab
     connect(ui->cboProfile, &QComboBox::currentIndexChanged, this, [=]() {
@@ -1248,4 +1254,32 @@ void SetupWidget::saveLogSettings()
     }
     settings.endGroup();
     settings.setValue(CFG_LOG_HIDE_CMDS, hidden);
+}
+
+void SetupWidget::checkForUpdates()
+{
+    QNetworkAccessManager* manager = new QNetworkAccessManager(this);
+    QNetworkRequest request(QUrl("https://api.github.com/repos/xiluembo/atsumari/releases/latest"));
+    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("Atsumari"));
+    QNetworkReply* reply = manager->get(request);
+
+    connect(reply, &QNetworkReply::finished, this, [reply, this]() {
+        reply->deleteLater();
+        if (reply->error() != QNetworkReply::NoError)
+            return;
+
+        const QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
+        const QString tag = doc.object().value(QStringLiteral("tag_name")).toString();
+        QString latest = tag.startsWith('v') ? tag.mid(1) : tag;
+        const QString current = QCoreApplication::applicationVersion();
+
+        if (QVersionNumber::fromString(latest) > QVersionNumber::fromString(current)) {
+            const auto res = QMessageBox::question(this,
+                                                   tr("New release available"),
+                                                   tr("Version %1 is available. Open download page?").arg(latest));
+            if (res == QMessageBox::Yes) {
+                QDesktopServices::openUrl(QUrl(QStringLiteral("https://github.com/xiluembo/atsumari/releases/latest")));
+            }
+        }
+    });
 }
