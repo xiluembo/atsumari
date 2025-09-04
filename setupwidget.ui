@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1019</width>
-    <height>673</height>
+    <height>635</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -47,195 +47,43 @@
               <x>0</x>
               <y>0</y>
               <width>555</width>
-              <height>1142</height>
+              <height>1220</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_9">
              <item>
               <layout class="QGridLayout" name="gridLayout" columnstretch="0,0">
-               <item row="8" column="0" colspan="2">
-                <widget class="QGroupBox" name="grpSpecularGlossy">
-                 <property name="title">
-                  <string>Specular Glossy material properties:</string>
+               <item row="3" column="1">
+                <widget class="QComboBox" name="cboMaterialType">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
                  </property>
-                 <layout class="QGridLayout" name="gridLayout_5">
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="lblSpecularColor">
-                    <property name="locale">
-                     <locale language="English" country="UnitedStates"/>
-                    </property>
-                    <property name="text">
-                     <string>Specular Color:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1">
-                   <layout class="QHBoxLayout" name="horizontalLayout_7">
-                    <item>
-                     <widget class="QFrame" name="frmSpecularColor">
-                      <property name="minimumSize">
-                       <size>
-                        <width>20</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>20</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                      <property name="statusTip">
-                       <string notr="true"/>
-                      </property>
-                      <property name="frameShape">
-                       <enum>QFrame::Shape::StyledPanel</enum>
-                      </property>
-                      <property name="frameShadow">
-                       <enum>QFrame::Shadow::Raised</enum>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="btnSelectSpecular">
-                      <property name="locale">
-                       <locale language="English" country="UnitedStates"/>
-                      </property>
-                      <property name="text">
-                       <string>Select color...</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <spacer name="horizontalSpacer_4">
-                      <property name="orientation">
-                       <enum>Qt::Orientation::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>40</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                   </layout>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="lblShininess_10">
-                    <property name="locale">
-                     <locale language="English" country="UnitedStates"/>
-                    </property>
-                    <property name="text">
-                     <string>Glossiness:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <layout class="QHBoxLayout" name="horizontalLayout_21">
-                    <item>
-                     <widget class="QSlider" name="sldGlossiness">
-                      <property name="maximum">
-                       <number>100</number>
-                      </property>
-                      <property name="tracking">
-                       <bool>false</bool>
-                      </property>
-                      <property name="orientation">
-                       <enum>Qt::Orientation::Horizontal</enum>
-                      </property>
-                      <property name="invertedAppearance">
-                       <bool>false</bool>
-                      </property>
-                      <property name="invertedControls">
-                       <bool>false</bool>
-                      </property>
-                      <property name="tickPosition">
-                       <enum>QSlider::TickPosition::TicksBelow</enum>
-                      </property>
-                      <property name="tickInterval">
-                       <number>10</number>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QDoubleSpinBox" name="spnGlossiness">
-                      <property name="decimals">
-                       <number>2</number>
-                      </property>
-                      <property name="minimum">
-                       <double>0.000000000000000</double>
-                      </property>
-                      <property name="maximum">
-                       <double>1.000000000000000</double>
-                      </property>
-                      <property name="singleStep">
-                       <double>0.010000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                 </layout>
                 </widget>
                </item>
-               <item row="2" column="1">
-                <layout class="QHBoxLayout" name="horizontalLayout_17">
-                 <item>
-                  <widget class="QComboBox" name="cboProfile">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="btnProfileActions">
-                   <property name="text">
-                    <string>Actions...</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
+               <item row="14" column="1">
+                <widget class="QFontComboBox" name="cboEmojiFont">
+                 <property name="currentFont">
+                  <font>
+                   <family>Tahoma</family>
+                  </font>
+                 </property>
+                </widget>
                </item>
-               <item row="5" column="0">
-                <widget class="QLabel" name="lblAmbientColor">
+               <item row="3" column="0">
+                <widget class="QLabel" name="lblDiffuseColor_2">
                  <property name="locale">
                   <locale language="English" country="UnitedStates"/>
                  </property>
                  <property name="text">
-                  <string>Ambient Color:</string>
+                  <string>Material Type:</string>
                  </property>
                 </widget>
                </item>
-               <item row="1" column="0" colspan="2">
-                <widget class="Line" name="line">
-                 <property name="orientation">
-                  <enum>Qt::Orientation::Horizontal</enum>
-                 </property>
-                </widget>
-               </item>
-               <item row="6" column="0">
-                <widget class="QLabel" name="lblLightColor">
-                 <property name="locale">
-                  <locale language="English" country="UnitedStates"/>
-                 </property>
-                 <property name="text">
-                  <string>Light Color:</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="10" column="0">
-                <widget class="QLabel" name="lblLightBrightness">
-                 <property name="locale">
-                  <locale language="English" country="UnitedStates"/>
-                 </property>
-                 <property name="text">
-                  <string>Light Brightness:</string>
-                 </property>
-                </widget>
+               <item row="0" column="1">
+                <widget class="QComboBox" name="cboLanguage"/>
                </item>
                <item row="4" column="1">
                 <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -289,7 +137,52 @@
                  </item>
                 </layout>
                </item>
-               <item row="7" column="0" colspan="2">
+               <item row="2" column="1">
+                <layout class="QHBoxLayout" name="horizontalLayout_17">
+                 <item>
+                  <widget class="QComboBox" name="cboProfile">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="btnProfileActions">
+                   <property name="text">
+                    <string>Actions...</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="7" column="0">
+                <widget class="QLabel" name="lblLightColor">
+                 <property name="locale">
+                  <locale language="English" country="UnitedStates"/>
+                 </property>
+                 <property name="text">
+                  <string>Light Color:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="14" column="0">
+                <widget class="QLabel" name="label">
+                 <property name="text">
+                  <string>Emoji Font:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_5">
+                 <property name="text">
+                  <string>Language:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="8" column="0" colspan="2">
                 <widget class="QGroupBox" name="grpPrincipled">
                  <property name="title">
                   <string>Principled material properties:</string>
@@ -469,224 +362,17 @@
                  </layout>
                 </widget>
                </item>
-               <item row="4" column="0">
-                <widget class="QLabel" name="lblDiffuseColor">
-                 <property name="locale">
-                  <locale language="English" country="UnitedStates"/>
-                 </property>
-                 <property name="text">
-                  <string>Base Color:</string>
-                 </property>
-                </widget>
-               </item>
                <item row="11" column="0">
-                <widget class="QLabel" name="lblIterationTime">
+                <widget class="QLabel" name="lblLightBrightness">
                  <property name="locale">
                   <locale language="English" country="UnitedStates"/>
                  </property>
                  <property name="text">
-                  <string>Time for each iteration:</string>
+                  <string>Light Brightness:</string>
                  </property>
                 </widget>
                </item>
-               <item row="12" column="1">
-                <layout class="QHBoxLayout" name="horizontalLayout_16">
-                 <item>
-                  <widget class="QLabel" name="lblDecoration">
-                   <property name="minimumSize">
-                    <size>
-                     <width>64</width>
-                     <height>64</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>64</width>
-                     <height>64</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="scaledContents">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="btnSelectDecoration">
-                   <property name="locale">
-                    <locale language="English" country="UnitedStates"/>
-                   </property>
-                   <property name="text">
-                    <string>Select file...</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="btnResetDecoration">
-                   <property name="locale">
-                    <locale language="English" country="UnitedStates"/>
-                   </property>
-                   <property name="text">
-                    <string>Reset to default</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item row="10" column="1">
-                <layout class="QHBoxLayout" name="horizontalLayout_22">
-                 <item>
-                  <widget class="QSlider" name="sldLightBrightness">
-                   <property name="maximum">
-                    <number>100</number>
-                   </property>
-                   <property name="tracking">
-                    <bool>false</bool>
-                   </property>
-                   <property name="orientation">
-                    <enum>Qt::Orientation::Horizontal</enum>
-                   </property>
-                   <property name="invertedAppearance">
-                    <bool>false</bool>
-                   </property>
-                   <property name="invertedControls">
-                    <bool>false</bool>
-                   </property>
-                   <property name="tickPosition">
-                    <enum>QSlider::TickPosition::TicksBelow</enum>
-                   </property>
-                   <property name="tickInterval">
-                    <number>10</number>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QDoubleSpinBox" name="spnLightBrightness">
-                   <property name="decimals">
-                    <number>2</number>
-                   </property>
-                   <property name="minimum">
-                    <double>0.000000000000000</double>
-                   </property>
-                   <property name="maximum">
-                    <double>1.000000000000000</double>
-                   </property>
-                   <property name="singleStep">
-                    <double>0.010000000000000</double>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item row="13" column="0">
-                <widget class="QLabel" name="label">
-                 <property name="text">
-                  <string>Emoji Font:</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="11" column="1">
-                <widget class="QDoubleSpinBox" name="spnIteration">
-                 <property name="statusTip">
-                  <string notr="true"/>
-                 </property>
-                 <property name="suffix">
-                  <string> s</string>
-                 </property>
-                 <property name="decimals">
-                  <number>3</number>
-                 </property>
-                 <property name="minimum">
-                  <double>0.250000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.250000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="1">
-                <widget class="QComboBox" name="cboMaterialType">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                </widget>
-               </item>
-               <item row="12" column="0">
-               <widget class="QLabel" name="lblLightColor_2">
-                <property name="locale">
-                 <locale language="English" country="UnitedStates"/>
-                </property>
-                <property name="text">
-                 <string>Initial Decoration:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="14" column="0">
-               <widget class="QLabel" name="lblBaseTextureLabel">
-                <property name="text">
-                 <string>Base Texture:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="14" column="1">
-               <layout class="QHBoxLayout" name="horizontalLayout_baseTexture">
-                <item>
-                 <widget class="QLabel" name="lblBaseTexture">
-                  <property name="minimumSize">
-                   <size>
-                    <width>64</width>
-                    <height>64</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>64</width>
-                    <height>64</height>
-                   </size>
-                  </property>
-                  <property name="scaledContents">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="btnSelectBaseTexture">
-                  <property name="text">
-                   <string>Select file...</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="btnResetBaseTexture">
-                  <property name="text">
-                   <string>Reset to default</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item row="2" column="0">
-                <widget class="QLabel" name="label_7">
-                 <property name="text">
-                  <string>Profile:</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="13" column="1">
-                <widget class="QFontComboBox" name="cboEmojiFont">
-                 <property name="currentFont">
-                  <font>
-                   <family>Tahoma</family>
-                  </font>
-                 </property>
-                </widget>
-               </item>
-               <item row="6" column="1">
+               <item row="7" column="1">
                 <layout class="QHBoxLayout" name="horizontalLayout_9">
                  <item>
                   <widget class="QFrame" name="frmLightColor">
@@ -738,10 +424,70 @@
                  </item>
                 </layout>
                </item>
-               <item row="0" column="1">
-                <widget class="QComboBox" name="cboLanguage"/>
+               <item row="1" column="0" colspan="2">
+                <widget class="Line" name="line">
+                 <property name="orientation">
+                  <enum>Qt::Orientation::Horizontal</enum>
+                 </property>
+                </widget>
                </item>
-               <item row="5" column="1">
+               <item row="12" column="0">
+                <widget class="QLabel" name="lblIterationTime">
+                 <property name="locale">
+                  <locale language="English" country="UnitedStates"/>
+                 </property>
+                 <property name="text">
+                  <string>Time for each iteration:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="13" column="1">
+                <layout class="QHBoxLayout" name="horizontalLayout_16">
+                 <item>
+                  <widget class="QLabel" name="lblDecoration">
+                   <property name="minimumSize">
+                    <size>
+                     <width>64</width>
+                     <height>64</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>64</width>
+                     <height>64</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="scaledContents">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="btnSelectDecoration">
+                   <property name="locale">
+                    <locale language="English" country="UnitedStates"/>
+                   </property>
+                   <property name="text">
+                    <string>Select file...</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="btnResetDecoration">
+                   <property name="locale">
+                    <locale language="English" country="UnitedStates"/>
+                   </property>
+                   <property name="text">
+                    <string>Reset to default</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="6" column="1">
                 <layout class="QHBoxLayout" name="horizontalLayout_8">
                  <item>
                   <widget class="QFrame" name="frmAmbientColor">
@@ -793,44 +539,233 @@
                  </item>
                 </layout>
                </item>
-               <item row="3" column="0">
-                <widget class="QLabel" name="lblDiffuseColor_2">
+               <item row="12" column="1">
+                <widget class="QDoubleSpinBox" name="spnIteration">
+                 <property name="statusTip">
+                  <string notr="true"/>
+                 </property>
+                 <property name="suffix">
+                  <string> s</string>
+                 </property>
+                 <property name="decimals">
+                  <number>3</number>
+                 </property>
+                 <property name="minimum">
+                  <double>0.250000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.250000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="13" column="0">
+                <widget class="QLabel" name="lblLightColor_2">
                  <property name="locale">
                   <locale language="English" country="UnitedStates"/>
                  </property>
                  <property name="text">
-                  <string>Material Type:</string>
+                  <string>Initial Decoration:</string>
                  </property>
                 </widget>
                </item>
-               <item row="0" column="0">
-                <widget class="QLabel" name="label_5">
+               <item row="11" column="1">
+                <layout class="QHBoxLayout" name="horizontalLayout_22">
+                 <item>
+                  <widget class="QSlider" name="sldLightBrightness">
+                   <property name="maximum">
+                    <number>100</number>
+                   </property>
+                   <property name="tracking">
+                    <bool>false</bool>
+                   </property>
+                   <property name="orientation">
+                    <enum>Qt::Orientation::Horizontal</enum>
+                   </property>
+                   <property name="invertedAppearance">
+                    <bool>false</bool>
+                   </property>
+                   <property name="invertedControls">
+                    <bool>false</bool>
+                   </property>
+                   <property name="tickPosition">
+                    <enum>QSlider::TickPosition::TicksBelow</enum>
+                   </property>
+                   <property name="tickInterval">
+                    <number>10</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QDoubleSpinBox" name="spnLightBrightness">
+                   <property name="decimals">
+                    <number>2</number>
+                   </property>
+                   <property name="minimum">
+                    <double>0.000000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>1.000000000000000</double>
+                   </property>
+                   <property name="singleStep">
+                    <double>0.010000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="4" column="0">
+                <widget class="QLabel" name="lblDiffuseColor">
+                 <property name="locale">
+                  <locale language="English" country="UnitedStates"/>
+                 </property>
                  <property name="text">
-                  <string>Language:</string>
+                  <string>Base Color:</string>
                  </property>
                 </widget>
                </item>
                <item row="9" column="0" colspan="2">
+                <widget class="QGroupBox" name="grpSpecularGlossy">
+                 <property name="title">
+                  <string>Specular Glossy material properties:</string>
+                 </property>
+                 <layout class="QGridLayout" name="gridLayout_5">
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="lblSpecularColor">
+                    <property name="locale">
+                     <locale language="English" country="UnitedStates"/>
+                    </property>
+                    <property name="text">
+                     <string>Specular Color:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <layout class="QHBoxLayout" name="horizontalLayout_7">
+                    <item>
+                     <widget class="QFrame" name="frmSpecularColor">
+                      <property name="minimumSize">
+                       <size>
+                        <width>20</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>20</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="statusTip">
+                       <string notr="true"/>
+                      </property>
+                      <property name="frameShape">
+                       <enum>QFrame::Shape::StyledPanel</enum>
+                      </property>
+                      <property name="frameShadow">
+                       <enum>QFrame::Shadow::Raised</enum>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="btnSelectSpecular">
+                      <property name="locale">
+                       <locale language="English" country="UnitedStates"/>
+                      </property>
+                      <property name="text">
+                       <string>Select color...</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <spacer name="horizontalSpacer_4">
+                      <property name="orientation">
+                       <enum>Qt::Orientation::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                   </layout>
+                  </item>
+                  <item row="1" column="1">
+                   <layout class="QHBoxLayout" name="horizontalLayout_21">
+                    <item>
+                     <widget class="QSlider" name="sldGlossiness">
+                      <property name="maximum">
+                       <number>100</number>
+                      </property>
+                      <property name="tracking">
+                       <bool>false</bool>
+                      </property>
+                      <property name="orientation">
+                       <enum>Qt::Orientation::Horizontal</enum>
+                      </property>
+                      <property name="invertedAppearance">
+                       <bool>false</bool>
+                      </property>
+                      <property name="invertedControls">
+                       <bool>false</bool>
+                      </property>
+                      <property name="tickPosition">
+                       <enum>QSlider::TickPosition::TicksBelow</enum>
+                      </property>
+                      <property name="tickInterval">
+                       <number>10</number>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QDoubleSpinBox" name="spnGlossiness">
+                      <property name="decimals">
+                       <number>2</number>
+                      </property>
+                      <property name="minimum">
+                       <double>0.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>1.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.010000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="lblShininess_10">
+                    <property name="locale">
+                     <locale language="English" country="UnitedStates"/>
+                    </property>
+                    <property name="text">
+                     <string>Glossiness:</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item row="6" column="0">
+                <widget class="QLabel" name="lblAmbientColor">
+                 <property name="locale">
+                  <locale language="English" country="UnitedStates"/>
+                 </property>
+                 <property name="text">
+                  <string>Ambient Color:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="10" column="0" colspan="2">
                 <widget class="QGroupBox" name="grpCustomMaterial">
                  <property name="title">
                   <string>Custom material shaders:</string>
                  </property>
                  <layout class="QGridLayout" name="gridLayout_custom">
-                  <item row="2" column="0">
-                   <widget class="QLabel" name="lblFragmentShader">
-                    <property name="text">
-                     <string>Fragment Shader:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="lblVertexShader">
-                    <property name="text">
-                     <string>Vertex Shader:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="1">
+                  <item row="5" column="1">
                    <widget class="QPushButton" name="btnReloadShaders">
                     <property name="enabled">
                      <bool>false</bool>
@@ -840,8 +775,8 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="1">
-                   <widget class="QPlainTextEdit" name="txtVertexShader">
+                  <item row="4" column="1">
+                   <widget class="QPlainTextEdit" name="txtFragmentShader">
                     <property name="minimumSize">
                      <size>
                       <width>0</width>
@@ -851,7 +786,7 @@
                    </widget>
                   </item>
                   <item row="2" column="1">
-                   <widget class="QPlainTextEdit" name="txtFragmentShader">
+                   <widget class="QPlainTextEdit" name="txtVertexShader">
                     <property name="minimumSize">
                      <size>
                       <width>0</width>
@@ -876,10 +811,88 @@ Right click on each text box to use shader presets.</string>
                     </property>
                    </widget>
                   </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="lblVertexShader">
+                    <property name="text">
+                     <string>Vertex Shader:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="0">
+                   <widget class="QLabel" name="lblFragmentShader">
+                    <property name="text">
+                     <string>Fragment Shader:</string>
+                    </property>
+                   </widget>
+                  </item>
                  </layout>
                 </widget>
                </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="label_7">
+                 <property name="text">
+                  <string>Profile:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="1">
+                <layout class="QHBoxLayout" name="horizontalLayout_baseTexture">
+                 <item>
+                  <widget class="QLabel" name="lblBaseTexture">
+                   <property name="minimumSize">
+                    <size>
+                     <width>64</width>
+                     <height>64</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>64</width>
+                     <height>64</height>
+                    </size>
+                   </property>
+                   <property name="scaledContents">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="btnSelectBaseTexture">
+                   <property name="text">
+                    <string>Select file...</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="btnResetBaseTexture">
+                   <property name="text">
+                    <string>Reset to default</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="5" column="0">
+                <widget class="QLabel" name="lblBaseTextureLabel">
+                 <property name="text">
+                  <string>Base Texture:</string>
+                 </property>
+                </widget>
+               </item>
               </layout>
+             </item>
+             <item>
+              <spacer name="verticalSpacer">
+               <property name="orientation">
+                <enum>Qt::Orientation::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
              </item>
             </layout>
            </widget>
@@ -1184,8 +1197,8 @@ Right click on each text box to use shader presets.</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>963</width>
-            <height>598</height>
+            <width>977</width>
+            <height>1232</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -1351,11 +1364,14 @@ Right click on each text box to use shader presets.</string>
  </widget>
  <tabstops>
   <tabstop>tabWidget</tabstop>
+  <tabstop>scrollArea_2</tabstop>
   <tabstop>cboLanguage</tabstop>
   <tabstop>cboProfile</tabstop>
   <tabstop>btnProfileActions</tabstop>
   <tabstop>cboMaterialType</tabstop>
   <tabstop>btnSelectBaseColor</tabstop>
+  <tabstop>btnSelectBaseTexture</tabstop>
+  <tabstop>btnResetBaseTexture</tabstop>
   <tabstop>btnSelectAmbient</tabstop>
   <tabstop>btnSelectLight</tabstop>
   <tabstop>sldRoughness</tabstop>
@@ -1370,13 +1386,12 @@ Right click on each text box to use shader presets.</string>
   <tabstop>spnGlossiness</tabstop>
   <tabstop>txtVertexShader</tabstop>
   <tabstop>txtFragmentShader</tabstop>
+  <tabstop>btnReloadShaders</tabstop>
   <tabstop>sldLightBrightness</tabstop>
   <tabstop>spnLightBrightness</tabstop>
   <tabstop>spnIteration</tabstop>
   <tabstop>btnSelectDecoration</tabstop>
   <tabstop>btnResetDecoration</tabstop>
-  <tabstop>btnSelectBaseTexture</tabstop>
-  <tabstop>btnResetBaseTexture</tabstop>
   <tabstop>cboEmojiFont</tabstop>
   <tabstop>edtExcludeChat</tabstop>
   <tabstop>btnAddExcludeChat</tabstop>
@@ -1385,6 +1400,15 @@ Right click on each text box to use shader presets.</string>
   <tabstop>edtClientId</tabstop>
   <tabstop>btnDevConsole</tabstop>
   <tabstop>btnForceAuth</tabstop>
+  <tabstop>chkDirection</tabstop>
+  <tabstop>chkTimestamp</tabstop>
+  <tabstop>chkCommand</tabstop>
+  <tabstop>chkSender</tabstop>
+  <tabstop>chkMessage</tabstop>
+  <tabstop>chkTags</tabstop>
+  <tabstop>chkEmotes</tabstop>
+  <tabstop>tblCommandColors</tabstop>
+  <tabstop>btnResetCommandColors</tabstop>
   <tabstop>scrollArea</tabstop>
   <tabstop>btnAboutQt</tabstop>
   <tabstop>btnSaveSettings</tabstop>
