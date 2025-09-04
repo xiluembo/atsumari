@@ -53,6 +53,8 @@ private:
     void runPreview();
     void resetDecoration();
     void selectDecoration();
+    void resetBaseTexture();
+    void selectBaseTexture();
     void openDevConsole();
     void resetAuth();
     void setIcons();

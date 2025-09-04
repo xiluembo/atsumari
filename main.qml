@@ -10,6 +10,7 @@ Item {
 
     // Common Props
     property color baseColor: Qt.rgba(0.352, 0.27, 0.517, 1.0)
+    property url baseColorTexture: ""
     property color ambientColor: Qt.rgba(0.0, 0.0, 0.156, 1.0)
     property int rotationInterval: 3000
     property color lightColor: Qt.rgba(1.0, 1.0, 1.0, 1.0)
@@ -33,14 +34,21 @@ Item {
     property string decorationPath: "qrc:/decoration/kata_deco.png"
 
     property var cameraRotationTarget: Qt.vector3d(180, 360, 0)
+    Texture {
+        id: baseColorTex
+        source: root.baseColorTexture
+    }
+
     property var specMaterial: SpecularGlossyMaterial {
         albedoColor: root.baseColor
+        albedoMap: root.baseColorTexture === "" ? null : baseColorTex
         specularColor: root.specularColor
         glossiness: root.glossiness
     }
 
     property var princMaterial: PrincipledMaterial {
         baseColor: root.baseColor
+        baseColorMap: root.baseColorTexture === "" ? null : baseColorTex
         roughness: root.roughness
         metalness: root.metalness
         indexOfRefraction: root.refraction

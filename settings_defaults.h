@@ -30,6 +30,7 @@
 
 // v2
 #define CFG_COLORS_BASE "colors/base"
+#define CFG_BASE_TEXTURE "base_texture"
 #define CFG_MATERIAL_TYPE "material"
 #define CFG_LIGHT_BRIGHTNESS "light_brightness"
 #define CFG_ROUGHNESS "roughness"
@@ -74,6 +75,7 @@
 
 #define DEFAULT_MATERIAL_TYPE MaterialType::SpecularGlossy
 #define DEFAULT_COLORS_BASE "#5a4584"
+#define DEFAULT_BASE_TEXTURE ""
 #define DEFAULT_COLORS_SPECULAR "#5a4584"
 #define DEFAULT_COLORS_AMBIENT "#000000"
 #define DEFAULT_COLORS_LIGHT "#ffffff"

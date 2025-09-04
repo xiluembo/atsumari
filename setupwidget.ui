@@ -617,16 +617,60 @@
                 </widget>
                </item>
                <item row="12" column="0">
-                <widget class="QLabel" name="lblLightColor_2">
-                 <property name="locale">
-                  <locale language="English" country="UnitedStates"/>
-                 </property>
-                 <property name="text">
-                  <string>Initial Decoration:</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0">
+               <widget class="QLabel" name="lblLightColor_2">
+                <property name="locale">
+                 <locale language="English" country="UnitedStates"/>
+                </property>
+                <property name="text">
+                 <string>Initial Decoration:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="14" column="0">
+               <widget class="QLabel" name="lblBaseTextureLabel">
+                <property name="text">
+                 <string>Base Texture:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="14" column="1">
+               <layout class="QHBoxLayout" name="horizontalLayout_baseTexture">
+                <item>
+                 <widget class="QLabel" name="lblBaseTexture">
+                  <property name="minimumSize">
+                   <size>
+                    <width>64</width>
+                    <height>64</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>64</width>
+                    <height>64</height>
+                   </size>
+                  </property>
+                  <property name="scaledContents">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="btnSelectBaseTexture">
+                  <property name="text">
+                   <string>Select file...</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="btnResetBaseTexture">
+                  <property name="text">
+                   <string>Reset to default</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="2" column="0">
                 <widget class="QLabel" name="label_7">
                  <property name="text">
                   <string>Profile:</string>
@@ -1331,6 +1375,8 @@ Right click on each text box to use shader presets.</string>
   <tabstop>spnIteration</tabstop>
   <tabstop>btnSelectDecoration</tabstop>
   <tabstop>btnResetDecoration</tabstop>
+  <tabstop>btnSelectBaseTexture</tabstop>
+  <tabstop>btnResetBaseTexture</tabstop>
   <tabstop>cboEmojiFont</tabstop>
   <tabstop>edtExcludeChat</tabstop>
   <tabstop>btnAddExcludeChat</tabstop>

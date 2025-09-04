@@ -196,6 +196,11 @@
         <translation>Cor Base:</translation>
     </message>
     <message>
+        <location filename="../setupwidget.ui" line="632"/>
+        <source>Base Texture:</source>
+        <translation>Textura Base:</translation>
+    </message>
+    <message>
         <location filename="../setupwidget.ui" line="580"/>
         <source>Profile:</source>
         <translation>Perfil:</translation>
@@ -507,6 +512,11 @@ Clique com o botão direito em cada caixa de texto para utilizar as predefiniç�
         <location filename="../setupwidget.cpp" line="685"/>
         <source>Image Files (*.svg *.png *.jpg *.bmp)</source>
         <translation>Arquivos de Imagem (*.svg *.png *.jpg *.bmp)</translation>
+    </message>
+    <message>
+        <location filename="../setupwidget.cpp" line="466"/>
+        <source>Select base texture file</source>
+        <translation>Selecionar arquivo de textura base</translation>
     </message>
     <message>
         <source>Image Files (*.png *.jpg *.bmp)</source>

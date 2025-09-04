@@ -31,6 +31,8 @@ public:
     void setProfileName(const QString &newProfileName);
     QString baseColor() const;
     void setBaseColor(const QString &newBaseColor);
+    QString baseTexture() const;
+    void setBaseTexture(const QString &newBaseTexture);
     QString specularColor() const;
     void setSpecularColor(const QString &newSpecularColor);
     QString ambientColor() const;
@@ -69,6 +71,7 @@ public:
 private:
     QString m_profileName;
     QString m_baseColor;
+    QString m_baseTexture;
     QString m_ambientColor;
     QString m_lightColor;
     MaterialType m_materialType;
