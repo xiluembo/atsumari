@@ -23,7 +23,6 @@
 #include <QPixmap>
 #include <QApplication>
 #include <QFontDatabase>
-#include <QSettings>
 #include <QImage>
 #include <QDebug>
 
@@ -63,14 +62,13 @@ void EmoteWriter::saveBigEmote(const QString &id)
     reply->setProperty("isBig", true);
 }
 
-void EmoteWriter::saveEmoji(const QString &slug, const QString& emojiData)
+void EmoteWriter::saveEmoji(const QString &slug, const QString &emojiData, const QString &fontName)
 {
     if (m_textures.contains(slug)) {
         emit emoteReady(slug, m_textures.value(slug), m_pixmaps.value(slug));
         return;
     }
 
-    QSettings settings;
     int imageSize = 112;
     QPixmap pixmap(imageSize, imageSize);
     pixmap.fill(Qt::transparent);
@@ -78,7 +76,8 @@ void EmoteWriter::saveEmoji(const QString &slug, const QString& emojiData)
     QPainter painter(&pixmap);
     painter.setRenderHint(QPainter::Antialiasing, true);
 
-    QFont font(settings.value(CFG_EMOJI_FONT, DEFAULT_EMOJI_FONT).toString(), 72);
+    QString family = fontName.isEmpty() ? QStringLiteral(DEFAULT_EMOJI_FONT) : fontName;
+    QFont font(family, 72);
     painter.setFont(font);
 
     QFontMetrics metrics(font);
