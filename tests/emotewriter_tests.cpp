@@ -42,7 +42,8 @@ void EmoteWriterFontTests::testFontAffectsRendering() {
   settings.endArray();
 
   EmoteWriter writer;
-  writer.saveEmoji("sans", "A", sansFont);
+  const QString glyph = "g";
+  writer.saveEmoji("sans", glyph, sansFont);
   QImage sansImage = writer.pixmapFor("sans").toImage();
 
   settings.beginWriteArray(CFG_PROFILES, 1);
@@ -57,7 +58,7 @@ void EmoteWriterFontTests::testFontAffectsRendering() {
       settings.value(CFG_EMOJI_FONT, DEFAULT_EMOJI_FONT).toString();
   settings.endArray();
 
-  writer.saveEmoji("serif", "A", serifFont);
+  writer.saveEmoji("serif", glyph, serifFont);
   QImage serifImage = writer.pixmapFor("serif").toImage();
 
   QVERIFY(sansImage != serifImage);
