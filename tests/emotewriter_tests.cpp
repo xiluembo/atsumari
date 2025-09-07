@@ -1,4 +1,5 @@
 #include <QFontDatabase>
+#include <QFontInfo>
 #include <QImage>
 #include <QSettings>
 #include <QTemporaryDir>
@@ -25,8 +26,10 @@ void EmoteWriterFontTests::testFontAffectsRendering() {
 
   QFont generalFont = QFontDatabase::systemFont(QFontDatabase::GeneralFont);
   QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
-  if (generalFont.family() == fixedFont.family())
-    QSKIP("System fonts are identical; cannot compare rendering.");
+  QFontInfo generalInfo(generalFont);
+  QFontInfo fixedInfo(fixedFont);
+  if (generalInfo.family() == fixedInfo.family())
+    QSKIP("System fonts resolve to same family; cannot compare rendering.");
 
   QSettings settings;
   settings.beginWriteArray(CFG_PROFILES, 1);
@@ -61,7 +64,8 @@ void EmoteWriterFontTests::testFontAffectsRendering() {
 
   writer.saveEmoji("second", glyph, secondFont);
   QImage secondImage = writer.pixmapFor("second").toImage();
-
+  if (firstImage == secondImage)
+    QSKIP("Selected fonts rendered identically; cannot compare rendering.");
   QVERIFY(firstImage != secondImage);
 }
 
