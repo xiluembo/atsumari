@@ -1,5 +1,8 @@
+#include <QByteArray>
+#include <QCoreApplication>
 #include <QFontDatabase>
 #include <QFontInfo>
+#include <QGuiApplication>
 #include <QImage>
 #include <QSettings>
 #include <QTemporaryDir>
@@ -69,5 +72,13 @@ void EmoteWriterFontTests::testFontAffectsRendering() {
   QVERIFY(firstImage != secondImage);
 }
 
-QTEST_MAIN(EmoteWriterFontTests)
 #include "emotewriter_tests.moc"
+
+int main(int argc, char **argv)
+{
+  qputenv("QT_QPA_PLATFORM", QByteArrayLiteral("offscreen"));
+  QCoreApplication::setAttribute(Qt::AA_UseSoftwareOpenGL);
+  QGuiApplication app(argc, argv);
+  EmoteWriterFontTests tc;
+  return QTest::qExec(&tc, argc, argv);
+}
