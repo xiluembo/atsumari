@@ -119,3 +119,19 @@ qt_add_executable(emojimapper_tests
 target_link_libraries(emojimapper_tests PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Test)
 
 add_test(NAME emojimapper_tests COMMAND emojimapper_tests)
+
+qt_add_executable(emotewriter_tests
+    tests/emotewriter_tests.cpp
+    emotewriter.cpp
+    emotewriter.h
+)
+
+target_link_libraries(emotewriter_tests PRIVATE
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Gui
+    Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::Network
+    Qt${QT_VERSION_MAJOR}::Quick3D
+    Qt${QT_VERSION_MAJOR}::Test)
+
+add_test(NAME emotewriter_tests COMMAND emotewriter_tests)

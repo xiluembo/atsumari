@@ -184,7 +184,16 @@ void AtsumariLauncher::launch()
             m_emw->saveBigEmote(id);
         });
 
-        QObject::connect(m_tReader, &TwitchChatReader::emojiSent, m_emw, &EmoteWriter::saveEmoji);
+        QObject::connect(m_tReader, &TwitchChatReader::emojiSent, m_emw,
+                         [=](const QString &slug, const QString &emoji) {
+            QSettings settings;
+            int profile = settings.value(CFG_CURRENT_PROFILE, 0).toInt();
+            settings.beginReadArray(CFG_PROFILES);
+            settings.setArrayIndex(profile);
+            QString font = settings.value(CFG_EMOJI_FONT, DEFAULT_EMOJI_FONT).toString();
+            settings.endArray();
+            m_emw->saveEmoji(slug, emoji, font);
+        });
     });
 
     // Connect emote writer to add emotes to QML scene
