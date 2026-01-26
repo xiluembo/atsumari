@@ -27,28 +27,57 @@
 #include <QDateTime>
 #include <QDebug>
 #include <QDesktopServices>
+#include <QInputDialog>
 
 #include "settings_defaults.h"
+
+namespace {
+const QStringList kTwitchScopes = {"user:read:email", "chat:read", "chat:edit"};
+
+QString extractTokenFromUrl(const QUrl &url, int *expiresIn)
+{
+    if (expiresIn) {
+        *expiresIn = 0;
+    }
+
+    QUrlQuery fragmentQuery(url.fragment());
+    QString token = fragmentQuery.queryItemValue("access_token");
+    QString expiresValue = fragmentQuery.queryItemValue("expires_in");
+
+    if (token.isEmpty()) {
+        QUrlQuery query(url.query());
+        token = query.queryItemValue("access_token");
+        if (expiresValue.isEmpty()) {
+            expiresValue = query.queryItemValue("expires_in");
+        }
+    }
+
+    bool ok = false;
+    int parsedExpires = expiresValue.toInt(&ok);
+    if (ok && expiresIn) {
+        *expiresIn = parsedExpires;
+    }
+
+    return token;
+}
+} // namespace
 
 TwitchAuthFlow::TwitchAuthFlow(QObject *parent)
     : QObject{parent}
     , m_token(QString())
     , m_authInProgress(false)
-    , m_deviceFlow(nullptr)
-    , m_pollTimer(nullptr)
-    , m_retryCount(0)
 {
     QSettings settings(this);
     m_token = settings.value(CFG_TOKEN, "").toString();
     
     if (m_token.isEmpty()) {
-        setupDeviceFlow();
+        setupImplicitFlow();
     } else {
         QDateTime dtNow = QDateTime::currentDateTime();
         QDateTime expiryDate = settings.value(CFG_EXPIRY_TOKEN, dtNow).toDateTime();
         
         if (expiryDate < dtNow) {
-            setupDeviceFlow();
+            setupImplicitFlow();
         } else {
             requestTokenValidation();
         }
@@ -60,19 +89,6 @@ TwitchAuthFlow::TwitchAuthFlow(QObject *parent)
 
 TwitchAuthFlow::~TwitchAuthFlow()
 {
-    // Cleanup timer
-    if (m_pollTimer) {
-        m_pollTimer->stop();
-        m_pollTimer->deleteLater();
-        m_pollTimer = nullptr;
-    }
-    
-    // Cleanup device flow
-    if (m_deviceFlow) {
-        m_deviceFlow->disconnect();
-        m_deviceFlow->deleteLater();
-        m_deviceFlow = nullptr;
-    }
 }
 
 void TwitchAuthFlow::requestTokenValidation()
@@ -141,9 +157,9 @@ void TwitchAuthFlow::onValidateReply(QNetworkReply *reply)
         if (jsonDoc.isObject()) {
             QJsonObject jsonObj = jsonDoc.object();
 
-                    if (jsonObj.value("status").toInt(200) != 200) {
-            setupDeviceFlow();
-        } else {
+            if (jsonObj.value("status").toInt(200) != 200) {
+                setupImplicitFlow();
+            } else {
                 int expirySecs = jsonObj.value("expires_in").toInt();
                 QDateTime dtNow = QDateTime::currentDateTime();
                 QDateTime expiryDate = dtNow.addSecs(expirySecs);
@@ -154,23 +170,16 @@ void TwitchAuthFlow::onValidateReply(QNetworkReply *reply)
             }
         }
     } else {
-        setupDeviceFlow();
+        setupImplicitFlow();
     }
 
     if (reply) reply->deleteLater();
 }
 
-void TwitchAuthFlow::setupDeviceFlow()
+void TwitchAuthFlow::setupImplicitFlow()
 {
     if (m_authInProgress) {
         return;
-    }
-    
-    // Cleanup existing device flow
-    if (m_deviceFlow) {
-        m_deviceFlow->disconnect();
-        m_deviceFlow->deleteLater();
-        m_deviceFlow = nullptr;
     }
     
     QSettings settings;
@@ -180,217 +189,61 @@ void TwitchAuthFlow::setupDeviceFlow()
         QMessageBox::critical(nullptr, tr("Error"), tr("Twitch Client ID is not configured. Please set it in the settings."));
         return;
     }
-    
-    // Create device authorization flow
-    m_deviceFlow = new QOAuth2DeviceAuthorizationFlow(&m_nam, this);
-    
-    // Configure for Twitch
-    m_deviceFlow->setAuthorizationUrl(QUrl("https://id.twitch.tv/oauth2/device"));
-    m_deviceFlow->setTokenUrl(QUrl("https://id.twitch.tv/oauth2/token"));
-    m_deviceFlow->setClientIdentifier(clientId);
-    m_deviceFlow->setRequestedScopeTokens({"user:read:email", "chat:read", "chat:edit"});
-    
 
-    
-    // Connect signals
-    connect(m_deviceFlow, &QOAuth2DeviceAuthorizationFlow::authorizeWithUserCode, this,
-        [this](const QUrl &verificationUrl, const QString &userCode, const QUrl &completeVerificationUrl) {
-            // Store device code for manual polling
-            m_deviceCode = m_deviceFlow->property("device_code").toString();
-            
-            // Stop Qt's automatic polling
-            m_deviceFlow->stopTokenPolling();
-            
-            // Open the verification URL in browser first
-            QDesktopServices::openUrl(verificationUrl);
-            
-            // Show message asking user to complete authentication and click OK
-            QString message = tr("A browser window has been opened with the authentication page.\n\n"
-                               "Please complete the authentication in your browser and then click OK to continue.");
-            
-            QMessageBox::information(nullptr, tr("Twitch Authentication"), message);
-            
-            // Start polling only after user confirms they completed authentication
-            startPollingAfterUserConfirmation();
-        });
-    
-    connect(m_deviceFlow, &QAbstractOAuth::granted, this, [this]() {
-        m_token = m_deviceFlow->token();
-        QSettings settings;
-        settings.setValue(CFG_TOKEN, m_token);
-        m_authInProgress = false;
-        emit tokenFetched();
-        QMessageBox::information(nullptr, tr("Success"), tr("Authentication completed successfully!"));
-    });
-    
-    connect(m_deviceFlow, &QAbstractOAuth::requestFailed, this, [this](QAbstractOAuth::Error error) {
-        // Don't show error message immediately - let manual polling handle it
-        if (m_deviceCode.isEmpty()) {
-            QMessageBox::critical(nullptr, tr("Error"), tr("Authentication failed. Please try again."));
-            m_authInProgress = false;
-        }
-    });
-    
-    connect(m_deviceFlow, &QAbstractOAuth2::serverReportedErrorOccurred, this,
-        [this](const QString &error, const QString &errorDescription, const QUrl &uri) {
-            // Don't show error message immediately - let manual polling handle it
-            if (m_deviceCode.isEmpty()) {
-                QString message = tr("Authentication error: %1").arg(error);
-                if (!errorDescription.isEmpty()) {
-                    message += QString(" - %1").arg(errorDescription);
-                }
-                QMessageBox::critical(nullptr, tr("Error"), message);
-                m_authInProgress = false;
-            }
-        });
-    
-    m_authInProgress = true;
-    m_deviceFlow->grant();
-}
+    const QUrl redirectUrl("http://localhost");
 
-void TwitchAuthFlow::startPollingAfterUserConfirmation()
-{
-    if (m_deviceCode.isEmpty()) {
-        return;
-    }
-    
-    // Reset retry count for new authentication attempt
-    m_retryCount = 0;
-    
-    // Create timer for polling
-    if (m_pollTimer) {
-        m_pollTimer->stop();
-        m_pollTimer->deleteLater();
-    }
-    
-    m_pollTimer = new QTimer(this);
-    connect(m_pollTimer, &QTimer::timeout, this, &TwitchAuthFlow::pollForToken);
-    m_pollTimer->start(3000); // Poll every 3 seconds for faster response
-}
-
-void TwitchAuthFlow::pollForToken()
-{
-    if (m_deviceCode.isEmpty()) {
-        return;
-    }
-    
-    QSettings settings;
-    QString clientId = settings.value(CFG_CLIENT_ID, DEFAULT_CLIENT_ID).toString();
-    
-    // Create POST request to exchange device code for token
-    QUrl url("https://id.twitch.tv/oauth2/token");
-    QNetworkRequest request(url);
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    
+    QUrl authUrl("https://id.twitch.tv/oauth2/authorize");
     QUrlQuery query;
     query.addQueryItem("client_id", clientId);
-    query.addQueryItem("scopes", "user:read:email chat:read chat:edit");
-    query.addQueryItem("device_code", m_deviceCode);
-    query.addQueryItem("grant_type", "urn:ietf:params:oauth:grant-type:device_code");
-    
-    QNetworkReply* reply = m_nam.post(request, query.toString(QUrl::FullyEncoded).toUtf8());
-    
-    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
-        reply->deleteLater();
-        
-        if (reply->error() != QNetworkReply::NoError) {
-            return; // Continue polling
-        }
-        
-        QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
-        if (doc.isNull()) {
-            return; // Continue polling
-        }
-        
-        handleTokenResponse(doc);
-    });
-}
+    query.addQueryItem("redirect_uri", redirectUrl.toString());
+    query.addQueryItem("response_type", "token");
+    query.addQueryItem("scope", kTwitchScopes.join(' '));
+    authUrl.setQuery(query);
 
-void TwitchAuthFlow::handleTokenResponse(const QJsonDocument& response)
-{
-    QJsonObject obj = response.object();
-    
-    if (obj.contains("error")) {
-        QString error = obj["error"].toString();
-        QString message = obj["message"].toString();
-        
-        if (error == "authorization_pending") {
-            m_retryCount++;
-            
-            // If we've been polling for too long, ask user if they want to retry
-            if (m_retryCount >= MAX_RETRIES) {
-                QMessageBox::StandardButton reply = QMessageBox::question(nullptr, 
-                    tr("Authentication Pending"), 
-                    tr("Authentication is still pending. Have you completed the authentication in your browser?\n\n"
-                       "Click 'Yes' to continue polling or 'No' to retry the authentication."),
-                    QMessageBox::Yes | QMessageBox::No);
-                
-                if (reply == QMessageBox::Yes) {
-                    // Reset retry count and continue polling
-                    m_retryCount = 0;
-                    return;
-                } else {
-                    // Retry authentication
-                    retryAuthentication();
-                    return;
-                }
-            }
-            return; // Continue polling
-        } else if (error == "invalid_device_code") {
-            QMessageBox::critical(nullptr, tr("Error"), tr("Device code expired. Please try again."));
-            m_authInProgress = false;
-            if (m_pollTimer) {
-                m_pollTimer->stop();
-                m_pollTimer->deleteLater();
-                m_pollTimer = nullptr;
-            }
-            return;
-        } else {
-            QMessageBox::critical(nullptr, tr("Error"), tr("Authentication failed: %1").arg(message));
-            m_authInProgress = false;
-            if (m_pollTimer) {
-                m_pollTimer->stop();
-                m_pollTimer->deleteLater();
-                m_pollTimer = nullptr;
-            }
-            return;
-        }
+    m_authInProgress = true;
+    QDesktopServices::openUrl(authUrl);
+
+    QString message = tr("A browser window has been opened to authorize Twitch.\n\n"
+                         "After approving access, you will be redirected to:\n%1\n\n"
+                         "Copy the full redirect URL from your browser and paste it below.")
+                          .arg(redirectUrl.toString());
+
+    bool ok = false;
+    QString redirectResponse = QInputDialog::getText(
+        nullptr,
+        tr("Twitch Authentication"),
+        message,
+        QLineEdit::Normal,
+        QString(),
+        &ok);
+
+    if (!ok || redirectResponse.trimmed().isEmpty()) {
+        m_authInProgress = false;
+        return;
     }
-    
-    // Success! Extract token
-    m_token = obj["access_token"].toString();
-    
-    // Save token to settings
-    QSettings settings;
+
+    int expiresIn = 0;
+    QUrl redirectedUrl = QUrl::fromUserInput(redirectResponse.trimmed());
+    QString token = extractTokenFromUrl(redirectedUrl, &expiresIn);
+
+    if (token.isEmpty()) {
+        QMessageBox::critical(nullptr, tr("Error"),
+                              tr("Authentication failed. Please ensure you pasted the full redirect URL."));
+        m_authInProgress = false;
+        return;
+    }
+
+    m_token = token;
     settings.setValue(CFG_TOKEN, m_token);
-    
-    // Stop polling
-    if (m_pollTimer) {
-        m_pollTimer->stop();
-        m_pollTimer->deleteLater();
-        m_pollTimer = nullptr;
+    if (expiresIn > 0) {
+        QDateTime expiryDate = QDateTime::currentDateTime().addSecs(expiresIn);
+        settings.setValue(CFG_EXPIRY_TOKEN, expiryDate);
     }
-    
+
     m_authInProgress = false;
     emit tokenFetched();
-    
-    QMessageBox::information(nullptr, tr("Success"), tr("Authentication completed successfully!"));
-}
 
-void TwitchAuthFlow::retryAuthentication()
-{
-    // Stop current polling
-    if (m_pollTimer) {
-        m_pollTimer->stop();
-        m_pollTimer->deleteLater();
-        m_pollTimer = nullptr;
-    }
-    
-    // Reset device code
-    m_deviceCode.clear();
-    
-    // Restart device flow
-    setupDeviceFlow();
+    QMessageBox::information(nullptr, tr("Success"), tr("Authentication completed successfully!"));
 }
 
 QString TwitchAuthFlow::token() const
