@@ -182,6 +182,10 @@ void TwitchAuthFlow::setupImplicitFlow()
         return;
     }
     
+    // Qt's OAuth2 helpers focus on the authorization-code flow and redirect handlers
+    // that only receive query parameters. Twitch's implicit grant returns the token
+    // in the URL fragment, which is not available to local HTTP callbacks. To keep
+    // the implicit grant flow, we prompt the user to paste the full redirect URL.
     QSettings settings;
     QString clientId = settings.value(CFG_CLIENT_ID, DEFAULT_CLIENT_ID).toString();
     
