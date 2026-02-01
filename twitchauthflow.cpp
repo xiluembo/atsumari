@@ -27,57 +27,31 @@
 #include <QDateTime>
 #include <QDebug>
 #include <QDesktopServices>
-#include <QInputDialog>
 
 #include "settings_defaults.h"
 
 namespace {
 const QStringList kTwitchScopes = {"user:read:email", "chat:read", "chat:edit"};
-
-QString extractTokenFromUrl(const QUrl &url, int *expiresIn)
-{
-    if (expiresIn) {
-        *expiresIn = 0;
-    }
-
-    QUrlQuery fragmentQuery(url.fragment());
-    QString token = fragmentQuery.queryItemValue("access_token");
-    QString expiresValue = fragmentQuery.queryItemValue("expires_in");
-
-    if (token.isEmpty()) {
-        QUrlQuery query(url.query());
-        token = query.queryItemValue("access_token");
-        if (expiresValue.isEmpty()) {
-            expiresValue = query.queryItemValue("expires_in");
-        }
-    }
-
-    bool ok = false;
-    int parsedExpires = expiresValue.toInt(&ok);
-    if (ok && expiresIn) {
-        *expiresIn = parsedExpires;
-    }
-
-    return token;
-}
 } // namespace
 
 TwitchAuthFlow::TwitchAuthFlow(QObject *parent)
     : QObject{parent}
     , m_token(QString())
     , m_authInProgress(false)
+    , m_oauthFlow(nullptr)
+    , m_replyHandler(nullptr)
 {
     QSettings settings(this);
     m_token = settings.value(CFG_TOKEN, "").toString();
     
     if (m_token.isEmpty()) {
-        setupImplicitFlow();
+        setupAuthorizationCodeFlow();
     } else {
         QDateTime dtNow = QDateTime::currentDateTime();
         QDateTime expiryDate = settings.value(CFG_EXPIRY_TOKEN, dtNow).toDateTime();
         
         if (expiryDate < dtNow) {
-            setupImplicitFlow();
+            setupAuthorizationCodeFlow();
         } else {
             requestTokenValidation();
         }
@@ -89,6 +63,16 @@ TwitchAuthFlow::TwitchAuthFlow(QObject *parent)
 
 TwitchAuthFlow::~TwitchAuthFlow()
 {
+    if (m_oauthFlow) {
+        m_oauthFlow->disconnect();
+        m_oauthFlow->deleteLater();
+        m_oauthFlow = nullptr;
+    }
+
+    if (m_replyHandler) {
+        m_replyHandler->deleteLater();
+        m_replyHandler = nullptr;
+    }
 }
 
 void TwitchAuthFlow::requestTokenValidation()
@@ -158,7 +142,7 @@ void TwitchAuthFlow::onValidateReply(QNetworkReply *reply)
             QJsonObject jsonObj = jsonDoc.object();
 
             if (jsonObj.value("status").toInt(200) != 200) {
-                setupImplicitFlow();
+                setupAuthorizationCodeFlow();
             } else {
                 int expirySecs = jsonObj.value("expires_in").toInt();
                 QDateTime dtNow = QDateTime::currentDateTime();
@@ -170,22 +154,29 @@ void TwitchAuthFlow::onValidateReply(QNetworkReply *reply)
             }
         }
     } else {
-        setupImplicitFlow();
+        setupAuthorizationCodeFlow();
     }
 
     if (reply) reply->deleteLater();
 }
 
-void TwitchAuthFlow::setupImplicitFlow()
+void TwitchAuthFlow::setupAuthorizationCodeFlow()
 {
     if (m_authInProgress) {
         return;
     }
     
-    // Qt's OAuth2 helpers focus on the authorization-code flow and redirect handlers
-    // that only receive query parameters. Twitch's implicit grant returns the token
-    // in the URL fragment, which is not available to local HTTP callbacks. To keep
-    // the implicit grant flow, we prompt the user to paste the full redirect URL.
+    if (m_oauthFlow) {
+        m_oauthFlow->disconnect();
+        m_oauthFlow->deleteLater();
+        m_oauthFlow = nullptr;
+    }
+
+    if (m_replyHandler) {
+        m_replyHandler->deleteLater();
+        m_replyHandler = nullptr;
+    }
+
     QSettings settings;
     QString clientId = settings.value(CFG_CLIENT_ID, DEFAULT_CLIENT_ID).toString();
     
@@ -194,60 +185,45 @@ void TwitchAuthFlow::setupImplicitFlow()
         return;
     }
 
-    const QUrl redirectUrl("http://localhost");
+    m_replyHandler = new QOAuthHttpServerReplyHandler(this);
+    m_oauthFlow = new QOAuth2AuthorizationCodeFlow(&m_nam, this);
+    m_oauthFlow->setAuthorizationUrl(QUrl("https://id.twitch.tv/oauth2/authorize"));
+    m_oauthFlow->setAccessTokenUrl(QUrl("https://id.twitch.tv/oauth2/token"));
+    m_oauthFlow->setClientIdentifier(clientId);
+    m_oauthFlow->setScope(kTwitchScopes.join(' '));
+    m_oauthFlow->setReplyHandler(m_replyHandler);
 
-    QUrl authUrl("https://id.twitch.tv/oauth2/authorize");
-    QUrlQuery query;
-    query.addQueryItem("client_id", clientId);
-    query.addQueryItem("redirect_uri", redirectUrl.toString());
-    query.addQueryItem("response_type", "token");
-    query.addQueryItem("scope", kTwitchScopes.join(' '));
-    authUrl.setQuery(query);
+    connect(m_oauthFlow, &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser, this,
+            [](const QUrl &url) {
+                QDesktopServices::openUrl(url);
+            });
+
+    connect(m_oauthFlow, &QAbstractOAuth::granted, this, [this]() {
+        m_token = m_oauthFlow->token();
+        QSettings settings;
+        settings.setValue(CFG_TOKEN, m_token);
+        m_authInProgress = false;
+        emit tokenFetched();
+        QMessageBox::information(nullptr, tr("Success"), tr("Authentication completed successfully!"));
+    });
+
+    connect(m_oauthFlow, &QAbstractOAuth::requestFailed, this, [this](QAbstractOAuth::Error) {
+        QMessageBox::critical(nullptr, tr("Error"), tr("Authentication failed. Please try again."));
+        m_authInProgress = false;
+    });
+
+    connect(m_oauthFlow, &QAbstractOAuth2::serverReportedErrorOccurred, this,
+            [this](const QString &error, const QString &errorDescription, const QUrl &) {
+                QString message = tr("Authentication error: %1").arg(error);
+                if (!errorDescription.isEmpty()) {
+                    message += QString(" - %1").arg(errorDescription);
+                }
+                QMessageBox::critical(nullptr, tr("Error"), message);
+                m_authInProgress = false;
+            });
 
     m_authInProgress = true;
-    QDesktopServices::openUrl(authUrl);
-
-    QString message = tr("A browser window has been opened to authorize Twitch.\n\n"
-                         "After approving access, you will be redirected to:\n%1\n\n"
-                         "Copy the full redirect URL from your browser and paste it below.")
-                          .arg(redirectUrl.toString());
-
-    bool ok = false;
-    QString redirectResponse = QInputDialog::getText(
-        nullptr,
-        tr("Twitch Authentication"),
-        message,
-        QLineEdit::Normal,
-        QString(),
-        &ok);
-
-    if (!ok || redirectResponse.trimmed().isEmpty()) {
-        m_authInProgress = false;
-        return;
-    }
-
-    int expiresIn = 0;
-    QUrl redirectedUrl = QUrl::fromUserInput(redirectResponse.trimmed());
-    QString token = extractTokenFromUrl(redirectedUrl, &expiresIn);
-
-    if (token.isEmpty()) {
-        QMessageBox::critical(nullptr, tr("Error"),
-                              tr("Authentication failed. Please ensure you pasted the full redirect URL."));
-        m_authInProgress = false;
-        return;
-    }
-
-    m_token = token;
-    settings.setValue(CFG_TOKEN, m_token);
-    if (expiresIn > 0) {
-        QDateTime expiryDate = QDateTime::currentDateTime().addSecs(expiresIn);
-        settings.setValue(CFG_EXPIRY_TOKEN, expiryDate);
-    }
-
-    m_authInProgress = false;
-    emit tokenFetched();
-
-    QMessageBox::information(nullptr, tr("Success"), tr("Authentication completed successfully!"));
+    m_oauthFlow->grant();
 }
 
 QString TwitchAuthFlow::token() const

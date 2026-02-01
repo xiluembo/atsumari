@@ -21,6 +21,8 @@
 #include <QObject>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QtNetworkAuth/qoauth2authorizationcodeflow.h>
+#include <QtNetworkAuth/qoauthhttpserverreplyhandler.h>
 
 class TwitchAuthFlow : public QObject {
     Q_OBJECT
@@ -40,11 +42,13 @@ private:
     void requestTokenValidation();
     void onValidateReply(QNetworkReply* reply);
 
-    void setupImplicitFlow();
+    void setupAuthorizationCodeFlow();
 
     QNetworkAccessManager m_nam;
     QString m_token;
     bool m_authInProgress;
+    QOAuth2AuthorizationCodeFlow* m_oauthFlow;
+    QOAuthHttpServerReplyHandler* m_replyHandler;
 
 };
 
