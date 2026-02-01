@@ -19,10 +19,10 @@
 #define TWITCHAUTHFLOW_H
 
 #include <QObject>
+#include <QTimer>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include <QtNetworkAuth/qoauth2authorizationcodeflow.h>
-#include <QtNetworkAuth/qoauthhttpserverreplyhandler.h>
+#include <QtNetworkAuth/qoauth2deviceauthorizationflow.h>
 
 class TwitchAuthFlow : public QObject {
     Q_OBJECT
@@ -42,13 +42,20 @@ private:
     void requestTokenValidation();
     void onValidateReply(QNetworkReply* reply);
 
-    void setupAuthorizationCodeFlow();
+    void setupDeviceFlow();
+    void startPollingAfterUserConfirmation();
+    void pollForToken();
+    void handleTokenResponse(const QJsonDocument& response);
+    void retryAuthentication();
 
     QNetworkAccessManager m_nam;
     QString m_token;
     bool m_authInProgress;
-    QOAuth2AuthorizationCodeFlow* m_oauthFlow;
-    QOAuthHttpServerReplyHandler* m_replyHandler;
+    QOAuth2DeviceAuthorizationFlow* m_deviceFlow;
+    QString m_deviceCode;
+    QTimer* m_pollTimer;
+    int m_retryCount;
+    static const int MAX_RETRIES = 3;
 
 };
 
