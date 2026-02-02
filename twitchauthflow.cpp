@@ -33,6 +33,7 @@
 TwitchAuthFlow::TwitchAuthFlow(QObject *parent)
     : QObject{parent}
     , m_token(QString())
+    , m_refreshToken(QString())
     , m_authInProgress(false)
     , m_deviceFlow(nullptr)
     , m_pollTimer(nullptr)
@@ -40,6 +41,7 @@ TwitchAuthFlow::TwitchAuthFlow(QObject *parent)
 {
     QSettings settings(this);
     m_token = settings.value(CFG_TOKEN, "").toString();
+    m_refreshToken = settings.value(CFG_REFRESH_TOKEN, "").toString();
     
     if (m_token.isEmpty()) {
         setupDeviceFlow();
@@ -48,7 +50,11 @@ TwitchAuthFlow::TwitchAuthFlow(QObject *parent)
         QDateTime expiryDate = settings.value(CFG_EXPIRY_TOKEN, dtNow).toDateTime();
         
         if (expiryDate < dtNow) {
-            setupDeviceFlow();
+            if (!m_refreshToken.isEmpty()) {
+                refreshAccessToken();
+            } else {
+                setupDeviceFlow();
+            }
         } else {
             requestTokenValidation();
         }
@@ -141,9 +147,13 @@ void TwitchAuthFlow::onValidateReply(QNetworkReply *reply)
         if (jsonDoc.isObject()) {
             QJsonObject jsonObj = jsonDoc.object();
 
-                    if (jsonObj.value("status").toInt(200) != 200) {
-            setupDeviceFlow();
-        } else {
+            if (jsonObj.value("status").toInt(200) != 200) {
+                if (!m_refreshToken.isEmpty()) {
+                    refreshAccessToken();
+                } else {
+                    setupDeviceFlow();
+                }
+            } else {
                 int expirySecs = jsonObj.value("expires_in").toInt();
                 QDateTime dtNow = QDateTime::currentDateTime();
                 QDateTime expiryDate = dtNow.addSecs(expirySecs);
@@ -154,7 +164,11 @@ void TwitchAuthFlow::onValidateReply(QNetworkReply *reply)
             }
         }
     } else {
-        setupDeviceFlow();
+        if (!m_refreshToken.isEmpty()) {
+            refreshAccessToken();
+        } else {
+            setupDeviceFlow();
+        }
     }
 
     if (reply) reply->deleteLater();
@@ -246,6 +260,56 @@ void TwitchAuthFlow::setupDeviceFlow()
     
     m_authInProgress = true;
     m_deviceFlow->grant();
+}
+
+void TwitchAuthFlow::refreshAccessToken()
+{
+    if (m_authInProgress) {
+        return;
+    }
+
+    QSettings settings;
+    QString clientId = settings.value(CFG_CLIENT_ID, DEFAULT_CLIENT_ID).toString();
+    QString refreshToken = settings.value(CFG_REFRESH_TOKEN, "").toString();
+
+    if (clientId.isEmpty() || refreshToken.isEmpty()) {
+        setupDeviceFlow();
+        return;
+    }
+
+    m_authInProgress = true;
+
+    QUrl url("https://id.twitch.tv/oauth2/token");
+    QNetworkRequest request(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+
+    QUrlQuery query;
+    query.addQueryItem("client_id", clientId);
+    query.addQueryItem("refresh_token", refreshToken);
+    query.addQueryItem("grant_type", "refresh_token");
+
+    QNetworkReply *reply = m_nam.post(request, query.toString(QUrl::FullyEncoded).toUtf8());
+
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        reply->deleteLater();
+
+        if (reply->error() != QNetworkReply::NoError) {
+            m_authInProgress = false;
+            setupDeviceFlow();
+            return;
+        }
+
+        QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
+        if (doc.isNull()) {
+            m_authInProgress = false;
+            setupDeviceFlow();
+            return;
+        }
+
+        if (!applyTokenResponse(doc, false)) {
+            setupDeviceFlow();
+        }
+    });
 }
 
 void TwitchAuthFlow::startPollingAfterUserConfirmation()
@@ -357,13 +421,6 @@ void TwitchAuthFlow::handleTokenResponse(const QJsonDocument& response)
         }
     }
     
-    // Success! Extract token
-    m_token = obj["access_token"].toString();
-    
-    // Save token to settings
-    QSettings settings;
-    settings.setValue(CFG_TOKEN, m_token);
-    
     // Stop polling
     if (m_pollTimer) {
         m_pollTimer->stop();
@@ -371,10 +428,50 @@ void TwitchAuthFlow::handleTokenResponse(const QJsonDocument& response)
         m_pollTimer = nullptr;
     }
     
+    applyTokenResponse(response, true);
+}
+
+bool TwitchAuthFlow::applyTokenResponse(const QJsonDocument& response, bool showSuccessMessage)
+{
+    QJsonObject obj = response.object();
+
+    if (obj.contains("error")) {
+        m_authInProgress = false;
+        return false;
+    }
+
+    m_token = obj["access_token"].toString();
+    if (m_token.isEmpty()) {
+        m_authInProgress = false;
+        return false;
+    }
+
+    QString newRefreshToken = obj["refresh_token"].toString();
+    if (!newRefreshToken.isEmpty()) {
+        m_refreshToken = newRefreshToken;
+    }
+
+    int expirySecs = obj["expires_in"].toInt(0);
+    QDateTime dtNow = QDateTime::currentDateTime();
+    QDateTime expiryDate = dtNow.addSecs(expirySecs);
+
+    QSettings settings;
+    settings.setValue(CFG_TOKEN, m_token);
+    if (!m_refreshToken.isEmpty()) {
+        settings.setValue(CFG_REFRESH_TOKEN, m_refreshToken);
+    }
+    if (expirySecs > 0) {
+        settings.setValue(CFG_EXPIRY_TOKEN, expiryDate);
+    }
+
     m_authInProgress = false;
     emit tokenFetched();
-    
-    QMessageBox::information(nullptr, tr("Success"), tr("Authentication completed successfully!"));
+
+    if (showSuccessMessage) {
+        QMessageBox::information(nullptr, tr("Success"), tr("Authentication completed successfully!"));
+    }
+
+    return true;
 }
 
 void TwitchAuthFlow::retryAuthentication()

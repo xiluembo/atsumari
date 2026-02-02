@@ -41,6 +41,8 @@ private:
     void onUserinfoReply(QNetworkReply* reply);
     void requestTokenValidation();
     void onValidateReply(QNetworkReply* reply);
+    void refreshAccessToken();
+    bool applyTokenResponse(const QJsonDocument& response, bool showSuccessMessage);
 
     void setupDeviceFlow();
     void startPollingAfterUserConfirmation();
@@ -50,6 +52,7 @@ private:
 
     QNetworkAccessManager m_nam;
     QString m_token;
+    QString m_refreshToken;
     bool m_authInProgress;
     QOAuth2DeviceAuthorizationFlow* m_deviceFlow;
     QString m_deviceCode;

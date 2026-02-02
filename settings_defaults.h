@@ -49,6 +49,7 @@
 #define CFG_DECORATION_PATH "decoration"
 #define CFG_CLIENT_ID "client_id"
 #define CFG_TOKEN "token"
+#define CFG_REFRESH_TOKEN "refresh_token"
 #define CFG_EXPIRY_TOKEN "expiry_token"
 #define CFG_EMOJI_FONT "emoji_font"
 #define CFG_LANGUAGE "language"
