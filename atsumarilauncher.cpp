@@ -31,6 +31,7 @@
 #include <QDir>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QTimer>
 
 #include "settings_defaults.h"
 #include "materialtype.h"
@@ -46,7 +47,10 @@ AtsumariLauncher::AtsumariLauncher(QObject *parent)
     , m_container(new QWidget)
     , m_tray(nullptr)
     , m_logDialog(new LogViewDialog)
-{ }
+{
+    QObject::connect(m_twFlow, &TwitchAuthFlow::authSuccessNotification, this,
+                     &AtsumariLauncher::showDesktopNotification);
+}
 
 AtsumariLauncher::~AtsumariLauncher()
 {
@@ -272,4 +276,19 @@ bool AtsumariLauncher::eventFilter(QObject* obj, QEvent* event)
         }
     }
     return QObject::eventFilter(obj, event);
+}
+
+void AtsumariLauncher::showDesktopNotification(const QString &title, const QString &message)
+{
+    if (m_tray && QSystemTrayIcon::supportsMessages()) {
+        m_tray->showMessage(title, message, QSystemTrayIcon::Information);
+        return;
+    }
+
+    if (QSystemTrayIcon::isSystemTrayAvailable() && QSystemTrayIcon::supportsMessages()) {
+        auto *tempTray = new QSystemTrayIcon(QIcon(":/appicon/atsumari.svg"), this);
+        tempTray->show();
+        tempTray->showMessage(title, message, QSystemTrayIcon::Information);
+        QTimer::singleShot(6000, tempTray, &QSystemTrayIcon::deleteLater);
+    }
 }
