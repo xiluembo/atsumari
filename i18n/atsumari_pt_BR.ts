@@ -242,6 +242,7 @@
 Custom properties available:
  - **uTime**: ranges from 1 to 3600 over the period of 60 seconds
  - **baseColor**: the *Base Color* you selected above
+ - **baseColorTexture**: the *Base Texture* you selected above
 
 Right click on each text box to use shader presets.</source>
         <translation>Para referência, veja [https://doc.qt.io/qt-6/qtquick3d-custom.html]
@@ -249,6 +250,7 @@ Right click on each text box to use shader presets.</source>
 Propriedades customizadas disponíveis:
  - **uTime**: varia de 1 a 3600 no período de 60 segundos
  - **baseColor**: a *Cor Base* que você selecionou acima
+ - **baseColorTexture**: a *Textura Base* que você selecionou acima
 
 Clique com o botão direito em cada caixa de texto para utilizar as predefinições de shader.</translation>
     </message>
