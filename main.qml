@@ -57,6 +57,7 @@ Item {
     property var customMaterial: CustomMaterial {
         property real uTime: 0
         property color baseColor: root.baseColor
+        property Texture baseColorTexture: root.baseColorTexture === "" ? null : baseColorTex
         NumberAnimation on uTime {
             from: 1; to: 3600; duration: 60000; loops: -1
         }
