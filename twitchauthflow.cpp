@@ -233,6 +233,12 @@ void TwitchAuthFlow::setupDeviceFlow()
         QSettings settings;
         settings.setValue(CFG_TOKEN, m_token);
         m_authInProgress = false;
+        m_deviceCode.clear();
+        if (m_pollTimer) {
+            m_pollTimer->stop();
+            m_pollTimer->deleteLater();
+            m_pollTimer = nullptr;
+        }
         emit tokenFetched();
         QMessageBox::information(nullptr, tr("Success"), tr("Authentication completed successfully!"));
     });
@@ -314,7 +320,7 @@ void TwitchAuthFlow::refreshAccessToken()
 
 void TwitchAuthFlow::startPollingAfterUserConfirmation()
 {
-    if (m_deviceCode.isEmpty()) {
+    if (m_deviceCode.isEmpty() || !m_authInProgress) {
         return;
     }
     
@@ -465,6 +471,7 @@ bool TwitchAuthFlow::applyTokenResponse(const QJsonDocument& response, bool show
     }
 
     m_authInProgress = false;
+    m_deviceCode.clear();
     emit tokenFetched();
 
     if (showSuccessMessage) {
