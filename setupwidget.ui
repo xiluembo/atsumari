@@ -47,7 +47,7 @@
               <x>0</x>
               <y>0</y>
               <width>555</width>
-              <height>1220</height>
+              <height>1242</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_9">
@@ -852,6 +852,9 @@ Right click on each text box to use shader presets.</string>
                      <height>64</height>
                     </size>
                    </property>
+                   <property name="frameShape">
+                    <enum>QFrame::Shape::Box</enum>
+                   </property>
                    <property name="scaledContents">
                     <bool>true</bool>
                    </property>
@@ -1198,8 +1201,8 @@ Right click on each text box to use shader presets.</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>977</width>
-            <height>1232</height>
+            <width>963</width>
+            <height>598</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_8">
