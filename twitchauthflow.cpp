@@ -240,7 +240,7 @@ void TwitchAuthFlow::setupDeviceFlow()
             m_pollTimer = nullptr;
         }
         emit tokenFetched();
-        QMessageBox::information(nullptr, tr("Success"), tr("Authentication completed successfully!"));
+        emit authSuccessNotification(tr("Success"), tr("Authentication completed successfully!"));
     });
     
     connect(m_deviceFlow, &QAbstractOAuth::requestFailed, this, [this](QAbstractOAuth::Error error) {
@@ -475,7 +475,7 @@ bool TwitchAuthFlow::applyTokenResponse(const QJsonDocument& response, bool show
     emit tokenFetched();
 
     if (showSuccessMessage) {
-        QMessageBox::information(nullptr, tr("Success"), tr("Authentication completed successfully!"));
+        emit authSuccessNotification(tr("Success"), tr("Authentication completed successfully!"));
     }
 
     return true;
