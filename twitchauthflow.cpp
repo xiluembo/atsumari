@@ -30,6 +30,19 @@
 
 #include "settings_defaults.h"
 
+namespace {
+QString tokenSummary(const QString &token)
+{
+    if (token.isEmpty()) {
+        return QStringLiteral("<empty>");
+    }
+
+    return QStringLiteral("len=%1, startsWith=%2***")
+        .arg(token.size())
+        .arg(token.left(4));
+}
+}
+
 TwitchAuthFlow::TwitchAuthFlow(QObject *parent)
     : QObject{parent}
     , m_token(QString())
@@ -42,6 +55,10 @@ TwitchAuthFlow::TwitchAuthFlow(QObject *parent)
     QSettings settings(this);
     m_token = settings.value(CFG_TOKEN, "").toString();
     m_refreshToken = settings.value(CFG_REFRESH_TOKEN, "").toString();
+    qDebug() << "Loaded cached auth values from QSettings"
+             << "token:" << tokenSummary(m_token)
+             << "refresh_token:" << tokenSummary(m_refreshToken)
+             << "settings file:" << settings.fileName();
     
     if (m_token.isEmpty()) {
         setupDeviceFlow();
@@ -50,12 +67,16 @@ TwitchAuthFlow::TwitchAuthFlow(QObject *parent)
         QDateTime expiryDate = settings.value(CFG_EXPIRY_TOKEN, dtNow).toDateTime();
         
         if (expiryDate < dtNow) {
+            qDebug() << "Stored access token is expired" << "expiry:" << expiryDate << "now:" << dtNow;
             if (!m_refreshToken.isEmpty()) {
+                qDebug() << "Attempting access token refresh because refresh token is available";
                 refreshAccessToken();
             } else {
+                qDebug() << "Refresh token is empty, restarting device flow";
                 setupDeviceFlow();
             }
         } else {
+            qDebug() << "Stored access token still valid, requesting token validation";
             requestTokenValidation();
         }
     }
@@ -277,8 +298,13 @@ void TwitchAuthFlow::refreshAccessToken()
     QSettings settings;
     QString clientId = settings.value(CFG_CLIENT_ID, DEFAULT_CLIENT_ID).toString();
     QString refreshToken = settings.value(CFG_REFRESH_TOKEN, "").toString();
+    qDebug() << "Refreshing access token"
+             << "client_id configured:" << !clientId.isEmpty()
+             << "refresh_token from settings:" << tokenSummary(refreshToken)
+             << "settings file:" << settings.fileName();
 
     if (clientId.isEmpty() || refreshToken.isEmpty()) {
+        qDebug() << "Cannot refresh token because required values are missing. Falling back to device flow.";
         setupDeviceFlow();
         return;
     }
@@ -297,22 +323,29 @@ void TwitchAuthFlow::refreshAccessToken()
     QNetworkReply *reply = m_nam.post(request, query.toString(QUrl::FullyEncoded).toUtf8());
 
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        qDebug() << "Refresh token request finished" << "network error:" << reply->error()
+                 << "http status:" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         reply->deleteLater();
 
         if (reply->error() != QNetworkReply::NoError) {
+            qDebug() << "Refresh token request failed, restarting device flow" << reply->errorString();
             m_authInProgress = false;
             setupDeviceFlow();
             return;
         }
 
-        QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
+        const QByteArray payload = reply->readAll();
+        qDebug() << "Refresh token response payload size:" << payload.size();
+        QJsonDocument doc = QJsonDocument::fromJson(payload);
         if (doc.isNull()) {
+            qDebug() << "Refresh token response is not valid JSON, restarting device flow";
             m_authInProgress = false;
             setupDeviceFlow();
             return;
         }
 
         if (!applyTokenResponse(doc, false)) {
+            qDebug() << "Refresh token response was rejected by applyTokenResponse, restarting device flow";
             setupDeviceFlow();
         }
     });
@@ -440,14 +473,21 @@ void TwitchAuthFlow::handleTokenResponse(const QJsonDocument& response)
 bool TwitchAuthFlow::applyTokenResponse(const QJsonDocument& response, bool showSuccessMessage)
 {
     QJsonObject obj = response.object();
+    qDebug() << "Applying token response"
+             << "keys:" << obj.keys()
+             << "showSuccessMessage:" << showSuccessMessage;
 
     if (obj.contains("error")) {
+        qDebug() << "Token response contains OAuth error"
+                 << obj.value("error").toString()
+                 << obj.value("message").toString();
         m_authInProgress = false;
         return false;
     }
 
     m_token = obj["access_token"].toString();
     if (m_token.isEmpty()) {
+        qDebug() << "Token response did not contain an access_token value";
         m_authInProgress = false;
         return false;
     }
@@ -455,6 +495,10 @@ bool TwitchAuthFlow::applyTokenResponse(const QJsonDocument& response, bool show
     QString newRefreshToken = obj["refresh_token"].toString();
     if (!newRefreshToken.isEmpty()) {
         m_refreshToken = newRefreshToken;
+        qDebug() << "Received new refresh_token from OAuth response" << tokenSummary(m_refreshToken);
+    } else {
+        qDebug() << "OAuth response did not include refresh_token. Keeping current value"
+                 << tokenSummary(m_refreshToken);
     }
 
     int expirySecs = obj["expires_in"].toInt(0);
@@ -463,12 +507,20 @@ bool TwitchAuthFlow::applyTokenResponse(const QJsonDocument& response, bool show
 
     QSettings settings;
     settings.setValue(CFG_TOKEN, m_token);
+    qDebug() << "Saved access token to QSettings" << tokenSummary(m_token)
+             << "settings file:" << settings.fileName();
     if (!m_refreshToken.isEmpty()) {
         settings.setValue(CFG_REFRESH_TOKEN, m_refreshToken);
+        qDebug() << "Saved refresh token to QSettings" << tokenSummary(m_refreshToken);
+    } else {
+        qDebug() << "Skipped saving refresh token because it is empty";
     }
     if (expirySecs > 0) {
         settings.setValue(CFG_EXPIRY_TOKEN, expiryDate);
+        qDebug() << "Saved token expiry" << expiryDate;
     }
+    settings.sync();
+    qDebug() << "QSettings sync status after token save:" << settings.status();
 
     m_authInProgress = false;
     m_deviceCode.clear();
