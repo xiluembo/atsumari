@@ -251,8 +251,10 @@ void TwitchAuthFlow::setupDeviceFlow()
     
     connect(m_deviceFlow, &QAbstractOAuth::granted, this, [this]() {
         m_token = m_deviceFlow->token();
+        m_refreshToken = m_deviceFlow->refreshToken();
         QSettings settings;
         settings.setValue(CFG_TOKEN, m_token);
+        settings.setValue(CFG_REFRESH_TOKEN, m_refreshToken);
         m_authInProgress = false;
         m_deviceCode.clear();
         if (m_pollTimer) {
