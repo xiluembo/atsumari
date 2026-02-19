@@ -34,6 +34,7 @@ public:
     ~TwitchChatReader();
 
 signals:
+    void connected();
     void emoteSent(QString emoteId, QString emoteName);
     void bigEmoteSent(QString emoteId, QString emoteName);
     void emojiSent(QString slug, QString emojiData);

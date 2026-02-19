@@ -178,6 +178,10 @@ void AtsumariLauncher::launch()
     QObject::connect(m_twFlow, &TwitchAuthFlow::loginFetched, m_twFlow, [&](const QString& a) {
         m_tReader = new TwitchChatReader("wss://irc-ws.chat.twitch.tv:443/", m_twFlow->token(), a, m_emw);
 
+        QObject::connect(m_tReader, &TwitchChatReader::connected, this, [this]() {
+            showDesktopNotification(tr("Success"), tr("Connected to Twitch chat successfully!"));
+        });
+
         QObject::connect(m_tReader, &TwitchChatReader::emoteSent, m_emw, [=](const QString& id, const QString& emoName) {
             Q_UNUSED(emoName);
             m_emw->saveEmote(id);
