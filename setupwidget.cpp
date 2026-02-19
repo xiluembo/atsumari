@@ -49,6 +49,10 @@
 #include <QJsonObject>
 #include <QVersionNumber>
 #include <QTimer>
+#include <QPointer>
+#include <QMetaObject>
+#include <QMutex>
+#include <QMutexLocker>
 
 #include "settings_defaults.h"
 #include "logcommandcolors.h"
@@ -56,11 +60,43 @@
 #include "atsumarilauncher.h"
 #include "localehelper.h"
 
+namespace {
+QPointer<SetupWidget> g_shaderErrorWidget;
+QtMessageHandler g_previousMessageHandler = nullptr;
+QMutex g_shaderMessageHandlerMutex;
+
+void shaderReloadMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &message)
+{
+    QtMessageHandler previousHandler = nullptr;
+    QPointer<SetupWidget> target;
+
+    {
+        QMutexLocker locker(&g_shaderMessageHandlerMutex);
+        previousHandler = g_previousMessageHandler;
+        target = g_shaderErrorWidget;
+    }
+
+    if (target) {
+        const QString capturedMessage = message;
+        QMetaObject::invokeMethod(target.data(), [target, capturedMessage]() {
+            if (target) {
+                target->handleShaderCompilerMessage(capturedMessage);
+            }
+        }, Qt::QueuedConnection);
+    }
+
+    if (previousHandler) {
+        previousHandler(type, context, message);
+    }
+}
+}
+
 SetupWidget::SetupWidget(QWidget *parent)
     : QWidget(parent)
     , m_shouldSave(false)
     , m_rebuildingCombo(false)
     , m_waitingForShaderReloadError(false)
+    , m_shaderReloadErrorShown(false)
     , m_profileMenu(nullptr)
     , m_newProfileAction(nullptr)
     , m_duplicateProfileAction(nullptr)
@@ -292,11 +328,27 @@ SetupWidget::SetupWidget(QWidget *parent)
 
     connect(ui->btnReloadShaders, &QPushButton::clicked, this, [=]() {
         m_waitingForShaderReloadError = true;
+        m_shaderReloadErrorShown = false;
+
+        {
+            QMutexLocker locker(&g_shaderMessageHandlerMutex);
+            g_shaderErrorWidget = this;
+            if (!g_previousMessageHandler) {
+                g_previousMessageHandler = qInstallMessageHandler(shaderReloadMessageHandler);
+            }
+        }
+
         runPreview();
         ui->btnReloadShaders->setEnabled(false);
 
         QTimer::singleShot(1500, this, [=]() {
             m_waitingForShaderReloadError = false;
+            ui->btnReloadShaders->setEnabled(true);
+
+            QMutexLocker locker(&g_shaderMessageHandlerMutex);
+            if (g_shaderErrorWidget == this) {
+                g_shaderErrorWidget = nullptr;
+            }
         });
     });
 
@@ -350,6 +402,13 @@ SetupWidget::SetupWidget(QWidget *parent)
 
 SetupWidget::~SetupWidget()
 {
+    {
+        QMutexLocker locker(&g_shaderMessageHandlerMutex);
+        if (g_shaderErrorWidget == this) {
+            g_shaderErrorWidget = nullptr;
+        }
+    }
+
     qDeleteAll(m_profiles);
     m_profiles.clear();
 
@@ -853,6 +912,33 @@ void SetupWidget::populateRefractionTypes()
     ui->cboRefraction->addItem(tr("Diamond"), static_cast<int>(IndexOfRefraction::Diamond));
 }
 
+void SetupWidget::handleShaderReloadFailure(const QString &message)
+{
+    if (!m_waitingForShaderReloadError || m_shaderReloadErrorShown) {
+        return;
+    }
+
+    m_shaderReloadErrorShown = true;
+    m_waitingForShaderReloadError = false;
+    ui->btnReloadShaders->setEnabled(true);
+
+    QMessageBox::critical(this, tr("Shader reload failed"), message);
+}
+
+void SetupWidget::handleShaderCompilerMessage(const QString &message)
+{
+    if (!m_waitingForShaderReloadError) {
+        return;
+    }
+
+    if (!message.contains("Failed to compile", Qt::CaseInsensitive)
+        && !message.contains("QSpirvCompiler", Qt::CaseInsensitive)) {
+        return;
+    }
+
+    handleShaderReloadFailure(message);
+}
+
 void SetupWidget::setupPreview()
 {
     // Create QQuickView for preview using the same QML as standalone
@@ -861,14 +947,7 @@ void SetupWidget::setupPreview()
     m_previewWindow->setResizeMode(QQuickView::SizeRootObjectToView);
 
     connect(m_previewWindow, &QQuickWindow::sceneGraphError, this, [=](QQuickWindow::SceneGraphError, const QString &message) {
-        if (!m_waitingForShaderReloadError) {
-            return;
-        }
-
-        m_waitingForShaderReloadError = false;
-        ui->btnReloadShaders->setEnabled(true);
-
-        QMessageBox::critical(this, tr("Shader reload failed"), message);
+        handleShaderReloadFailure(message);
     });
     
     // Set the same QML source as standalone window
