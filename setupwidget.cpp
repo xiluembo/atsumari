@@ -264,11 +264,21 @@ SetupWidget::SetupWidget(QWidget *parent)
             if (isVertex) {
                 presetMenu->addAction(tr("Base"), [=]() { loadPreset(":/custom_shaders/base.vert"); });
                 presetMenu->addAction(tr("Ondulation"), [=]() { loadPreset(":/custom_shaders/ondulation.vert"); });
+                presetMenu->addAction(tr("Ondulation (XYZ axis)"), [=]() { loadPreset(":/custom_shaders/ondulation_xyz.vert"); });
+                presetMenu->addAction(tr("Cubed"), [=]() { loadPreset(":/custom_shaders/cubed.vert"); });
+                presetMenu->addAction(tr("Cubed (with phasing)"), [=]() { loadPreset(":/custom_shaders/cubed_phasing.vert"); });
+                presetMenu->addAction(tr("Hexagons (with phasing)"), [=]() { loadPreset(":/custom_shaders/hexd_phasing.vert"); });
+                presetMenu->addAction(tr("Wobbly (with phasing)"), [=]() { loadPreset(":/custom_shaders/wobbly_phasing.vert"); });
             } else {
                 presetMenu->addAction(tr("Base"), [=]() { loadPreset(":/custom_shaders/base.frag"); });
                 presetMenu->addAction(tr("Dissolve"), [=]() { loadPreset(":/custom_shaders/dissolve.frag"); });
                 presetMenu->addAction(tr("Alternate"), [=]() { loadPreset(":/custom_shaders/alternate.frag"); });
                 presetMenu->addAction(tr("Stripes"), [=]() { loadPreset(":/custom_shaders/stripes.frag"); });
+                presetMenu->addAction(tr("4-color cycle"), [=]() { loadPreset(":/custom_shaders/4color_cycle.frag"); });
+                presetMenu->addAction(tr("Dissolve with pulse"), [=]() { loadPreset(":/custom_shaders/dissolve_pulse.frag"); });
+                presetMenu->addAction(tr("Phasing"), [=]() { loadPreset(":/custom_shaders/phasing.frag"); });
+                presetMenu->addAction(tr("Phasing with Jitter and Stripes"), [=]() { loadPreset(":/custom_shaders/phasing_jitter_stripes.frag"); });
+                presetMenu->addAction(tr("Toon Shading"), [=]() { loadPreset(":/custom_shaders/toon_shading.frag"); });
             }
             menu->exec(editor->mapToGlobal(pos));
             delete menu;
