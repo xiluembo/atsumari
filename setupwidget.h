@@ -43,6 +43,9 @@ public:
     explicit SetupWidget(QWidget *parent = nullptr);
     ~SetupWidget();
 
+    void handleShaderReloadFailure(const QString& message);
+    void handleShaderCompilerMessage(const QString& message);
+
 private:
     void loadSettings();
     void saveSettings();
@@ -86,6 +89,7 @@ private:
     bool m_shouldSave;
     bool m_rebuildingCombo;
     bool m_waitingForShaderReloadError;
+    bool m_shaderReloadErrorShown;
 
     QMenu* m_profileMenu;
     QAction* m_newProfileAction;
