@@ -48,6 +48,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QVersionNumber>
+#include <QTimer>
 
 #include "settings_defaults.h"
 #include "logcommandcolors.h"
@@ -59,6 +60,7 @@ SetupWidget::SetupWidget(QWidget *parent)
     : QWidget(parent)
     , m_shouldSave(false)
     , m_rebuildingCombo(false)
+    , m_waitingForShaderReloadError(false)
     , m_profileMenu(nullptr)
     , m_newProfileAction(nullptr)
     , m_duplicateProfileAction(nullptr)
@@ -289,8 +291,13 @@ SetupWidget::SetupWidget(QWidget *parent)
     addShaderPresetMenu(ui->txtFragmentShader, false);
 
     connect(ui->btnReloadShaders, &QPushButton::clicked, this, [=]() {
+        m_waitingForShaderReloadError = true;
         runPreview();
         ui->btnReloadShaders->setEnabled(false);
+
+        QTimer::singleShot(1500, this, [=]() {
+            m_waitingForShaderReloadError = false;
+        });
     });
 
     connect(ui->btnResetDecoration, &QPushButton::clicked, this, &SetupWidget::resetDecoration);
@@ -852,6 +859,17 @@ void SetupWidget::setupPreview()
     m_previewWindow = new QQuickView;
     m_previewWindow->setColor(Qt::black);
     m_previewWindow->setResizeMode(QQuickView::SizeRootObjectToView);
+
+    connect(m_previewWindow, &QQuickWindow::sceneGraphError, this, [=](QQuickWindow::SceneGraphError, const QString &message) {
+        if (!m_waitingForShaderReloadError) {
+            return;
+        }
+
+        m_waitingForShaderReloadError = false;
+        ui->btnReloadShaders->setEnabled(true);
+
+        QMessageBox::critical(this, tr("Shader reload failed"), message);
+    });
     
     // Set the same QML source as standalone window
     m_previewWindow->setSource(QUrl("qrc:/main.qml"));

@@ -85,6 +85,7 @@ private:
 
     bool m_shouldSave;
     bool m_rebuildingCombo;
+    bool m_waitingForShaderReloadError;
 
     QMenu* m_profileMenu;
     QAction* m_newProfileAction;
