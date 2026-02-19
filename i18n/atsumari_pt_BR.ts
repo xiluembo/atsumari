@@ -34,6 +34,16 @@
         <source>Text Files (*.txt)</source>
         <translation>Arquivos de Texto (*.txt)</translation>
     </message>
+    <message>
+        <location filename="../atsumarilauncher.cpp" line="185"/>
+        <source>Success</source>
+        <translation>Sucesso</translation>
+    </message>
+    <message>
+        <location filename="../atsumarilauncher.cpp" line="185"/>
+        <source>Connected to Twitch chat successfully!</source>
+        <translation>Conectado ao chat da Twitch com sucesso!</translation>
+    </message>
 </context>
 <context>
     <name>LogViewDialog</name>
