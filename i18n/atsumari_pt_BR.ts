@@ -451,27 +451,27 @@ Clique com o botão direito em cada caixa de texto para utilizar as predefiniç�
     <message>
         <location filename="../setupwidget.cpp" line="267"/>
         <source>Ondulation (XYZ axis)</source>
-        <translation type="unfinished">Ondulação (Eixo XYZ)</translation>
+        <translation>Ondulação (Eixo XYZ)</translation>
     </message>
     <message>
         <location filename="../setupwidget.cpp" line="268"/>
         <source>Cubed</source>
-        <translation type="unfinished">Em cubos</translation>
+        <translation>Em cubos</translation>
     </message>
     <message>
         <location filename="../setupwidget.cpp" line="269"/>
         <source>Cubed (with phasing)</source>
-        <translation type="unfinished">Em cubos (com faseamento)</translation>
+        <translation>Em cubos (com faseamento)</translation>
     </message>
     <message>
         <location filename="../setupwidget.cpp" line="270"/>
         <source>Hexagons (with phasing)</source>
-        <translation type="unfinished">Hexágonos (com faseamento)</translation>
+        <translation>Hexágonos (com faseamento)</translation>
     </message>
     <message>
         <location filename="../setupwidget.cpp" line="271"/>
         <source>Wobbly (with phasing)</source>
-        <translation type="unfinished">Gelatinoso (com faseamento)</translation>
+        <translation>Gelatinoso (com faseamento)</translation>
     </message>
     <message>
         <location filename="../setupwidget.cpp" line="274"/>
@@ -491,27 +491,27 @@ Clique com o botão direito em cada caixa de texto para utilizar as predefiniç�
     <message>
         <location filename="../setupwidget.cpp" line="277"/>
         <source>4-color cycle</source>
-        <translation type="unfinished">Ciclo de 4 cores</translation>
+        <translation>Ciclo de 4 cores</translation>
     </message>
     <message>
         <location filename="../setupwidget.cpp" line="278"/>
         <source>Dissolve with pulse</source>
-        <translation type="unfinished">Dissolver com pulso</translation>
+        <translation>Dissolver com pulso</translation>
     </message>
     <message>
         <location filename="../setupwidget.cpp" line="279"/>
         <source>Phasing</source>
-        <translation type="unfinished">Faseamento</translation>
+        <translation>Faseamento</translation>
     </message>
     <message>
         <location filename="../setupwidget.cpp" line="280"/>
         <source>Phasing with Jitter and Stripes</source>
-        <translation type="unfinished">Faseamento com Ruído e Listras</translation>
+        <translation>Faseamento com Ruído e Listras</translation>
     </message>
     <message>
         <location filename="../setupwidget.cpp" line="281"/>
         <source>Toon Shading</source>
-        <translation type="unfinished">Efeito Cartoon</translation>
+        <translation>Efeito Cartoon</translation>
     </message>
     <message>
         <location filename="../setupwidget.cpp" line="660"/>
@@ -565,12 +565,12 @@ Clique com o botão direito em cada caixa de texto para utilizar as predefiniç�
     <message>
         <location filename="../setupwidget.cpp" line="1331"/>
         <source>New release available</source>
-        <translation type="unfinished">Nova versão disponível</translation>
+        <translation>Nova versão disponível</translation>
     </message>
     <message>
         <location filename="../setupwidget.cpp" line="1332"/>
         <source>Version %1 is available. Open download page?</source>
-        <translation type="unfinished">A versão %1 está disponível. Deseja abrir a página de download?</translation>
+        <translation>A versão %1 está disponível. Deseja abrir a página de download?</translation>
     </message>
     <message>
         <location filename="../setupwidget.cpp" line="476"/>
