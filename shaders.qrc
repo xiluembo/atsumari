@@ -6,5 +6,15 @@
         <file>custom_shaders/ondulation.vert</file>
         <file>custom_shaders/alternate.frag</file>
         <file>custom_shaders/stripes.frag</file>
+        <file>custom_shaders/4color_cycle.frag</file>
+        <file>custom_shaders/cubed.vert</file>
+        <file>custom_shaders/cubed_phasing.vert</file>
+        <file>custom_shaders/dissolve_pulse.frag</file>
+        <file>custom_shaders/hexd_phasing.vert</file>
+        <file>custom_shaders/ondulation_xyz.vert</file>
+        <file>custom_shaders/phasing.frag</file>
+        <file>custom_shaders/phasing_jitter_stripes.frag</file>
+        <file>custom_shaders/toon_shading.frag</file>
+        <file>custom_shaders/wobbly_phasing.vert</file>
     </qresource>
 </RCC>
