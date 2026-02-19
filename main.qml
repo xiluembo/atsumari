@@ -34,6 +34,7 @@ Item {
     property string decorationPath: "qrc:/decoration/kata_deco.png"
 
     property var cameraRotationTarget: Qt.vector3d(180, 360, 0)
+
     Texture {
         id: baseColorTex
         source: root.baseColorTexture
@@ -57,7 +58,10 @@ Item {
     property var customMaterial: CustomMaterial {
         property real uTime: 0
         property color baseColor: root.baseColor
-        property Texture baseColorTexture: root.baseColorTexture === "" ? null : baseColorTex
+        // property Texture baseColorTexture: root.baseColorTexture === "" ? null : baseColorTex
+        property TextureInput baseColorTexture: TextureInput {
+            texture: baseColorTex
+        }
         NumberAnimation on uTime {
             from: 1; to: 3600; duration: 60000; loops: -1
         }
