@@ -62,6 +62,19 @@ void EmoteWriter::saveBigEmote(const QString &id)
     reply->setProperty("isBig", true);
 }
 
+
+void EmoteWriter::saveEmoteFromUrl(const QString &id, const QString &url)
+{
+    if (m_textures.contains(id)) {
+        emit emoteReady(id, m_textures.value(id), m_pixmaps.value(id));
+        return;
+    }
+
+    QNetworkRequest request(QUrl(url));
+    QNetworkReply *reply = networkManager->get(request);
+    reply->setProperty("emoteId", id);
+    reply->setProperty("isBig", false);
+}
 void EmoteWriter::saveEmoji(const QString &slug, const QString &emojiData, const QString &fontName)
 {
     if (m_textures.contains(slug)) {

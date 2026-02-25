@@ -19,9 +19,14 @@
 #define TWITCHCHATREADER_H
 
 #include <QCoreApplication>
-#include <QtWebSockets/QWebSocket>
-#include <QtCore/QUrl>
+#include <QDateTime>
+#include <QHash>
+#include <QMap>
+#include <QNetworkAccessManager>
+#include <QSet>
 #include <QTimer>
+#include <QtCore/QUrl>
+#include <QtWebSockets/QWebSocket>
 
 #include "emojimapper.h"
 
@@ -30,7 +35,13 @@ class EmoteWriter;
 class TwitchChatReader : public QObject {
     Q_OBJECT
 public:
-    TwitchChatReader(const QString& url, const QString& token, const QString& channel, EmoteWriter* emoteWriter, QObject* parent = nullptr);
+    TwitchChatReader(const QString& ircUrl,
+                     const QString& token,
+                     const QString& channel,
+                     const QString& broadcasterId,
+                     const QString& userId,
+                     EmoteWriter* emoteWriter,
+                     QObject* parent = nullptr);
     ~TwitchChatReader();
 
 signals:
@@ -40,18 +51,72 @@ signals:
     void emojiSent(QString slug, QString emojiData);
 
 private:
-    void onConnected();
-    void onTextMessageReceived(const QString& allMsgs);
+    struct ChatEvent {
+        QString messageId;
+        QString sender;
+        QString trailing;
+        QString metadata;
+        bool fromIrc = false;
+        bool fromEventSub = false;
+        bool processed = false;
+        bool gigantified = false;
+        QMap<QString, QString> ircEmotes;
+        QMap<QString, QString> eventSubEmotes;
+        QMap<QString, QString> emojis;
+        QMap<QString, QString> cheerEmotes;
+    };
+
+    struct CheermoteTier {
+        int minBits = 0;
+        QString darkStatic3x;
+    };
+
+    void onIrcConnected();
+    void onIrcTextMessageReceived(const QString& allMsgs);
     void startPingTimer();
 
+    void setupEventSub();
+    void onEventSubConnected();
+    void onEventSubTextMessageReceived(const QString& payload);
+    void createChannelChatMessageSubscription();
+    void fetchCheermotes();
+    QString cheerEmoteUrlFor(const QString &prefix, int bits) const;
+
+    void mergeIrcPrivmsg(const QString& sender,
+                         const QString& tags,
+                         const QString& trailing,
+                         const QString& metadata);
+    void mergeEventSubMessage(const QString& messageId,
+                              const QString& sender,
+                              const QString& trailing,
+                              const QMap<QString, QString>& emotes,
+                              const QMap<QString, QString>& cheermotes);
+    void scheduleFinalize(const QString& messageId);
+    void finalizePending(const QString& messageId);
+    void processEvent(ChatEvent& event);
+    bool shouldSkipSender(const QString& sender) const;
+
     QWebSocket* m_webSocket;
+    QWebSocket* m_eventSubSocket;
     QString m_token;
     QString m_channel;
+    QString m_broadcasterId;
+    QString m_userId;
+    QString m_eventSubSessionId;
     QTimer* m_pingTimer = nullptr;
     int m_reconnectAttempts = 0;
 
     EmojiMapper m_emojiMapper;
     EmoteWriter* m_emoteWriter;
+    QNetworkAccessManager m_network;
+
+    QHash<QString, ChatEvent> m_pendingEvents;
+    QHash<QString, QTimer*> m_finalizeTimers;
+    int m_fallbackCounter = 0;
+
+    QHash<QString, QList<CheermoteTier>> m_cheermotes;
+    QSet<QString> m_requestedCheerKeys;
+    QHash<QString, QPair<QString, int>> m_pendingCheerLookups;
 };
 
 #endif // TWITCHCHATREADER_H

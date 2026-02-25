@@ -126,7 +126,8 @@ void TwitchAuthFlow::onUserinfoReply(QNetworkReply *reply)
                 if (! arr.isEmpty()) {
                     if (arr.at(0).toObject().contains("login")) {
                         QString login = arr.at(0).toObject().value("login").toString();
-                        emit loginFetched(login);
+                        QString userId = arr.at(0).toObject().value("id").toString();
+                        emit loginFetched(login, userId);
                     }
                 }
             }
@@ -201,7 +202,7 @@ void TwitchAuthFlow::setupDeviceFlow()
     m_deviceFlow->setAuthorizationUrl(QUrl("https://id.twitch.tv/oauth2/device"));
     m_deviceFlow->setTokenUrl(QUrl("https://id.twitch.tv/oauth2/token"));
     m_deviceFlow->setClientIdentifier(clientId);
-    m_deviceFlow->setRequestedScopeTokens({"user:read:email", "chat:read", "chat:edit"});
+    m_deviceFlow->setRequestedScopeTokens({"user:read:email", "chat:read", "chat:edit", "user:read:chat"});
     
 
     
@@ -356,7 +357,7 @@ void TwitchAuthFlow::pollForToken()
     
     QUrlQuery query;
     query.addQueryItem("client_id", clientId);
-    query.addQueryItem("scopes", "user:read:email chat:read chat:edit");
+    query.addQueryItem("scopes", "user:read:email chat:read chat:edit user:read:chat");
     query.addQueryItem("device_code", m_deviceCode);
     query.addQueryItem("grant_type", "urn:ietf:params:oauth:grant-type:device_code");
     
