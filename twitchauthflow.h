@@ -34,7 +34,7 @@ public:
 signals:
     void tokenFetched();
     void tokenValidated();
-    void loginFetched(QString login);
+    void loginFetched(QString login, QString userId);
     void authSuccessNotification(const QString &title, const QString &message);
 
 private:

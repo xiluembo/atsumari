@@ -17,58 +17,84 @@
 
 #include "twitchchatreader.h"
 
+#include <algorithm>
+#include <QDebug>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QNetworkReply>
 #include <QRegularExpression>
-#include <QTimer>
 #include <QSettings>
-#include <QUrl>
 #include <QStringList>
-#include <QPixmap>
+#include <QUrlQuery>
 
+#include "emotewriter.h"
 #include "settings_defaults.h"
 #include "twitchlogmodel.h"
-#include "emotewriter.h"
 
-TwitchChatReader::TwitchChatReader(const QString &url, const QString &token, const QString &channel, EmoteWriter *emoteWriter, QObject *parent)
-    : QObject(parent), m_webSocket(new QWebSocket), m_channel(channel), m_emoteWriter(emoteWriter)
+TwitchChatReader::TwitchChatReader(const QString &ircUrl,
+                                   const QString &token,
+                                   const QString &channel,
+                                   const QString &broadcasterId,
+                                   const QString &userId,
+                                   EmoteWriter *emoteWriter,
+                                   QObject *parent)
+    : QObject(parent)
+    , m_webSocket(new QWebSocket)
+    , m_eventSubSocket(new QWebSocket)
+    , m_channel(channel)
+    , m_broadcasterId(broadcasterId)
+    , m_userId(userId)
+    , m_emoteWriter(emoteWriter)
 {
-
-    // Ensure the websocket is deleted with this reader to avoid leaks
     m_webSocket->setParent(this);
+    m_eventSubSocket->setParent(this);
 
-    connect(m_webSocket, &QWebSocket::connected, this, &TwitchChatReader::onConnected);
-    connect(m_webSocket, &QWebSocket::errorOccurred, this, [=](QAbstractSocket::SocketError error) { qDebug() << "error:: " << error;});
-    connect(m_webSocket, &QWebSocket::textMessageReceived, this, &TwitchChatReader::onTextMessageReceived);
+    connect(m_webSocket, &QWebSocket::connected, this, &TwitchChatReader::onIrcConnected);
+    connect(m_webSocket, &QWebSocket::errorOccurred, this, [=](QAbstractSocket::SocketError error) { qDebug() << "IRC error:" << error; });
+    connect(m_webSocket, &QWebSocket::textMessageReceived, this, &TwitchChatReader::onIrcTextMessageReceived);
 
     connect(m_webSocket, &QWebSocket::disconnected, this, [=] {
         ++m_reconnectAttempts;
         int delay = qMin(30000, 1000 * (1 << (m_reconnectAttempts - 1)));
         QTimer::singleShot(delay, this, [=] {
-            m_webSocket->open(QUrl(url + "?oauth_token=" + token));
+            m_webSocket->open(QUrl(ircUrl + "?oauth_token=" + token));
         });
+    });
+
+    connect(m_eventSubSocket, &QWebSocket::connected, this, &TwitchChatReader::onEventSubConnected);
+    connect(m_eventSubSocket, &QWebSocket::textMessageReceived, this, &TwitchChatReader::onEventSubTextMessageReceived);
+    connect(m_eventSubSocket, &QWebSocket::errorOccurred, this, [=](QAbstractSocket::SocketError error) { qDebug() << "EventSub error:" << error; });
+    connect(m_eventSubSocket, &QWebSocket::disconnected, this, [=]() {
+        QTimer::singleShot(2000, this, &TwitchChatReader::setupEventSub);
     });
 
     m_token = token;
 
-    m_webSocket->open(QUrl(url + "?oauth_token=" + token));
-
+    m_webSocket->open(QUrl(ircUrl + "?oauth_token=" + token));
+    setupEventSub();
     startPingTimer();
 }
 
 TwitchChatReader::~TwitchChatReader()
 {
     m_webSocket->close();
+    m_eventSubSocket->close();
+
     if (m_pingTimer) {
         m_pingTimer->stop();
         m_pingTimer->deleteLater();
     }
+
+    for (QTimer *timer : m_finalizeTimers)
+        timer->deleteLater();
 }
 
-void TwitchChatReader::onConnected()
+void TwitchChatReader::onIrcConnected()
 {
     m_reconnectAttempts = 0;
     emit connected();
 
-    // Send required IRC commands
     m_webSocket->sendTextMessage(QStringLiteral("PASS oauth:") + m_token);
     TwitchLogModel::instance()->addEntry(TwitchLogModel::Sent, "PASS", m_channel, QStringLiteral("oauth:***"), QString());
     m_webSocket->sendTextMessage(QStringLiteral("CAP REQ :twitch.tv/commands twitch.tv/tags twitch.tv/membership"));
@@ -79,7 +105,7 @@ void TwitchChatReader::onConnected()
     TwitchLogModel::instance()->addEntry(TwitchLogModel::Sent, "JOIN", m_channel, QStringLiteral("#") + m_channel, QString());
 }
 
-void TwitchChatReader::onTextMessageReceived(const QString &allMsgs)
+void TwitchChatReader::onIrcTextMessageReceived(const QString &allMsgs)
 {
     for (const QString& message: allMsgs.split("\n")) {
         if (message.trimmed().isEmpty())
@@ -125,104 +151,387 @@ void TwitchChatReader::onTextMessageReceived(const QString &allMsgs)
         }
 
         QString metadata = tags;
-        QString content = trailing;
-
-        static QRegularExpression displayNameRegex("display.name=([^;\\s]+)");
+        static QRegularExpression displayNameRegex("display-name=([^;\\s]+)");
         QRegularExpressionMatch nameMatch = displayNameRegex.match(metadata);
-        bool skipEmoteProcessing = false;
-        if (nameMatch.hasMatch()) {
-            QSettings settings;
-            QStringList exceptNames = settings.value(CFG_EXCLUDE_CHAT).toStringList();
-            for (QString &exceptName : exceptNames) {
-                exceptName = exceptName.toLower();
-            }
-            QString nameData = nameMatch.captured(1).toLower();
-            skipEmoteProcessing = exceptNames.contains(nameData);
+        if (nameMatch.hasMatch())
             sender = nameMatch.captured(1);
-        }
 
-        QList<QPixmap> emotePixmaps;
-        QStringList missingEmotes;
-        if (!skipEmoteProcessing) {
-            bool isGigantifiedEmoteMessage = metadata.contains("msg-id=gigantified-emote-message");
-
-            static QRegularExpression emoteRegex("emotes=([^;\\s]+)");
-            QRegularExpressionMatch match = emoteRegex.match(metadata);
-
-            if (match.hasMatch()) {
-                QString emotesData = match.captured(1);
-                QStringList emoteList = emotesData.split('/');
-
-                QString lastEmoteId;
-                QString lastEmoteName;
-                int lastEmoteEndPos = -1;
-
-                QMap<QString, QString> processedEmotes;
-                for (const QString& emote : emoteList) {
-                    QStringList parts = emote.split(':');
-                    if (parts.length() < 2) continue;
-
-                    QString emoteId = parts[0];
-                    QString position = parts[1].split(',')[parts[1].split(',').length() - 1];
-
-                    QStringList range = position.split('-');
-                    if (range.length() != 2) continue;
-
-                    int start = range[0].toInt();
-                    int end = range[1].toInt() + 1;
-                    QString emoteName = content.mid(start, end - start);
-
-                    if (isGigantifiedEmoteMessage && end > lastEmoteEndPos) {
-                        lastEmoteId = emoteId;
-                        lastEmoteName = emoteName;
-                        lastEmoteEndPos = end;
-                    }
-
-                    processedEmotes[emoteId] = emoteName.trimmed();
-
-                    QPixmap pix = m_emoteWriter ? m_emoteWriter->pixmapFor(emoteId) : QPixmap();
-                    if (!pix.isNull())
-                        emotePixmaps.append(pix);
-                    else
-                        missingEmotes.append(emoteId);
-                }
-
-                if (isGigantifiedEmoteMessage && !lastEmoteId.isEmpty()) {
-                    emit bigEmoteSent(lastEmoteId, lastEmoteName.trimmed());
-                    processedEmotes.remove(lastEmoteId);
-                }
-
-                for (const QString& emoteId: processedEmotes.keys()) {
-                    emit emoteSent(emoteId, processedEmotes[emoteId]);
-                }
-            }
-
-            QMap<QString, QString> emojisFound;
-            while (!content.isEmpty()) {
-                QPair<QString, QString> emojidata = m_emojiMapper.findBestMatch(content);
-                QString emojiStr = emojidata.first;
-                QString emojiSlug = emojidata.second;
-                if (!emojiStr.isEmpty()) {
-                    emojisFound[emojiSlug] = emojiStr;
-                    content.remove(0, emojiStr.length());
-                } else {
-                    content.remove(0, 1);
-                }
-            }
-
-            for (const QString& slug: emojisFound.keys()) {
-                emit emojiSent(slug, emojisFound[slug]);
-
-                QPixmap pix = m_emoteWriter ? m_emoteWriter->pixmapFor(slug) : QPixmap();
-                if (!pix.isNull())
-                    emotePixmaps.append(pix);
-                else
-                    missingEmotes.append(slug);
-            }
-        }
-
-        TwitchLogModel::instance()->addEntry(TwitchLogModel::Received, command, sender, trailing, metadata, emotePixmaps, missingEmotes);
+        mergeIrcPrivmsg(sender, tags, trailing, metadata);
     }
+}
+
+void TwitchChatReader::setupEventSub()
+{
+    m_eventSubSessionId.clear();
+    m_eventSubSocket->open(QUrl(QStringLiteral("wss://eventsub.wss.twitch.tv/ws")));
+}
+
+void TwitchChatReader::onEventSubConnected()
+{
+    qDebug() << "EventSub websocket connected";
+}
+
+void TwitchChatReader::onEventSubTextMessageReceived(const QString &payload)
+{
+    QJsonDocument doc = QJsonDocument::fromJson(payload.toUtf8());
+    if (!doc.isObject())
+        return;
+
+    QJsonObject root = doc.object();
+    QString type = root.value("metadata").toObject().value("message_type").toString();
+
+    if (type == QStringLiteral("session_welcome")) {
+        m_eventSubSessionId = root.value("payload").toObject().value("session").toObject().value("id").toString();
+        if (!m_eventSubSessionId.isEmpty())
+            createChannelChatMessageSubscription();
+        return;
+    }
+
+    if (type != QStringLiteral("notification"))
+        return;
+
+    QJsonObject eventObj = root.value("payload").toObject().value("event").toObject();
+    QString messageId = eventObj.value("message_id").toString();
+    QString sender = eventObj.value("chatter_user_name").toString();
+    QString text = eventObj.value("message").toObject().value("text").toString();
+
+    QMap<QString, QString> emotes;
+    QMap<QString, QString> cheermotes;
+
+    QJsonArray fragments = eventObj.value("message").toObject().value("fragments").toArray();
+    for (const QJsonValue &fragmentVal : fragments) {
+        QJsonObject fragment = fragmentVal.toObject();
+        QString fragmentType = fragment.value("type").toString();
+        if (fragmentType == QStringLiteral("emote")) {
+            QJsonObject emote = fragment.value("emote").toObject();
+            QString emoteId = emote.value("id").toString();
+            QString emoteText = fragment.value("text").toString();
+            if (!emoteId.isEmpty())
+                emotes[emoteId] = emoteText;
+        } else if (fragmentType == QStringLiteral("cheermote")) {
+            QJsonObject cheer = fragment.value("cheermote").toObject();
+            QString prefix = cheer.value("prefix").toString().toLower();
+            int bits = cheer.value("bits").toInt();
+            if (!prefix.isEmpty() && bits > 0) {
+                const QString cheerId = QStringLiteral("cheer_%1_%2").arg(prefix).arg(bits);
+                cheermotes[cheerId] = fragment.value("text").toString();
+                if (!m_requestedCheerKeys.contains(cheerId)) {
+                    const QString cheerUrl = cheerEmoteUrlFor(prefix, bits);
+                    if (!cheerUrl.isEmpty()) {
+                        m_requestedCheerKeys.insert(cheerId);
+                        m_emoteWriter->saveEmoteFromUrl(cheerId, cheerUrl);
+                    } else {
+                        m_pendingCheerLookups.insert(cheerId, qMakePair(prefix, bits));
+                        fetchCheermotes();
+                    }
+                }
+            }
+        }
+    }
+
+    if (!eventObj.value("cheer").isNull() && m_cheermotes.isEmpty())
+        fetchCheermotes();
+
+    mergeEventSubMessage(messageId, sender, text, emotes, cheermotes);
+}
+
+void TwitchChatReader::createChannelChatMessageSubscription()
+{
+    if (m_eventSubSessionId.isEmpty() || m_broadcasterId.isEmpty() || m_userId.isEmpty())
+        return;
+
+    QSettings settings;
+    QString clientId = settings.value(CFG_CLIENT_ID, DEFAULT_CLIENT_ID).toString();
+
+    QUrl requestUrl(QStringLiteral("https://api.twitch.tv/helix/eventsub/subscriptions"));
+    QNetworkRequest request(requestUrl);
+    request.setRawHeader("Authorization", QStringLiteral("Bearer %1").arg(m_token).toUtf8());
+    request.setRawHeader("Client-Id", clientId.toUtf8());
+    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
+
+    QJsonObject payload {
+        {"type", "channel.chat.message"},
+        {"version", "1"},
+        {"condition", QJsonObject{{"broadcaster_user_id", m_broadcasterId}, {"user_id", m_userId}}},
+        {"transport", QJsonObject{{"method", "websocket"}, {"session_id", m_eventSubSessionId}}}
+    };
+
+    QNetworkReply *reply = m_network.post(request, QJsonDocument(payload).toJson(QJsonDocument::Compact));
+    connect(reply, &QNetworkReply::finished, this, [reply]() {
+        if (reply->error() != QNetworkReply::NoError)
+            qWarning() << "Failed to subscribe to EventSub:" << reply->readAll();
+        reply->deleteLater();
+    });
+
+    fetchCheermotes();
+}
+
+void TwitchChatReader::fetchCheermotes()
+{
+    if (m_broadcasterId.isEmpty())
+        return;
+
+    QSettings settings;
+    QString clientId = settings.value(CFG_CLIENT_ID, DEFAULT_CLIENT_ID).toString();
+
+    QUrl requestUrl(QStringLiteral("https://api.twitch.tv/helix/bits/cheermotes"));
+    QUrlQuery query;
+    query.addQueryItem(QStringLiteral("broadcaster_id"), m_broadcasterId);
+    requestUrl.setQuery(query);
+
+    QNetworkRequest request(requestUrl);
+    request.setRawHeader("Authorization", QStringLiteral("Bearer %1").arg(m_token).toUtf8());
+    request.setRawHeader("Client-Id", clientId.toUtf8());
+
+    QNetworkReply *reply = m_network.get(request);
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        if (reply->error() != QNetworkReply::NoError) {
+            reply->deleteLater();
+            return;
+        }
+
+        QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
+        QJsonArray data = doc.object().value("data").toArray();
+        m_cheermotes.clear();
+
+        for (const QJsonValue &entryValue : data) {
+            QJsonObject entry = entryValue.toObject();
+            QString prefix = entry.value("prefix").toString().toLower();
+            QList<CheermoteTier> tiers;
+
+            QJsonArray tierArray = entry.value("tiers").toArray();
+            for (const QJsonValue &tierValue : tierArray) {
+                QJsonObject tierObj = tierValue.toObject();
+                QJsonObject images = tierObj.value("images").toObject();
+                QJsonObject dark = images.value("dark").toObject();
+                QJsonObject animated = dark.value("animated").toObject();
+                QJsonObject statik = dark.value("static").toObject();
+
+                QString url = animated.value("3").toString();
+                if (url.isEmpty())
+                    url = statik.value("3").toString();
+                if (url.isEmpty())
+                    continue;
+
+                CheermoteTier tier;
+                tier.minBits = tierObj.value("min_bits").toInt();
+                tier.darkStatic3x = url;
+                tiers.append(tier);
+            }
+
+            std::sort(tiers.begin(), tiers.end(), [](const CheermoteTier &a, const CheermoteTier &b) {
+                return a.minBits < b.minBits;
+            });
+            m_cheermotes.insert(prefix, tiers);
+        }
+
+        for (auto it = m_pendingCheerLookups.begin(); it != m_pendingCheerLookups.end();) {
+            const QString cheerId = it.key();
+            const QString cheerUrl = cheerEmoteUrlFor(it.value().first, it.value().second);
+            if (!cheerUrl.isEmpty() && !m_requestedCheerKeys.contains(cheerId)) {
+                m_requestedCheerKeys.insert(cheerId);
+                m_emoteWriter->saveEmoteFromUrl(cheerId, cheerUrl);
+                it = m_pendingCheerLookups.erase(it);
+                continue;
+            }
+            ++it;
+        }
+
+        reply->deleteLater();
+    });
+}
+
+QString TwitchChatReader::cheerEmoteUrlFor(const QString &prefix, int bits) const
+{
+    const QList<CheermoteTier> tiers = m_cheermotes.value(prefix.toLower());
+    QString candidate;
+    for (const CheermoteTier &tier : tiers) {
+        if (bits >= tier.minBits)
+            candidate = tier.darkStatic3x;
+        else
+            break;
+    }
+    return candidate;
+}
+
+void TwitchChatReader::mergeIrcPrivmsg(const QString &sender,
+                                       const QString &tags,
+                                       const QString &trailing,
+                                       const QString &metadata)
+{
+    static QRegularExpression idRegex("(?:^|;)id=([^;\\s]+)");
+    static QRegularExpression emoteRegex("emotes=([^;\\s]+)");
+
+    QString messageId;
+    const QRegularExpressionMatch idMatch = idRegex.match(tags);
+    if (idMatch.hasMatch())
+        messageId = idMatch.captured(1);
+    if (messageId.isEmpty())
+        messageId = QStringLiteral("irc-fallback-%1").arg(++m_fallbackCounter);
+
+    ChatEvent &event = m_pendingEvents[messageId];
+    event.messageId = messageId;
+    event.sender = sender;
+    event.trailing = trailing;
+    event.metadata = metadata;
+    event.fromIrc = true;
+    event.gigantified = metadata.contains("msg-id=gigantified-emote-message");
+
+    const QRegularExpressionMatch emoteMatch = emoteRegex.match(tags);
+    if (emoteMatch.hasMatch()) {
+        QStringList emoteList = emoteMatch.captured(1).split('/');
+        for (const QString &emote : emoteList) {
+            QStringList parts = emote.split(':');
+            if (parts.size() < 2)
+                continue;
+
+            QString emoteId = parts[0];
+            QStringList ranges = parts[1].split(',');
+            QString lastRange = ranges.last();
+            const QStringList positions = lastRange.split('-');
+            if (positions.size() != 2)
+                continue;
+
+            int start = positions[0].toInt();
+            int end = positions[1].toInt() + 1;
+            if (start >= 0 && end <= trailing.length() && end > start)
+                event.ircEmotes[emoteId] = trailing.mid(start, end - start).trimmed();
+        }
+    }
+
+    QString content = trailing;
+    while (!content.isEmpty()) {
+        QPair<QString, QString> emojidata = m_emojiMapper.findBestMatch(content);
+        if (!emojidata.first.isEmpty()) {
+            event.emojis[emojidata.second] = emojidata.first;
+            content.remove(0, emojidata.first.length());
+        } else {
+            content.remove(0, 1);
+        }
+    }
+
+    scheduleFinalize(messageId);
+}
+
+void TwitchChatReader::mergeEventSubMessage(const QString &messageId,
+                                            const QString &sender,
+                                            const QString &trailing,
+                                            const QMap<QString, QString> &emotes,
+                                            const QMap<QString, QString> &cheermotes)
+{
+    if (messageId.isEmpty())
+        return;
+
+    ChatEvent &event = m_pendingEvents[messageId];
+    event.messageId = messageId;
+    if (event.sender.isEmpty())
+        event.sender = sender;
+    if (event.trailing.isEmpty())
+        event.trailing = trailing;
+    event.fromEventSub = true;
+
+    for (auto it = emotes.constBegin(); it != emotes.constEnd(); ++it)
+        event.eventSubEmotes[it.key()] = it.value();
+    for (auto it = cheermotes.constBegin(); it != cheermotes.constEnd(); ++it)
+        event.cheerEmotes[it.key()] = it.value();
+
+    scheduleFinalize(messageId);
+}
+
+void TwitchChatReader::scheduleFinalize(const QString &messageId)
+{
+    QTimer *timer = m_finalizeTimers.value(messageId, nullptr);
+    if (!timer) {
+        timer = new QTimer(this);
+        timer->setSingleShot(true);
+        connect(timer, &QTimer::timeout, this, [this, messageId]() {
+            finalizePending(messageId);
+        });
+        m_finalizeTimers.insert(messageId, timer);
+    }
+
+    timer->start(400);
+}
+
+void TwitchChatReader::finalizePending(const QString &messageId)
+{
+    if (!m_pendingEvents.contains(messageId))
+        return;
+
+    ChatEvent event = m_pendingEvents.take(messageId);
+    QTimer *timer = m_finalizeTimers.take(messageId);
+    if (timer)
+        timer->deleteLater();
+
+    processEvent(event);
+}
+
+bool TwitchChatReader::shouldSkipSender(const QString &sender) const
+{
+    QSettings settings;
+    QStringList exceptNames = settings.value(CFG_EXCLUDE_CHAT).toStringList();
+    for (QString &exceptName : exceptNames)
+        exceptName = exceptName.toLower();
+
+    return exceptNames.contains(sender.toLower());
+}
+
+void TwitchChatReader::processEvent(ChatEvent &event)
+{
+    if (event.processed || shouldSkipSender(event.sender))
+        return;
+    event.processed = true;
+
+    QList<QPixmap> emotePixmaps;
+    QStringList missingEmotes;
+
+    QMap<QString, QString> mergedEmotes = event.ircEmotes;
+    for (auto it = event.eventSubEmotes.constBegin(); it != event.eventSubEmotes.constEnd(); ++it)
+        mergedEmotes[it.key()] = it.value();
+
+    QString gigantifiedId;
+    QString gigantifiedName;
+    if (event.gigantified && !mergedEmotes.isEmpty()) {
+        gigantifiedId = mergedEmotes.lastKey();
+        gigantifiedName = mergedEmotes.value(gigantifiedId);
+        emit bigEmoteSent(gigantifiedId, gigantifiedName);
+        mergedEmotes.remove(gigantifiedId);
+    }
+
+    for (auto it = mergedEmotes.constBegin(); it != mergedEmotes.constEnd(); ++it) {
+        emit emoteSent(it.key(), it.value());
+        QPixmap pix = m_emoteWriter ? m_emoteWriter->pixmapFor(it.key()) : QPixmap();
+        if (!pix.isNull())
+            emotePixmaps.append(pix);
+        else
+            missingEmotes.append(it.key());
+    }
+
+    for (auto it = event.cheerEmotes.constBegin(); it != event.cheerEmotes.constEnd(); ++it) {
+        emit emoteSent(it.key(), it.value());
+        QPixmap pix = m_emoteWriter ? m_emoteWriter->pixmapFor(it.key()) : QPixmap();
+        if (!pix.isNull())
+            emotePixmaps.append(pix);
+        else
+            missingEmotes.append(it.key());
+    }
+
+    for (auto it = event.emojis.constBegin(); it != event.emojis.constEnd(); ++it) {
+        emit emojiSent(it.key(), it.value());
+        QPixmap pix = m_emoteWriter ? m_emoteWriter->pixmapFor(it.key()) : QPixmap();
+        if (!pix.isNull())
+            emotePixmaps.append(pix);
+        else
+            missingEmotes.append(it.key());
+    }
+
+    TwitchLogModel::instance()->addEntry(TwitchLogModel::Received,
+                                         QStringLiteral("PRIVMSG"),
+                                         event.sender,
+                                         event.trailing,
+                                         event.metadata,
+                                         emotePixmaps,
+                                         missingEmotes);
 }
 
 void TwitchChatReader::startPingTimer()
@@ -233,5 +542,5 @@ void TwitchChatReader::startPingTimer()
             m_webSocket->sendTextMessage("PING");
         });
     }
-    m_pingTimer->start(180000); // Send a PING every 3 minutes
+    m_pingTimer->start(180000);
 }

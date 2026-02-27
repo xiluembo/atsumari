@@ -175,8 +175,8 @@ void AtsumariLauncher::launch()
     QMetaObject::invokeMethod(rootItem, "addEmoteAtIcosahedronVertex", Qt::QueuedConnection);
     
     // Setup Twitch chat connections
-    QObject::connect(m_twFlow, &TwitchAuthFlow::loginFetched, m_twFlow, [&](const QString& a) {
-        m_tReader = new TwitchChatReader("wss://irc-ws.chat.twitch.tv:443/", m_twFlow->token(), a, m_emw);
+    QObject::connect(m_twFlow, &TwitchAuthFlow::loginFetched, m_twFlow, [&](const QString& a, const QString& userId) {
+        m_tReader = new TwitchChatReader("wss://irc-ws.chat.twitch.tv:443/", m_twFlow->token(), a, userId, userId, m_emw);
 
         QObject::connect(m_tReader, &TwitchChatReader::connected, this, [this]() {
             showDesktopNotification(tr("Success"), tr("Connected to Twitch chat successfully!"));
