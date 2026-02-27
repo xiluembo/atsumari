@@ -70,7 +70,7 @@ void EmoteWriter::saveEmoteFromUrl(const QString &id, const QString &url)
         return;
     }
 
-    QNetworkRequest request(QUrl(url));
+    QNetworkRequest request{QUrl(url)};
     QNetworkReply *reply = networkManager->get(request);
     reply->setProperty("emoteId", id);
     reply->setProperty("isBig", false);
