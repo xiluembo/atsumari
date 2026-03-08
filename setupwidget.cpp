@@ -36,6 +36,7 @@
 #include <QDir>
 #include <QTableWidget>
 #include <QCheckBox>
+#include <QSpinBox>
 #include <QPlainTextEdit>
 #include <QSignalBlocker>
 #include <QPainter>
@@ -1288,6 +1289,23 @@ void SetupWidget::loadLogSettings()
     ui->chkTags->setChecked(cols.contains("Tags"));
     ui->chkEmotes->setChecked(cols.contains("Emotes"));
 
+    ui->chkLogAutosaveEnabled->setChecked(settings.value(CFG_LOG_AUTOSAVE_ENABLED, DEFAULT_LOG_AUTOSAVE_ENABLED).toBool());
+    ui->spnLogAutosavePeriod->setValue(settings.value(CFG_LOG_AUTOSAVE_PERIOD_MIN, DEFAULT_LOG_AUTOSAVE_PERIOD_MIN).toInt());
+    ui->edtLogAutosaveDirectory->setText(settings.value(CFG_LOG_AUTOSAVE_DIRECTORY, DEFAULT_LOG_AUTOSAVE_DIRECTORY).toString());
+    ui->edtLogAutosavePattern->setText(settings.value(CFG_LOG_AUTOSAVE_NAME_PATTERN, DEFAULT_LOG_AUTOSAVE_NAME_PATTERN).toString());
+
+    auto applyAutosaveEnabled = [=]() {
+        const bool enabled = ui->chkLogAutosaveEnabled->isChecked();
+        ui->lblLogAutosavePeriod->setEnabled(enabled);
+        ui->spnLogAutosavePeriod->setEnabled(enabled);
+        ui->lblLogAutosaveDirectory->setEnabled(enabled);
+        ui->edtLogAutosaveDirectory->setEnabled(enabled);
+        ui->btnLogAutosaveBrowseDir->setEnabled(enabled);
+        ui->lblLogAutosavePattern->setEnabled(enabled);
+        ui->edtLogAutosavePattern->setEnabled(enabled);
+    };
+    applyAutosaveEnabled();
+
     ui->tblCommandColors->setColumnCount(4);
     ui->tblCommandColors->setHorizontalHeaderLabels(QStringList() << tr("Command") << tr("Show") << tr("Foreground") << tr("Background"));
     QStringList cmds = DEFAULT_LOG_COMMANDS;
@@ -1359,6 +1377,26 @@ void SetupWidget::loadLogSettings()
     connect(ui->chkMessage, &QCheckBox::checkStateChanged, this, markDirty);
     connect(ui->chkTags, &QCheckBox::checkStateChanged, this, markDirty);
     connect(ui->chkEmotes, &QCheckBox::checkStateChanged, this, markDirty);
+    connect(ui->chkLogAutosaveEnabled, &QCheckBox::checkStateChanged, this, [=]() {
+        applyAutosaveEnabled();
+        markDirty();
+    });
+    connect(ui->spnLogAutosavePeriod, qOverload<int>(&QSpinBox::valueChanged), this, [=]() {
+        markDirty();
+    });
+    connect(ui->edtLogAutosaveDirectory, &QLineEdit::textChanged, this, [=]() {
+        markDirty();
+    });
+    connect(ui->edtLogAutosavePattern, &QLineEdit::textChanged, this, [=]() {
+        markDirty();
+    });
+    connect(ui->btnLogAutosaveBrowseDir, &QPushButton::clicked, this, [=]() {
+        QString path = QFileDialog::getExistingDirectory(this, tr("Select auto-save directory"), ui->edtLogAutosaveDirectory->text());
+        if (!path.isEmpty()) {
+            ui->edtLogAutosaveDirectory->setText(path);
+            markDirty();
+        }
+    });
     connect(ui->btnResetCommandColors, &QPushButton::clicked, this, [=]() {
         for (int r = 0; r < ui->tblCommandColors->rowCount(); ++r) {
             QString cmd = ui->tblCommandColors->item(r,0)->text();
@@ -1404,6 +1442,11 @@ void SetupWidget::saveLogSettings()
     }
     settings.endGroup();
     settings.setValue(CFG_LOG_HIDE_CMDS, hidden);
+
+    settings.setValue(CFG_LOG_AUTOSAVE_ENABLED, ui->chkLogAutosaveEnabled->isChecked());
+    settings.setValue(CFG_LOG_AUTOSAVE_PERIOD_MIN, ui->spnLogAutosavePeriod->value());
+    settings.setValue(CFG_LOG_AUTOSAVE_DIRECTORY, ui->edtLogAutosaveDirectory->text().trimmed());
+    settings.setValue(CFG_LOG_AUTOSAVE_NAME_PATTERN, ui->edtLogAutosavePattern->text().trimmed());
 }
 
 void SetupWidget::checkForUpdates()

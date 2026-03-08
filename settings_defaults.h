@@ -60,7 +60,15 @@
 #define CFG_LOG_COLUMNS "log/columns"
 #define CFG_LOG_COLOR_PREFIX "log/colors/"
 #define CFG_LOG_HIDE_CMDS "log/hide"
+#define CFG_LOG_AUTOSAVE_ENABLED "log/autosave/enabled"
+#define CFG_LOG_AUTOSAVE_PERIOD_MIN "log/autosave/period_minutes"
+#define CFG_LOG_AUTOSAVE_DIRECTORY "log/autosave/directory"
+#define CFG_LOG_AUTOSAVE_NAME_PATTERN "log/autosave/name_pattern"
 #define DEFAULT_LOG_COLUMNS (QStringList() << "Direction" << "Timestamp" << "Command" << "Sender" << "Message" << "Tags" << "Emotes")
+#define DEFAULT_LOG_AUTOSAVE_ENABLED false
+#define DEFAULT_LOG_AUTOSAVE_PERIOD_MIN 5
+#define DEFAULT_LOG_AUTOSAVE_DIRECTORY ""
+#define DEFAULT_LOG_AUTOSAVE_NAME_PATTERN "atsumari_${timestamp}.txt"
 
 #define DEFAULT_LOG_COMMANDS (QStringList() << "001" << "002" << "003" << "004" << "353" << "366" << "372" << "375" << "376" \
                                        << "CAP" << "CLEARCHAT" << "CLEARMSG" << "GLOBALUSERSTATE" << "JOIN" << "NICK" << "NOTICE" \

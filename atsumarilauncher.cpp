@@ -32,6 +32,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QTimer>
+#include <QDateTime>
 
 #include "settings_defaults.h"
 #include "materialtype.h"
@@ -177,6 +178,7 @@ void AtsumariLauncher::launch()
     // Setup Twitch chat connections
     QObject::connect(m_twFlow, &TwitchAuthFlow::loginFetched, m_twFlow, [&](const QString& a, const QString& userId) {
         m_tReader = new TwitchChatReader("wss://irc-ws.chat.twitch.tv:443/", m_twFlow->token(), a, userId, userId, m_emw);
+        TwitchLogModel::instance()->setConnectionStartedAt(QDateTime::currentDateTime());
 
         QObject::connect(m_tReader, &TwitchChatReader::connected, this, [this]() {
             showDesktopNotification(tr("Success"), tr("Connected to Twitch chat successfully!"));
