@@ -47,14 +47,22 @@ public:
 
 public slots:
     void loadEmote(const QString &id, const QPixmap &pixmap);
+    void setConnectionStartedAt(const QDateTime &timestamp);
 
 private:
     explicit TwitchLogModel(QObject *parent = nullptr);
     void loadColors();
+    QString buildAutoSaveFilePath(const QString &directory, const QString &pattern) const;
+    void maybeAutoSave() const;
+    QString connectionTimestampToken() const;
+
 
     QVector<Entry> m_entries;
     QHash<QString, QColor> m_fgColors;
     QHash<QString, QColor> m_bgColors;
+    mutable QDateTime m_lastAutoSave;
+    QDateTime m_connectionStartedAt;
+    mutable QString m_autoSaveFilePath;
 };
 
 #endif // TWITCHLOGMODEL_H
