@@ -94,6 +94,8 @@ void shaderReloadMessageHandler(QtMsgType type, const QMessageLogContext &contex
 
 SetupWidget::SetupWidget(QWidget *parent)
     : QWidget(parent)
+    , m_previewVertFile(nullptr)
+    , m_previewFragFile(nullptr)
     , m_shouldSave(false)
     , m_rebuildingCombo(false)
     , m_waitingForShaderReloadError(false)
@@ -103,8 +105,6 @@ SetupWidget::SetupWidget(QWidget *parent)
     , m_duplicateProfileAction(nullptr)
     , m_renameProfileAction(nullptr)
     , m_deleteProfileAction(nullptr)
-    , m_previewVertFile(nullptr)
-    , m_previewFragFile(nullptr)
     , ui(new Ui::SetupWidget)
 {
     ui->setupUi(this);
@@ -163,7 +163,6 @@ SetupWidget::SetupWidget(QWidget *parent)
         ui->grpPrincipled->setVisible(ui->cboMaterialType->currentData() == static_cast<int>(MaterialType::Principled));
         ui->grpSpecularGlossy->setVisible(ui->cboMaterialType->currentData() == static_cast<int>(MaterialType::SpecularGlossy));
         ui->grpCustomMaterial->setVisible(ui->cboMaterialType->currentData() == static_cast<int>(MaterialType::Custom));
-        bool isCustom = ui->cboMaterialType->currentData() == static_cast<int>(MaterialType::Custom);
         ui->btnReloadShaders->setEnabled(false);
         m_shouldSave = true;
         ui->btnSaveSettings->setEnabled(true);
@@ -1200,7 +1199,6 @@ void SetupWidget::populateCurrentProfileControls()
     }
     ui->btnReloadShaders->setEnabled(false);
 
-    bool isCustom = p->materialType() == MaterialType::Custom;
     ui->frmBaseColor->setStyleSheet(QString("background-color: %1;").arg(p->baseColor()));
     ui->frmAmbientColor->setStyleSheet(QString("background-color: %1;").arg(p->ambientColor()));
     ui->frmLightColor->setStyleSheet(QString("background-color: %1;").arg(p->lightColor()));
