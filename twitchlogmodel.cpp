@@ -68,7 +68,9 @@ QVariant TwitchLogModel::data(const QModelIndex &index, int role) const
             return QVariant();
         }
     } else if (role == Qt::ToolTipRole) {
-        if (index.column() == Source) {
+        if (index.column() == Message) {
+            return e.message;
+        } else if (index.column() == Source) {
             if (e.fromIrc && e.fromEventSub)
                 return tr("Origin: IRC and EventSub");
             if (e.fromEventSub)
