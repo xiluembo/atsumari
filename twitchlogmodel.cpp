@@ -61,6 +61,9 @@ QVariant TwitchLogModel::data(const QModelIndex &index, int role) const
         default:
             return QVariant();
         }
+    } else if (role == Qt::ToolTipRole) {
+        if (index.column() == Message)
+            return e.message;
     } else if (role == Qt::ForegroundRole) {
         auto it = m_fgColors.find(e.command);
         if (it != m_fgColors.end())
