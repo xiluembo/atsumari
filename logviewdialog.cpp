@@ -50,6 +50,10 @@ void LogViewDialog::applyColumnVisibility()
     for (const QString &c : cols)
         translated << QCoreApplication::translate("TwitchLogModel", c.toUtf8().constData());
     for (int i = 0; i < TwitchLogModel::ColumnCount; ++i) {
+        if (i == TwitchLogModel::Source) {
+            m_table->setColumnHidden(i, false);
+            continue;
+        }
         QString name = TwitchLogModel::instance()->headerData(i, Qt::Horizontal, Qt::DisplayRole).toString();
         m_table->setColumnHidden(i, !translated.contains(name));
     }

@@ -64,7 +64,7 @@
 #define CFG_LOG_AUTOSAVE_PERIOD_MIN "log/autosave/period_minutes"
 #define CFG_LOG_AUTOSAVE_DIRECTORY "log/autosave/directory"
 #define CFG_LOG_AUTOSAVE_NAME_PATTERN "log/autosave/name_pattern"
-#define DEFAULT_LOG_COLUMNS (QStringList() << "Direction" << "Timestamp" << "Command" << "Sender" << "Message" << "Tags" << "Emotes")
+#define DEFAULT_LOG_COLUMNS (QStringList() << "Direction" << "Source" << "Timestamp" << "Command" << "Sender" << "Message" << "Tags" << "Emotes")
 #define DEFAULT_LOG_AUTOSAVE_ENABLED false
 #define DEFAULT_LOG_AUTOSAVE_PERIOD_MIN 5
 #define DEFAULT_LOG_AUTOSAVE_DIRECTORY ""
