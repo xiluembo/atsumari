@@ -76,7 +76,11 @@
                                        << "USERNOTICE" << "USERSTATE")
 #define DEFAULT_LOG_HIDE_CMDS (QStringList() << "PING" << "PONG")
 
-#define DEFAULT_VERSION 1 // So we can migrate from v1
+#define CURRENT_SETTINGS_VERSION 3 // Global app settings version
+
+#define CFG_PROFILES_VERSION "profiles/version"
+#define DEFAULT_PROFILES_VERSION 1 // Profiles settings version default, so we can migrate from v1
+#define CURRENT_PROFILES_VERSION 2 // Current profiles settings version
 #define DEFAULT_ROUGHNESS 0
 #define DEFAULT_METALNESS 0
 #define DEFAULT_REFRACTION_TYPE IndexOfRefraction::Custom
