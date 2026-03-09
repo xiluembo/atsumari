@@ -58,6 +58,7 @@
 #define CFG_CURRENT_PROFILE "current_profile"
 
 #define CFG_LOG_COLUMNS "log/columns"
+#define CFG_LOG_SOURCE_MIGRATED "log/source_migrated"
 #define CFG_LOG_COLOR_PREFIX "log/colors/"
 #define CFG_LOG_HIDE_CMDS "log/hide"
 #define CFG_LOG_AUTOSAVE_ENABLED "log/autosave/enabled"
