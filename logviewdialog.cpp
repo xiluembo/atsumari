@@ -46,6 +46,13 @@ void LogViewDialog::applyColumnVisibility()
 {
     QSettings settings;
     QStringList cols = settings.value(CFG_LOG_COLUMNS, DEFAULT_LOG_COLUMNS).toStringList();
+    if (!settings.value(CFG_LOG_SOURCE_MIGRATED, false).toBool()) {
+        if (!cols.contains(QStringLiteral("Source")))
+            cols << QStringLiteral("Source");
+        settings.setValue(CFG_LOG_COLUMNS, cols);
+        settings.setValue(CFG_LOG_SOURCE_MIGRATED, true);
+    }
+
     QStringList translated;
     for (const QString &c : cols)
         translated << QCoreApplication::translate("TwitchLogModel", c.toUtf8().constData());

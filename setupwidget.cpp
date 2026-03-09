@@ -1283,7 +1283,15 @@ void SetupWidget::loadLogSettings()
 {
     QSettings settings;
     QStringList cols = settings.value(CFG_LOG_COLUMNS, DEFAULT_LOG_COLUMNS).toStringList();
+    if (!settings.value(CFG_LOG_SOURCE_MIGRATED, false).toBool()) {
+        if (!cols.contains("Source"))
+            cols << "Source";
+        settings.setValue(CFG_LOG_COLUMNS, cols);
+        settings.setValue(CFG_LOG_SOURCE_MIGRATED, true);
+    }
+
     ui->chkDirection->setChecked(cols.contains("Direction"));
+    ui->chkSource->setChecked(cols.contains("Source"));
     ui->chkTimestamp->setChecked(cols.contains("Timestamp"));
     ui->chkCommand->setChecked(cols.contains("Command"));
     ui->chkSender->setChecked(cols.contains("Sender"));
@@ -1373,6 +1381,7 @@ void SetupWidget::loadLogSettings()
     });
 
     connect(ui->chkDirection, &QCheckBox::checkStateChanged, this, markDirty);
+    connect(ui->chkSource, &QCheckBox::checkStateChanged, this, markDirty);
     connect(ui->chkTimestamp, &QCheckBox::checkStateChanged, this, markDirty);
     connect(ui->chkCommand, &QCheckBox::checkStateChanged, this, markDirty);
     connect(ui->chkSender, &QCheckBox::checkStateChanged, this, markDirty);
@@ -1419,6 +1428,7 @@ void SetupWidget::saveLogSettings()
     QSettings settings;
     QStringList cols;
     if (ui->chkDirection->isChecked()) cols << "Direction";
+    if (ui->chkSource->isChecked()) cols << "Source";
     if (ui->chkTimestamp->isChecked()) cols << "Timestamp";
     if (ui->chkCommand->isChecked()) cols << "Command";
     if (ui->chkSender->isChecked()) cols << "Sender";
@@ -1426,6 +1436,7 @@ void SetupWidget::saveLogSettings()
     if (ui->chkTags->isChecked()) cols << "Tags";
     if (ui->chkEmotes->isChecked()) cols << "Emotes";
     settings.setValue(CFG_LOG_COLUMNS, cols);
+    settings.setValue(CFG_LOG_SOURCE_MIGRATED, true);
 
     settings.beginGroup("log/colors");
     settings.remove("");

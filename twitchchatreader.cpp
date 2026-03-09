@@ -530,6 +530,8 @@ void TwitchChatReader::processEvent(ChatEvent &event)
                                          event.sender,
                                          event.trailing,
                                          event.metadata,
+                                         event.fromIrc,
+                                         event.fromEventSub,
                                          emotePixmaps,
                                          missingEmotes);
 }

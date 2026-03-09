@@ -1102,6 +1102,13 @@ Right click on each text box to use shader presets.</string>
            </widget>
           </item>
           <item>
+           <widget class="QCheckBox" name="chkSource">
+            <property name="text">
+             <string>Source</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QCheckBox" name="chkTimestamp">
             <property name="text">
              <string>Timestamp</string>
@@ -1465,6 +1472,7 @@ Right click on each text box to use shader presets.</string>
   <tabstop>btnDevConsole</tabstop>
   <tabstop>btnForceAuth</tabstop>
   <tabstop>chkDirection</tabstop>
+  <tabstop>chkSource</tabstop>
   <tabstop>chkTimestamp</tabstop>
   <tabstop>chkCommand</tabstop>
   <tabstop>chkSender</tabstop>

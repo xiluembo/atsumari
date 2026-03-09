@@ -48,6 +48,12 @@ QVariant TwitchLogModel::data(const QModelIndex &index, int role) const
         switch (index.column()) {
         case Direction:
             return e.direction == Sent ? QStringLiteral("➡️") : QStringLiteral("⬅️");
+        case Source:
+            if (e.fromIrc && e.fromEventSub)
+                return QStringLiteral("📝🧩");
+            if (e.fromEventSub)
+                return QStringLiteral("🧩");
+            return QStringLiteral("📝");
         case Timestamp:
             return e.timestamp.toString(Qt::ISODate);
         case Command:
@@ -62,8 +68,15 @@ QVariant TwitchLogModel::data(const QModelIndex &index, int role) const
             return QVariant();
         }
     } else if (role == Qt::ToolTipRole) {
-        if (index.column() == Message)
+        if (index.column() == Message) {
             return e.message;
+        } else if (index.column() == Source) {
+            if (e.fromIrc && e.fromEventSub)
+                return tr("Origin: IRC and EventSub");
+            if (e.fromEventSub)
+                return tr("Origin: EventSub");
+            return tr("Origin: IRC");
+        }
     } else if (role == Qt::ForegroundRole) {
         auto it = m_fgColors.find(e.command);
         if (it != m_fgColors.end())
@@ -81,6 +94,7 @@ QVariant TwitchLogModel::headerData(int section, Qt::Orientation orientation, in
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
         case Direction: return tr("Direction");
+        case Source: return tr("Source");
         case Timestamp: return tr("Timestamp");
         case Command: return tr("Command");
         case Sender: return tr("Sender");
@@ -97,6 +111,8 @@ void TwitchLogModel::addEntry(MsgDirection direction,
                               const QString &sender,
                               const QString &message,
                               const QString &tags,
+                              bool fromIrc,
+                              bool fromEventSub,
                               const QList<QPixmap> &emotes,
                               const QStringList &pendingEmotes)
 {
@@ -112,6 +128,8 @@ void TwitchLogModel::addEntry(MsgDirection direction,
     e.sender = sender;
     e.message = message;
     e.tags = tags;
+    e.fromIrc = fromIrc;
+    e.fromEventSub = fromEventSub;
     e.emotes = emotes;
     e.pendingEmotes = pendingEmotes;
     m_entries.append(e);
@@ -128,6 +146,7 @@ bool TwitchLogModel::exportToFile(const QString &fileName) const
     QTextStream ts(&f);
     for (const Entry &e : m_entries) {
         ts << (e.direction == Sent ? QStringLiteral("➡️") : QStringLiteral("⬅️")) << '\t'
+           << (e.fromIrc && e.fromEventSub ? QStringLiteral("📝🧩") : (e.fromEventSub ? QStringLiteral("🧩") : QStringLiteral("📝"))) << '\t'
            << e.timestamp.toString(Qt::ISODate) << '\t'
            << e.command << '\t'
            << e.sender << '\t'
