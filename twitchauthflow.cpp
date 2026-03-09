@@ -39,6 +39,18 @@ TwitchAuthFlow::TwitchAuthFlow(QObject *parent)
     , m_retryCount(0)
 {
     QSettings settings(this);
+
+    const int settingsVersion = settings.value(CFG_VERSION, 0).toInt();
+    // IMPORTANT: Update this migration whenever Twitch scopes change and require token invalidation.
+    if (settingsVersion < CURRENT_SETTINGS_VERSION) {
+        settings.setValue(CFG_TOKEN, QString());
+        settings.setValue(CFG_REFRESH_TOKEN, QString());
+        settings.remove(CFG_EXPIRY_TOKEN);
+    }
+
+    settings.setValue(CFG_VERSION, CURRENT_SETTINGS_VERSION);
+    settings.sync();
+
     m_token = settings.value(CFG_TOKEN, "").toString();
     m_refreshToken = settings.value(CFG_REFRESH_TOKEN, "").toString();
     

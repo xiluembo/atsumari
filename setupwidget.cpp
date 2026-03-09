@@ -602,9 +602,11 @@ void SetupWidget::loadSettings()
             ProfileData* profileData = new ProfileData;
             QString profileName = settings.value(CFG_PROFILE_NAME).toString();
 
-            int version;
-
-            version = settings.value(CFG_VERSION, DEFAULT_VERSION).toInt();
+            int version = settings.value(CFG_PROFILES_VERSION, DEFAULT_PROFILES_VERSION).toInt();
+            if (version < CURRENT_PROFILES_VERSION) {
+                // Backward compatibility: older releases stored the profile version inside each profile entry.
+                version = settings.value(CFG_VERSION, version).toInt();
+            }
             profileData->setProfileName(profileName);
 
             if ( version == 1 ) {
@@ -685,11 +687,11 @@ void SetupWidget::saveSettings()
     QSettings settings;
     settings.setValue(CFG_LANGUAGE, ui->cboLanguage->currentData());
     settings.setValue(CFG_CURRENT_PROFILE, m_currentProfile);
+    settings.setValue(CFG_PROFILES_VERSION, CURRENT_PROFILES_VERSION);
 
     settings.beginWriteArray(CFG_PROFILES, m_profiles.size());
     for (qsizetype i = 0; i < m_profiles.size(); ++i) {
         settings.setArrayIndex(i);
-        settings.setValue(CFG_VERSION, 2);
         settings.setValue(CFG_MATERIAL_TYPE, static_cast<int>(m_profiles[i]->materialType()));
         settings.setValue(CFG_PROFILE_NAME, m_profiles[i]->profileName());
         settings.setValue(CFG_COLORS_BASE, m_profiles[i]->baseColor());
