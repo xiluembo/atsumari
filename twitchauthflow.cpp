@@ -92,6 +92,30 @@ TwitchAuthFlow::~TwitchAuthFlow()
     }
 }
 
+
+void TwitchAuthFlow::ensureValidToken()
+{
+    if (m_token.isEmpty()) {
+        setupDeviceFlow();
+        return;
+    }
+
+    QSettings settings;
+    QDateTime dtNow = QDateTime::currentDateTime();
+    QDateTime expiryDate = settings.value(CFG_EXPIRY_TOKEN, dtNow).toDateTime();
+
+    if (expiryDate <= dtNow.addSecs(60)) {
+        if (!m_refreshToken.isEmpty()) {
+            refreshAccessToken();
+            return;
+        }
+        setupDeviceFlow();
+        return;
+    }
+
+    requestTokenValidation();
+}
+
 void TwitchAuthFlow::requestTokenValidation()
 {
     QSettings settings;
@@ -172,6 +196,7 @@ void TwitchAuthFlow::onValidateReply(QNetworkReply *reply)
 
                 QSettings settings(this);
                 settings.setValue(CFG_EXPIRY_TOKEN, expiryDate);
+                emit tokenUpdated(m_token);
                 emit tokenValidated();
             }
         }
@@ -254,6 +279,7 @@ void TwitchAuthFlow::setupDeviceFlow()
             m_pollTimer = nullptr;
         }
         emit tokenFetched();
+        emit tokenUpdated(m_token);
         emit authSuccessNotification(tr("Success"), tr("Authentication completed successfully!"));
     });
     
@@ -490,6 +516,7 @@ bool TwitchAuthFlow::applyTokenResponse(const QJsonDocument& response, bool show
     m_authInProgress = false;
     m_deviceCode.clear();
     emit tokenFetched();
+    emit tokenUpdated(m_token);
 
     if (showSuccessMessage) {
         emit authSuccessNotification(tr("Success"), tr("Authentication completed successfully!"));

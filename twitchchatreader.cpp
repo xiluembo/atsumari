@@ -42,6 +42,7 @@ TwitchChatReader::TwitchChatReader(const QString &ircUrl,
     : QObject(parent)
     , m_webSocket(new QWebSocket)
     , m_eventSubSocket(new QWebSocket)
+    , m_token(token)
     , m_channel(channel)
     , m_broadcasterId(broadcasterId)
     , m_userId(userId)
@@ -58,7 +59,7 @@ TwitchChatReader::TwitchChatReader(const QString &ircUrl,
         ++m_reconnectAttempts;
         int delay = qMin(30000, 1000 * (1 << (m_reconnectAttempts - 1)));
         QTimer::singleShot(delay, this, [=] {
-            m_webSocket->open(QUrl(ircUrl + "?oauth_token=" + token));
+            m_webSocket->open(QUrl(ircUrl + "?oauth_token=" + m_token));
         });
     });
 
@@ -66,14 +67,28 @@ TwitchChatReader::TwitchChatReader(const QString &ircUrl,
     connect(m_eventSubSocket, &QWebSocket::textMessageReceived, this, &TwitchChatReader::onEventSubTextMessageReceived);
     connect(m_eventSubSocket, &QWebSocket::errorOccurred, this, [=](QAbstractSocket::SocketError error) { qDebug() << "EventSub error:" << error; });
     connect(m_eventSubSocket, &QWebSocket::disconnected, this, [=]() {
-        QTimer::singleShot(2000, this, &TwitchChatReader::setupEventSub);
+        if (!m_waitingForTokenRefresh)
+            QTimer::singleShot(2000, this, &TwitchChatReader::setupEventSub);
     });
 
-    m_token = token;
-
-    m_webSocket->open(QUrl(ircUrl + "?oauth_token=" + token));
+    m_webSocket->open(QUrl(ircUrl + "?oauth_token=" + m_token));
     setupEventSub();
     startPingTimer();
+}
+
+
+void TwitchChatReader::setAccessToken(const QString &token)
+{
+    if (token.isEmpty() || token == m_token)
+        return;
+
+    m_token = token;
+    m_waitingForTokenRefresh = false;
+
+    if (m_eventSubSocket->state() != QAbstractSocket::ConnectedState)
+        setupEventSub();
+    else if (!m_eventSubSessionId.isEmpty())
+        createChannelChatMessageSubscription();
 }
 
 TwitchChatReader::~TwitchChatReader()
@@ -257,9 +272,15 @@ void TwitchChatReader::createChannelChatMessageSubscription()
     };
 
     QNetworkReply *reply = m_network.post(request, QJsonDocument(payload).toJson(QJsonDocument::Compact));
-    connect(reply, &QNetworkReply::finished, this, [reply]() {
-        if (reply->error() != QNetworkReply::NoError)
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        if (reply->error() != QNetworkReply::NoError) {
+            const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
             qWarning() << "Failed to subscribe to EventSub:" << reply->readAll();
+            if (status == 401) {
+                m_waitingForTokenRefresh = true;
+                m_eventSubSocket->close();
+            }
+        }
         reply->deleteLater();
     });
 
@@ -286,6 +307,9 @@ void TwitchChatReader::fetchCheermotes()
     QNetworkReply *reply = m_network.get(request);
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         if (reply->error() != QNetworkReply::NoError) {
+            const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+            if (status == 401)
+                m_waitingForTokenRefresh = true;
             reply->deleteLater();
             return;
         }
