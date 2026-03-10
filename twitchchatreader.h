@@ -50,6 +50,9 @@ signals:
     void bigEmoteSent(QString emoteId, QString emoteName);
     void emojiSent(QString slug, QString emojiData);
 
+public:
+    void setAccessToken(const QString &token);
+
 private:
     struct ChatEvent {
         QString messageId;
@@ -105,6 +108,7 @@ private:
     QString m_eventSubSessionId;
     QTimer* m_pingTimer = nullptr;
     int m_reconnectAttempts = 0;
+    bool m_waitingForTokenRefresh = false;
 
     EmojiMapper m_emojiMapper;
     EmoteWriter* m_emoteWriter;

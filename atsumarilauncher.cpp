@@ -67,6 +67,11 @@ void AtsumariLauncher::launch()
 {
     QSettings settings;
 
+    QTimer *tokenMaintenanceTimer = new QTimer(this);
+    tokenMaintenanceTimer->setInterval(60000);
+    connect(tokenMaintenanceTimer, &QTimer::timeout, m_twFlow, &TwitchAuthFlow::ensureValidToken);
+    tokenMaintenanceTimer->start();
+
     int currentProfile = settings.value(CFG_CURRENT_PROFILE, DEFAULT_CURRENT_PROFILE).toInt();
     settings.beginReadArray(CFG_PROFILES);
     settings.setArrayIndex(currentProfile);
@@ -176,8 +181,14 @@ void AtsumariLauncher::launch()
     QMetaObject::invokeMethod(rootItem, "addEmoteAtIcosahedronVertex", Qt::QueuedConnection);
     
     // Setup Twitch chat connections
+    QObject::connect(m_twFlow, &TwitchAuthFlow::tokenUpdated, this, [this](const QString &token) {
+        if (m_tReader)
+            m_tReader->setAccessToken(token);
+    });
+
     QObject::connect(m_twFlow, &TwitchAuthFlow::loginFetched, m_twFlow, [&](const QString& a, const QString& userId) {
         m_tReader = new TwitchChatReader("wss://irc-ws.chat.twitch.tv:443/", m_twFlow->token(), a, userId, userId, m_emw);
+        m_twFlow->ensureValidToken();
         TwitchLogModel::instance()->setConnectionStartedAt(QDateTime::currentDateTime());
 
         QObject::connect(m_tReader, &TwitchChatReader::connected, this, [this]() {

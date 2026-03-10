@@ -30,10 +30,12 @@ public:
     explicit TwitchAuthFlow(QObject *parent = nullptr);
     ~TwitchAuthFlow();
     QString token() const;
+    void ensureValidToken();
 
 signals:
     void tokenFetched();
     void tokenValidated();
+    void tokenUpdated(const QString &token);
     void loginFetched(QString login, QString userId);
     void authSuccessNotification(const QString &title, const QString &message);
 
