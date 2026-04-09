@@ -568,6 +568,7 @@ void SetupWidget::loadSettings()
     ui->cboLanguage->setCurrentIndex(langIndex);
 
     // profiles
+    const int storedProfilesVersion = settings.value(CFG_PROFILES_VERSION, DEFAULT_PROFILES_VERSION).toInt();
     int size = settings.beginReadArray(CFG_PROFILES);
     if (size == 0) {
         settings.endArray();
@@ -602,7 +603,7 @@ void SetupWidget::loadSettings()
             ProfileData* profileData = new ProfileData;
             QString profileName = settings.value(CFG_PROFILE_NAME).toString();
 
-            int version = settings.value(CFG_PROFILES_VERSION, DEFAULT_PROFILES_VERSION).toInt();
+            int version = storedProfilesVersion;
             if (version < CURRENT_PROFILES_VERSION) {
                 // Backward compatibility: older releases stored the profile version inside each profile entry.
                 version = settings.value(CFG_VERSION, version).toInt();
@@ -645,7 +646,7 @@ void SetupWidget::loadSettings()
                 profileData->setMetalness(settings.value(CFG_METALNESS, DEFAULT_METALNESS).toInt());
                 int indexOfRefraction = settings.value(CFG_REFRACTION_TYPE, static_cast<int>(DEFAULT_REFRACTION_TYPE)).toInt();
                 profileData->setIndexOfRefractionType(static_cast<IndexOfRefraction>(indexOfRefraction));
-                profileData->setRefraction(settings.value(CFG_ROUGHNESS, DEFAULT_ROUGHNESS).toInt());
+                profileData->setRefraction(settings.value(CFG_REFRACTION, DEFAULT_REFRACTION).toInt());
 
                 // Specular Glossy Material
                 profileData->setSpecularColor(settings.value(CFG_COLORS_SPECULAR, DEFAULT_COLORS_SPECULAR).toString());
