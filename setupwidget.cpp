@@ -1302,7 +1302,7 @@ void SetupWidget::loadLogSettings()
 
     ui->chkLogAutosaveEnabled->setChecked(settings.value(CFG_LOG_AUTOSAVE_ENABLED, DEFAULT_LOG_AUTOSAVE_ENABLED).toBool());
     ui->spnLogAutosavePeriod->setValue(settings.value(CFG_LOG_AUTOSAVE_PERIOD_MIN, DEFAULT_LOG_AUTOSAVE_PERIOD_MIN).toInt());
-    ui->edtLogAutosaveDirectory->setText(settings.value(CFG_LOG_AUTOSAVE_DIRECTORY, DEFAULT_LOG_AUTOSAVE_DIRECTORY).toString());
+    ui->edtLogAutosaveDirectory->setText(settings.value(CFG_LOG_AUTOSAVE_DIRECTORY, defaultLogAutosaveDirectory()).toString());
     ui->edtLogAutosavePattern->setText(settings.value(CFG_LOG_AUTOSAVE_NAME_PATTERN, DEFAULT_LOG_AUTOSAVE_NAME_PATTERN).toString());
 
     auto applyAutosaveEnabled = [=]() {

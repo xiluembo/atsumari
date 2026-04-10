@@ -18,6 +18,7 @@
 #define SETTINGS_DEFAULTS_H
 
 #include <QtGlobal>
+#include <QDir>
 
 
 #define CFG_VERSION "version"
@@ -68,8 +69,12 @@
 #define DEFAULT_LOG_COLUMNS (QStringList() << "Direction" << "Source" << "Timestamp" << "Command" << "Sender" << "Message" << "Tags" << "Emotes")
 #define DEFAULT_LOG_AUTOSAVE_ENABLED false
 #define DEFAULT_LOG_AUTOSAVE_PERIOD_MIN 5
-#define DEFAULT_LOG_AUTOSAVE_DIRECTORY ""
 #define DEFAULT_LOG_AUTOSAVE_NAME_PATTERN "atsumari_${timestamp}.txt"
+
+inline QString defaultLogAutosaveDirectory()
+{
+    return QDir::current().absoluteFilePath(QStringLiteral("logs"));
+}
 
 #define DEFAULT_LOG_COMMANDS (QStringList() << "001" << "002" << "003" << "004" << "353" << "366" << "372" << "375" << "376" \
                                        << "CAP" << "CLEARCHAT" << "CLEARMSG" << "GLOBALUSERSTATE" << "JOIN" << "NICK" << "NOTICE" \
