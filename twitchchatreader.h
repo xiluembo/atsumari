@@ -106,9 +106,12 @@ private:
     QString m_broadcasterId;
     QString m_userId;
     QString m_eventSubSessionId;
+    QString m_eventSubSubscriptionId;
     QTimer* m_pingTimer = nullptr;
     int m_reconnectAttempts = 0;
     bool m_waitingForTokenRefresh = false;
+    bool m_eventSubReconnectScheduled = false;
+    bool m_eventSubSubscriptionInFlight = false;
 
     EmojiMapper m_emojiMapper;
     EmoteWriter* m_emoteWriter;
