@@ -64,7 +64,6 @@ private:
     QVector<Entry> m_entries;
     QHash<QString, QColor> m_fgColors;
     QHash<QString, QColor> m_bgColors;
-    mutable QDateTime m_lastAutoSave;
     QDateTime m_connectionStartedAt;
     mutable QString m_autoSaveFilePath;
 };

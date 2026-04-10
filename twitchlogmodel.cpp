@@ -230,28 +230,20 @@ void TwitchLogModel::maybeAutoSave() const
     if (!enabled)
         return;
 
-    const int periodMinutes = qMax(1, settings.value(CFG_LOG_AUTOSAVE_PERIOD_MIN, DEFAULT_LOG_AUTOSAVE_PERIOD_MIN).toInt());
-    const QDateTime now = QDateTime::currentDateTime();
-    if (m_lastAutoSave.isValid() && m_lastAutoSave.secsTo(now) < (periodMinutes * 60))
-        return;
-
     const QString directory = settings.value(CFG_LOG_AUTOSAVE_DIRECTORY, defaultLogAutosaveDirectory()).toString();
+
     const QString pattern = settings.value(CFG_LOG_AUTOSAVE_NAME_PATTERN, DEFAULT_LOG_AUTOSAVE_NAME_PATTERN).toString();
     const QString filePath = buildAutoSaveFilePath(directory, pattern);
     if (filePath.isEmpty())
         return;
 
-    if (m_autoSaveFilePath != filePath) {
-        m_autoSaveFilePath = filePath;
-        m_lastAutoSave = QDateTime();
-    }
+    m_autoSaveFilePath = filePath;
 
     QDir dir(directory);
     if (!dir.exists() && !dir.mkpath(QStringLiteral(".")))
         return;
 
-    if (exportToFile(m_autoSaveFilePath))
-        m_lastAutoSave = now;
+    exportToFile(m_autoSaveFilePath);
 }
 
 QString TwitchLogModel::connectionTimestampToken() const
@@ -263,5 +255,4 @@ void TwitchLogModel::setConnectionStartedAt(const QDateTime &timestamp)
 {
     m_connectionStartedAt = timestamp.isValid() ? timestamp : QDateTime::currentDateTime();
     m_autoSaveFilePath.clear();
-    m_lastAutoSave = QDateTime();
 }
