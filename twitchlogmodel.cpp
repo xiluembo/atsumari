@@ -235,7 +235,7 @@ void TwitchLogModel::maybeAutoSave() const
     if (m_lastAutoSave.isValid() && m_lastAutoSave.secsTo(now) < (periodMinutes * 60))
         return;
 
-    const QString directory = settings.value(CFG_LOG_AUTOSAVE_DIRECTORY, DEFAULT_LOG_AUTOSAVE_DIRECTORY).toString();
+    const QString directory = settings.value(CFG_LOG_AUTOSAVE_DIRECTORY, defaultLogAutosaveDirectory()).toString();
     const QString pattern = settings.value(CFG_LOG_AUTOSAVE_NAME_PATTERN, DEFAULT_LOG_AUTOSAVE_NAME_PATTERN).toString();
     const QString filePath = buildAutoSaveFilePath(directory, pattern);
     if (filePath.isEmpty())
