@@ -67,8 +67,17 @@ TwitchChatReader::TwitchChatReader(const QString &ircUrl,
     connect(m_eventSubSocket, &QWebSocket::textMessageReceived, this, &TwitchChatReader::onEventSubTextMessageReceived);
     connect(m_eventSubSocket, &QWebSocket::errorOccurred, this, [=](QAbstractSocket::SocketError error) { qDebug() << "EventSub error:" << error; });
     connect(m_eventSubSocket, &QWebSocket::disconnected, this, [=]() {
-        if (!m_waitingForTokenRefresh)
-            QTimer::singleShot(2000, this, &TwitchChatReader::setupEventSub);
+        m_eventSubSessionId.clear();
+        m_eventSubSubscriptionId.clear();
+        m_eventSubSubscriptionInFlight = false;
+        if (m_waitingForTokenRefresh || m_eventSubReconnectScheduled)
+            return;
+        m_eventSubReconnectScheduled = true;
+        QTimer::singleShot(2000, this, [this]() {
+            m_eventSubReconnectScheduled = false;
+            if (!m_waitingForTokenRefresh && m_eventSubSocket->state() == QAbstractSocket::UnconnectedState)
+                setupEventSub();
+        });
     });
 
     m_webSocket->open(QUrl(ircUrl + "?oauth_token=" + m_token));
@@ -84,6 +93,7 @@ void TwitchChatReader::setAccessToken(const QString &token)
 
     m_token = token;
     m_waitingForTokenRefresh = false;
+    m_eventSubSubscriptionInFlight = false;
 
     if (m_eventSubSocket->state() != QAbstractSocket::ConnectedState)
         setupEventSub();
@@ -177,7 +187,15 @@ void TwitchChatReader::onIrcTextMessageReceived(const QString &allMsgs)
 
 void TwitchChatReader::setupEventSub()
 {
+    if (m_waitingForTokenRefresh || m_token.isEmpty())
+        return;
+
+    if (m_eventSubSocket->state() != QAbstractSocket::UnconnectedState)
+        return;
+
     m_eventSubSessionId.clear();
+    m_eventSubSubscriptionId.clear();
+    m_eventSubSubscriptionInFlight = false;
     m_eventSubSocket->open(QUrl(QStringLiteral("wss://eventsub.wss.twitch.tv/ws")));
 }
 
@@ -197,6 +215,8 @@ void TwitchChatReader::onEventSubTextMessageReceived(const QString &payload)
 
     if (type == QStringLiteral("session_welcome")) {
         m_eventSubSessionId = root.value("payload").toObject().value("session").toObject().value("id").toString();
+        m_eventSubSubscriptionId.clear();
+        m_eventSubSubscriptionInFlight = false;
         if (!m_eventSubSessionId.isEmpty())
             createChannelChatMessageSubscription();
         return;
@@ -254,6 +274,8 @@ void TwitchChatReader::createChannelChatMessageSubscription()
 {
     if (m_eventSubSessionId.isEmpty() || m_broadcasterId.isEmpty() || m_userId.isEmpty())
         return;
+    if (m_eventSubSubscriptionInFlight || !m_eventSubSubscriptionId.isEmpty())
+        return;
 
     QSettings settings;
     QString clientId = settings.value(CFG_CLIENT_ID, DEFAULT_CLIENT_ID).toString();
@@ -271,8 +293,10 @@ void TwitchChatReader::createChannelChatMessageSubscription()
         {"transport", QJsonObject{{"method", "websocket"}, {"session_id", m_eventSubSessionId}}}
     };
 
+    m_eventSubSubscriptionInFlight = true;
     QNetworkReply *reply = m_network.post(request, QJsonDocument(payload).toJson(QJsonDocument::Compact));
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        m_eventSubSubscriptionInFlight = false;
         if (reply->error() != QNetworkReply::NoError) {
             const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
             qWarning() << "Failed to subscribe to EventSub:" << reply->readAll();
@@ -280,6 +304,19 @@ void TwitchChatReader::createChannelChatMessageSubscription()
                 m_waitingForTokenRefresh = true;
                 m_eventSubSocket->close();
             }
+            if (status == 429) {
+                m_eventSubSubscriptionId = QStringLiteral("rate-limited");
+            }
+            reply->deleteLater();
+            return;
+        }
+
+        const QJsonDocument responseJson = QJsonDocument::fromJson(reply->readAll());
+        const QJsonArray data = responseJson.object().value("data").toArray();
+        if (!data.isEmpty()) {
+            const QString id = data.first().toObject().value("id").toString();
+            if (!id.isEmpty())
+                m_eventSubSubscriptionId = id;
         }
         reply->deleteLater();
     });
