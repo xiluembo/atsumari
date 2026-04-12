@@ -108,6 +108,7 @@ private:
     QString m_eventSubSessionId;
     QString m_eventSubSubscriptionId;
     QTimer* m_pingTimer = nullptr;
+    QTimer* m_ircReconnectTimer = nullptr;
     int m_reconnectAttempts = 0;
     bool m_waitingForTokenRefresh = false;
     bool m_eventSubReconnectScheduled = false;
