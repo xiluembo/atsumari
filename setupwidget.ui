@@ -1202,47 +1202,30 @@ Right click on each text box to use shader presets.</string>
            </widget>
           </item>
           <item row="1" column="0">
-           <widget class="QLabel" name="lblLogAutosavePeriod">
-            <property name="text">
-             <string>Period (minutes)</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1" colspan="2">
-           <widget class="QSpinBox" name="spnLogAutosavePeriod">
-            <property name="minimum">
-             <number>1</number>
-            </property>
-            <property name="maximum">
-             <number>1440</number>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
            <widget class="QLabel" name="lblLogAutosaveDirectory">
             <property name="text">
              <string>Directory</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
+          <item row="1" column="1">
            <widget class="QLineEdit" name="edtLogAutosaveDirectory"/>
           </item>
-          <item row="2" column="2">
+          <item row="1" column="2">
            <widget class="QPushButton" name="btnLogAutosaveBrowseDir">
             <property name="text">
              <string>Browse...</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
+          <item row="2" column="0">
            <widget class="QLabel" name="lblLogAutosavePattern">
             <property name="text">
              <string>Name pattern</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="1" colspan="2">
+          <item row="2" column="1" colspan="2">
            <widget class="QLineEdit" name="edtLogAutosavePattern"/>
           </item>
          </layout>

@@ -1299,14 +1299,11 @@ void SetupWidget::loadLogSettings()
     ui->chkEmotes->setChecked(cols.contains("Emotes"));
 
     ui->chkLogAutosaveEnabled->setChecked(settings.value(CFG_LOG_AUTOSAVE_ENABLED, DEFAULT_LOG_AUTOSAVE_ENABLED).toBool());
-    ui->spnLogAutosavePeriod->setValue(settings.value(CFG_LOG_AUTOSAVE_PERIOD_MIN, DEFAULT_LOG_AUTOSAVE_PERIOD_MIN).toInt());
     ui->edtLogAutosaveDirectory->setText(settings.value(CFG_LOG_AUTOSAVE_DIRECTORY, defaultLogAutosaveDirectory()).toString());
     ui->edtLogAutosavePattern->setText(settings.value(CFG_LOG_AUTOSAVE_NAME_PATTERN, DEFAULT_LOG_AUTOSAVE_NAME_PATTERN).toString());
 
     auto applyAutosaveEnabled = [=]() {
         const bool enabled = ui->chkLogAutosaveEnabled->isChecked();
-        ui->lblLogAutosavePeriod->setEnabled(enabled);
-        ui->spnLogAutosavePeriod->setEnabled(enabled);
         ui->lblLogAutosaveDirectory->setEnabled(enabled);
         ui->edtLogAutosaveDirectory->setEnabled(enabled);
         ui->btnLogAutosaveBrowseDir->setEnabled(enabled);
@@ -1391,9 +1388,6 @@ void SetupWidget::loadLogSettings()
         applyAutosaveEnabled();
         markDirty();
     });
-    connect(ui->spnLogAutosavePeriod, qOverload<int>(&QSpinBox::valueChanged), this, [=]() {
-        markDirty();
-    });
     connect(ui->edtLogAutosaveDirectory, &QLineEdit::textChanged, this, [=]() {
         markDirty();
     });
@@ -1456,7 +1450,7 @@ void SetupWidget::saveLogSettings()
     settings.setValue(CFG_LOG_HIDE_CMDS, hidden);
 
     settings.setValue(CFG_LOG_AUTOSAVE_ENABLED, ui->chkLogAutosaveEnabled->isChecked());
-    settings.setValue(CFG_LOG_AUTOSAVE_PERIOD_MIN, ui->spnLogAutosavePeriod->value());
+    settings.remove(QStringLiteral("log/autosave/period_minutes"));
     settings.setValue(CFG_LOG_AUTOSAVE_DIRECTORY, ui->edtLogAutosaveDirectory->text().trimmed());
     settings.setValue(CFG_LOG_AUTOSAVE_NAME_PATTERN, ui->edtLogAutosavePattern->text().trimmed());
 }
