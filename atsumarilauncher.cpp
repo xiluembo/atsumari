@@ -285,6 +285,19 @@ void AtsumariLauncher::launch()
 bool AtsumariLauncher::eventFilter(QObject* obj, QEvent* event)
 {
     if (obj == m_mw && event->type() == QEvent::Close) {
+        if (TwitchLogModel::instance()->autoSaveEnabled()) {
+            if (TwitchLogModel::instance()->flushAutoSave()) {
+                event->accept();
+                return false;
+            }
+
+            QMessageBox::critical(m_mw,
+                                  tr("Save logs"),
+                                  tr("Failed to auto-save logs before closing."));
+            event->ignore();
+            return true;
+        }
+
         int ret = QMessageBox::question(m_mw,
                                         tr("Save logs"),
                                         tr("Do you want to save logs before closing?"),

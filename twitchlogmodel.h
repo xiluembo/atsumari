@@ -46,6 +46,8 @@ public:
                   const QStringList &pendingEmotes = QStringList());
 
     bool exportToFile(const QString &fileName) const;
+    bool autoSaveEnabled() const;
+    bool flushAutoSave() const;
 
     QList<QPixmap> emotesForRow(int row) const;
 

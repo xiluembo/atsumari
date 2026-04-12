@@ -156,6 +156,33 @@ bool TwitchLogModel::exportToFile(const QString &fileName) const
     return true;
 }
 
+bool TwitchLogModel::autoSaveEnabled() const
+{
+    QSettings settings;
+    return settings.value(CFG_LOG_AUTOSAVE_ENABLED, DEFAULT_LOG_AUTOSAVE_ENABLED).toBool();
+}
+
+bool TwitchLogModel::flushAutoSave() const
+{
+    if (!autoSaveEnabled())
+        return false;
+
+    QSettings settings;
+    const QString directory = settings.value(CFG_LOG_AUTOSAVE_DIRECTORY, defaultLogAutosaveDirectory()).toString();
+    const QString pattern = settings.value(CFG_LOG_AUTOSAVE_NAME_PATTERN, DEFAULT_LOG_AUTOSAVE_NAME_PATTERN).toString();
+    const QString filePath = buildAutoSaveFilePath(directory, pattern);
+    if (filePath.isEmpty())
+        return false;
+
+    m_autoSaveFilePath = filePath;
+
+    QDir dir(directory);
+    if (!dir.exists() && !dir.mkpath(QStringLiteral(".")))
+        return false;
+
+    return exportToFile(m_autoSaveFilePath);
+}
+
 QList<QPixmap> TwitchLogModel::emotesForRow(int row) const
 {
     if (row < 0 || row >= m_entries.size())
@@ -225,25 +252,7 @@ QString TwitchLogModel::buildAutoSaveFilePath(const QString &directory, const QS
 
 void TwitchLogModel::maybeAutoSave() const
 {
-    QSettings settings;
-    const bool enabled = settings.value(CFG_LOG_AUTOSAVE_ENABLED, DEFAULT_LOG_AUTOSAVE_ENABLED).toBool();
-    if (!enabled)
-        return;
-
-    const QString directory = settings.value(CFG_LOG_AUTOSAVE_DIRECTORY, defaultLogAutosaveDirectory()).toString();
-
-    const QString pattern = settings.value(CFG_LOG_AUTOSAVE_NAME_PATTERN, DEFAULT_LOG_AUTOSAVE_NAME_PATTERN).toString();
-    const QString filePath = buildAutoSaveFilePath(directory, pattern);
-    if (filePath.isEmpty())
-        return;
-
-    m_autoSaveFilePath = filePath;
-
-    QDir dir(directory);
-    if (!dir.exists() && !dir.mkpath(QStringLiteral(".")))
-        return;
-
-    exportToFile(m_autoSaveFilePath);
+    flushAutoSave();
 }
 
 QString TwitchLogModel::connectionTimestampToken() const
