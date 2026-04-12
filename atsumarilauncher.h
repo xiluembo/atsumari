@@ -41,6 +41,7 @@ protected:
     bool eventFilter(QObject* obj, QEvent* event) override;
 
 private:
+    void closeAuxiliaryWindows();
     void showDesktopNotification(const QString &title, const QString &message);
 
     TwitchAuthFlow* m_twFlow;

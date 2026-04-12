@@ -287,6 +287,7 @@ bool AtsumariLauncher::eventFilter(QObject* obj, QEvent* event)
     if (obj == m_mw && event->type() == QEvent::Close) {
         if (TwitchLogModel::instance()->autoSaveEnabled()) {
             if (TwitchLogModel::instance()->flushAutoSave()) {
+                closeAuxiliaryWindows();
                 event->accept();
                 return false;
             }
@@ -312,9 +313,11 @@ bool AtsumariLauncher::eventFilter(QObject* obj, QEvent* event)
             if (!fn.isEmpty()) {
                 TwitchLogModel::instance()->exportToFile(fn);
             }
+            closeAuxiliaryWindows();
             event->accept();
             return false;
         } else if (ret == QMessageBox::No) {
+            closeAuxiliaryWindows();
             event->accept();
             return false;
         } else {
@@ -323,6 +326,12 @@ bool AtsumariLauncher::eventFilter(QObject* obj, QEvent* event)
         }
     }
     return QObject::eventFilter(obj, event);
+}
+
+void AtsumariLauncher::closeAuxiliaryWindows()
+{
+    if (m_logDialog && m_logDialog->isVisible())
+        m_logDialog->close();
 }
 
 void AtsumariLauncher::showDesktopNotification(const QString &title, const QString &message)
