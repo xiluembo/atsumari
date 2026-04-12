@@ -50,6 +50,12 @@ TwitchChatReader::TwitchChatReader(const QString &ircUrl,
 {
     m_webSocket->setParent(this);
     m_eventSubSocket->setParent(this);
+    m_ircReconnectTimer = new QTimer(this);
+    m_ircReconnectTimer->setSingleShot(true);
+    connect(m_ircReconnectTimer, &QTimer::timeout, this, [this, ircUrl]() {
+        if (m_webSocket->state() == QAbstractSocket::UnconnectedState)
+            m_webSocket->open(QUrl(ircUrl + "?oauth_token=" + m_token));
+    });
 
     connect(m_webSocket, &QWebSocket::connected, this, &TwitchChatReader::onIrcConnected);
     connect(m_webSocket, &QWebSocket::errorOccurred, this, [=](QAbstractSocket::SocketError error) { qDebug() << "IRC error:" << error; });
@@ -58,9 +64,7 @@ TwitchChatReader::TwitchChatReader(const QString &ircUrl,
     connect(m_webSocket, &QWebSocket::disconnected, this, [=] {
         ++m_reconnectAttempts;
         int delay = qMin(30000, 1000 * (1 << (m_reconnectAttempts - 1)));
-        QTimer::singleShot(delay, this, [=] {
-            m_webSocket->open(QUrl(ircUrl + "?oauth_token=" + m_token));
-        });
+        m_ircReconnectTimer->start(delay);
     });
 
     connect(m_eventSubSocket, &QWebSocket::connected, this, &TwitchChatReader::onEventSubConnected);
@@ -117,6 +121,7 @@ TwitchChatReader::~TwitchChatReader()
 
 void TwitchChatReader::onIrcConnected()
 {
+    m_ircReconnectTimer->stop();
     m_reconnectAttempts = 0;
     emit connected();
 
