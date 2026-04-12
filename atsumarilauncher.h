@@ -46,6 +46,8 @@ private:
     TwitchAuthFlow* m_twFlow;
     EmoteWriter* m_emw;
     TwitchChatReader* m_tReader;
+    QString m_twitchLogin;
+    QString m_twitchUserId;
     QMainWindow* m_mw = new QMainWindow;
     QWidget* m_container = new QWidget;
     QSystemTrayIcon* m_tray = nullptr;

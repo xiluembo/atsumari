@@ -186,9 +186,26 @@ void AtsumariLauncher::launch()
             m_tReader->setAccessToken(token);
     });
 
-    QObject::connect(m_twFlow, &TwitchAuthFlow::loginFetched, m_twFlow, [&](const QString& a, const QString& userId) {
-        m_tReader = new TwitchChatReader("wss://irc-ws.chat.twitch.tv:443/", m_twFlow->token(), a, userId, userId, m_emw);
-        m_twFlow->ensureValidToken();
+    QObject::connect(m_twFlow, &TwitchAuthFlow::loginFetched, this, [this](const QString& a, const QString& userId) {
+        if (m_tReader && a == m_twitchLogin && userId == m_twitchUserId) {
+            m_tReader->setAccessToken(m_twFlow->token());
+            return;
+        }
+
+        if (m_tReader) {
+            delete m_tReader;
+            m_tReader = nullptr;
+        }
+
+        m_twitchLogin = a;
+        m_twitchUserId = userId;
+        m_tReader = new TwitchChatReader("wss://irc-ws.chat.twitch.tv:443/",
+                                         m_twFlow->token(),
+                                         a,
+                                         userId,
+                                         userId,
+                                         m_emw,
+                                         this);
         TwitchLogModel::instance()->setConnectionStartedAt(QDateTime::currentDateTime());
 
         QObject::connect(m_tReader, &TwitchChatReader::connected, this, [this]() {

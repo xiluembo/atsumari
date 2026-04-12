@@ -26,8 +26,18 @@
 #include <QSettings>
 #include <QDateTime>
 #include <QDesktopServices>
+#include <QNetworkRequest>
 
 #include "settings_defaults.h"
+
+namespace {
+
+void prepareTwitchRequest(QNetworkRequest &request)
+{
+    request.setAttribute(QNetworkRequest::Http2AllowedAttribute, false);
+}
+
+}
 
 TwitchAuthFlow::TwitchAuthFlow(QObject *parent)
     : QObject{parent}
@@ -122,6 +132,7 @@ void TwitchAuthFlow::requestTokenValidation()
     QUrl requestUrl("https://id.twitch.tv/oauth2/validate");
 
     QNetworkRequest req((QUrl(requestUrl)));
+    prepareTwitchRequest(req);
     req.setRawHeader("Authorization", QString("Bearer %1").arg(m_token).toUtf8());
     req.setRawHeader("Client-Id", settings.value(CFG_CLIENT_ID, DEFAULT_CLIENT_ID).toString().toUtf8());
 
@@ -137,6 +148,7 @@ void TwitchAuthFlow::requestUserinfo()
     QUrl requestUrl("https://api.twitch.tv/helix/users");
 
     QNetworkRequest req((QUrl(requestUrl)));
+    prepareTwitchRequest(req);
     req.setRawHeader("Authorization", QString("Bearer %1").arg(m_token).toUtf8());
     req.setRawHeader("Client-Id", settings.value(CFG_CLIENT_ID, DEFAULT_CLIENT_ID).toString().toUtf8());
 
@@ -327,6 +339,7 @@ void TwitchAuthFlow::refreshAccessToken()
 
     QUrl url("https://id.twitch.tv/oauth2/token");
     QNetworkRequest request(url);
+    prepareTwitchRequest(request);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 
     QUrlQuery query;
@@ -391,6 +404,7 @@ void TwitchAuthFlow::pollForToken()
     // Create POST request to exchange device code for token
     QUrl url("https://id.twitch.tv/oauth2/token");
     QNetworkRequest request(url);
+    prepareTwitchRequest(request);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
     
     QUrlQuery query;

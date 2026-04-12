@@ -23,6 +23,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QNetworkReply>
+#include <QNetworkRequest>
 #include <QRegularExpression>
 #include <QSettings>
 #include <QStringList>
@@ -31,6 +32,15 @@
 #include "emotewriter.h"
 #include "settings_defaults.h"
 #include "twitchlogmodel.h"
+
+namespace {
+
+void prepareTwitchRequest(QNetworkRequest &request)
+{
+    request.setAttribute(QNetworkRequest::Http2AllowedAttribute, false);
+}
+
+}
 
 TwitchChatReader::TwitchChatReader(const QString &ircUrl,
                                    const QString &token,
@@ -287,6 +297,7 @@ void TwitchChatReader::createChannelChatMessageSubscription()
 
     QUrl requestUrl(QStringLiteral("https://api.twitch.tv/helix/eventsub/subscriptions"));
     QNetworkRequest request(requestUrl);
+    prepareTwitchRequest(request);
     request.setRawHeader("Authorization", QStringLiteral("Bearer %1").arg(m_token).toUtf8());
     request.setRawHeader("Client-Id", clientId.toUtf8());
     request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
@@ -343,6 +354,7 @@ void TwitchChatReader::fetchCheermotes()
     requestUrl.setQuery(query);
 
     QNetworkRequest request(requestUrl);
+    prepareTwitchRequest(request);
     request.setRawHeader("Authorization", QStringLiteral("Bearer %1").arg(m_token).toUtf8());
     request.setRawHeader("Client-Id", clientId.toUtf8());
 
