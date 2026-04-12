@@ -1089,146 +1089,171 @@ Right click on each text box to use shader presets.</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_logs">
        <item>
-        <widget class="QGroupBox" name="grpLogColumns">
-         <property name="title">
-          <string>Columns</string>
+        <widget class="QScrollArea" name="scrollArea_3">
+         <property name="widgetResizable">
+          <bool>true</bool>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_cols">
-          <item>
-           <widget class="QCheckBox" name="chkDirection">
-            <property name="text">
-             <string>Direction</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="chkSource">
-            <property name="text">
-             <string>Source</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="chkTimestamp">
-            <property name="text">
-             <string>Timestamp</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="chkCommand">
-            <property name="text">
-             <string>Command</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="chkSender">
-            <property name="text">
-             <string>Sender</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="chkMessage">
-            <property name="text">
-             <string>Message</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="chkTags">
-            <property name="text">
-             <string>Tags</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="chkEmotes">
-            <property name="text">
-             <string>Emotes</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="grpCommandColors">
-         <property name="title">
-          <string>Command Colors</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_colors">
-          <item>
-           <widget class="QTableWidget" name="tblCommandColors">
-            <column>
-             <property name="text">
-              <string>Command</string>
+         <widget class="QWidget" name="scrollAreaWidgetContents_3">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>963</width>
+            <height>620</height>
+           </rect>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_10">
+           <item>
+            <widget class="QGroupBox" name="grpLogColumns">
+             <property name="title">
+              <string>Columns</string>
              </property>
-            </column>
-            <column>
-             <property name="text">
-              <string>Foreground</string>
+             <layout class="QVBoxLayout" name="verticalLayout_cols">
+              <item>
+               <widget class="QCheckBox" name="chkDirection">
+                <property name="text">
+                 <string>Direction</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkSource">
+                <property name="text">
+                 <string>Source</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkTimestamp">
+                <property name="text">
+                 <string>Timestamp</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkCommand">
+                <property name="text">
+                 <string>Command</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkSender">
+                <property name="text">
+                 <string>Sender</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkMessage">
+                <property name="text">
+                 <string>Message</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkTags">
+                <property name="text">
+                 <string>Tags</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chkEmotes">
+                <property name="text">
+                 <string>Emotes</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="grpCommandColors">
+             <property name="title">
+              <string>Command Colors</string>
              </property>
-            </column>
-            <column>
-             <property name="text">
-              <string>Background</string>
+             <layout class="QVBoxLayout" name="verticalLayout_colors">
+              <item>
+               <widget class="QTableWidget" name="tblCommandColors">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>140</height>
+                 </size>
+                </property>
+                <column>
+                 <property name="text">
+                  <string>Command</string>
+                 </property>
+                </column>
+                <column>
+                 <property name="text">
+                  <string>Foreground</string>
+                 </property>
+                </column>
+                <column>
+                 <property name="text">
+                  <string>Background</string>
+                 </property>
+                </column>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="btnResetCommandColors">
+                <property name="text">
+                 <string>Reset to default</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="grpLogAutosave">
+             <property name="title">
+              <string>Auto-save</string>
              </property>
-            </column>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="btnResetCommandColors">
-            <property name="text">
-             <string>Reset to default</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="grpLogAutosave">
-         <property name="title">
-          <string>Auto-save</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_autosave">
-          <item row="0" column="0" colspan="3">
-           <widget class="QCheckBox" name="chkLogAutosaveEnabled">
-            <property name="text">
-             <string>Enable log auto-save</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="lblLogAutosaveDirectory">
-            <property name="text">
-             <string>Directory</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="edtLogAutosaveDirectory"/>
-          </item>
-          <item row="1" column="2">
-           <widget class="QPushButton" name="btnLogAutosaveBrowseDir">
-            <property name="text">
-             <string>Browse...</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="lblLogAutosavePattern">
-            <property name="text">
-             <string>Name pattern</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1" colspan="2">
-           <widget class="QLineEdit" name="edtLogAutosavePattern"/>
-          </item>
-         </layout>
+             <layout class="QGridLayout" name="gridLayout_autosave">
+              <item row="0" column="0" colspan="3">
+               <widget class="QCheckBox" name="chkLogAutosaveEnabled">
+                <property name="text">
+                 <string>Enable log auto-save</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="lblLogAutosaveDirectory">
+                <property name="text">
+                 <string>Directory</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="edtLogAutosaveDirectory"/>
+              </item>
+              <item row="1" column="2">
+               <widget class="QPushButton" name="btnLogAutosaveBrowseDir">
+                <property name="text">
+                 <string>Browse...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="lblLogAutosavePattern">
+                <property name="text">
+                 <string>Name pattern</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1" colspan="2">
+               <widget class="QLineEdit" name="edtLogAutosavePattern"/>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </widget>
         </widget>
        </item>
       </layout>
