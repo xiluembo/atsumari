@@ -16,10 +16,12 @@
  */
 
 #include "setupwidget.h"
+#include "communityshadersdialog.h"
 #include <QQuickItem>
 #include "./ui_setupwidget.h"
 
 #include <algorithm>
+#include <utility>
 #include <QtAlgorithms>
 
 #include <QSettings>
@@ -105,6 +107,7 @@ SetupWidget::SetupWidget(QWidget *parent)
     , m_duplicateProfileAction(nullptr)
     , m_renameProfileAction(nullptr)
     , m_deleteProfileAction(nullptr)
+    , m_communityReleaseLoader(nullptr)
     , ui(new Ui::SetupWidget)
 {
     ui->setupUi(this);
@@ -114,6 +117,12 @@ SetupWidget::SetupWidget(QWidget *parent)
     populateRefractionTypes();
     loadSettings();
     checkForUpdates();
+    m_communityReleaseLoader = new CommunityShadersLoader(ui->cboLanguage->currentData().toLocale(), this);
+
+    connect(m_communityReleaseLoader, &CommunityShadersLoader::latestReleaseChanged, this, [this]() {
+        m_latestCommunityRelease = m_communityReleaseLoader->releaseInfo();
+        updateCommunityShadersStatusLabel();
+    });
 
     // Appearance tab
     connect(ui->cboProfile, &QComboBox::currentIndexChanged, this, [=]() {
@@ -146,6 +155,10 @@ SetupWidget::SetupWidget(QWidget *parent)
         m_shouldSave = true;
         ui->btnSaveSettings->setEnabled(true);
         ui->retranslateUi(this);
+        if (m_communityReleaseLoader) {
+            m_communityReleaseLoader->setLocale(ui->cboLanguage->currentData().toLocale());
+        }
+        updateCommunityShadersStatusLabel();
 
         // Menus are not retranslated, let's recreate them
         createProfileMenus();
@@ -356,9 +369,12 @@ SetupWidget::SetupWidget(QWidget *parent)
     connect(ui->btnSelectDecoration, &QPushButton::clicked, this, &SetupWidget::selectDecoration);
     connect(ui->btnResetBaseTexture, &QPushButton::clicked, this, &SetupWidget::resetBaseTexture);
     connect(ui->btnSelectBaseTexture, &QPushButton::clicked, this, &SetupWidget::selectBaseTexture);
+    connect(ui->btnOpenCommunityShaders, &QPushButton::clicked, this, &SetupWidget::openCommunityShadersDialog);
 
     setupPreview();
     runPreview();
+    updateCommunityShadersStatusLabel();
+    checkCommunityShadersRelease();
 
     // Twitch Tab
     connect(ui->btnAddExcludeChat, &QPushButton::clicked, this, &SetupWidget::addToExcludeList);
@@ -859,6 +875,7 @@ void SetupWidget::setIcons()
     ui->btnSelectDecoration->setIcon(QIcon::fromTheme("document-open"));
     ui->btnResetBaseTexture->setIcon(QIcon::fromTheme("edit-undo"));
     ui->btnSelectBaseTexture->setIcon(QIcon::fromTheme("document-open"));
+    ui->btnOpenCommunityShaders->setIcon(QIcon::fromTheme("document-open"));
     ui->btnAddExcludeChat->setIcon(QIcon::fromTheme("list-add"));
     ui->btnRemoveExcludeChat->setIcon(QIcon::fromTheme("list-remove"));
     ui->btnSaveSettings->setIcon(QIcon::fromTheme("document-save"));
@@ -966,56 +983,12 @@ void SetupWidget::setupPreview()
 
 void SetupWidget::newProfile()
 {
-    bool ok = true;
-    QString profileName;
-    QStringList existingProfiles;
-
-    for (const ProfileData* pd: m_profiles) {
-        existingProfiles << pd->profileName();
+    const QString profileName = promptForUniqueProfileName(tr("New Profile"), tr("Profile"));
+    if (profileName.isEmpty()) {
+        return;
     }
 
-    do {
-        profileName = QInputDialog::getText(this, tr("New Profile"),
-                                            tr("Profile name:"), QLineEdit::Normal,
-                                            tr("Profile"), &ok);
-
-        if (!ok) {
-            return;
-        }
-
-        if (existingProfiles.contains(profileName)) {
-            QMessageBox::critical(this, tr("Profile already exists!"), tr("A profile named '%1' already exists. Try a different name.").arg(profileName));
-        }
-    } while (existingProfiles.contains(profileName));
-
-    ProfileData* profile = new ProfileData;
-    profile->setProfileName(profileName);
-    profile->setMaterialType(DEFAULT_MATERIAL_TYPE);
-    profile->setBaseColor(DEFAULT_COLORS_BASE);
-    profile->setBaseTexture(DEFAULT_BASE_TEXTURE);
-    profile->setAmbientColor(DEFAULT_COLORS_AMBIENT);
-    profile->setLightColor(DEFAULT_COLORS_LIGHT);
-    profile->setRoughness(DEFAULT_ROUGHNESS);
-    profile->setMetalness(DEFAULT_METALNESS);
-    profile->setIndexOfRefractionType(DEFAULT_REFRACTION_TYPE);
-    profile->setRefraction(DEFAULT_REFRACTION);
-    profile->setSpecularColor(DEFAULT_COLORS_SPECULAR);
-    profile->setGlossiness(DEFAULT_GLOSSINESS);
-    profile->setCustomVertexShader(DEFAULT_CUSTOM_VERT);
-    profile->setCustomFragmentShader(DEFAULT_CUSTOM_FRAG);
-    profile->setDecorationPath(DEFAULT_DECORATION_PATH);
-    profile->setLightBrightness(DEFAULT_LIGHT_BRIGHTNESS);
-    profile->setIteration(DEFAULT_ITERATION_TIME);
-    profile->setFont(DEFAULT_EMOJI_FONT);
-
-    m_profiles.append(profile);
-    ui->cboProfile->addItem(profileName);
-    ui->cboProfile->setCurrentIndex(ui->cboProfile->count() - 1);
-    m_deleteProfileAction->setEnabled(true);
-
-    m_shouldSave = true;
-    ui->btnSaveSettings->setEnabled(true);
-    runPreview();
+    appendProfile(createDefaultProfile(profileName));
 }
 
 void SetupWidget::duplicateProfile()
@@ -1481,4 +1454,163 @@ void SetupWidget::checkForUpdates()
             }
         }
     });
+}
+
+void SetupWidget::checkCommunityShadersRelease()
+{
+    if (m_communityReleaseLoader) {
+        m_communityReleaseLoader->fetchLatestRelease();
+    }
+}
+
+void SetupWidget::updateCommunityShadersStatusLabel()
+{
+    const QString latestRelease = m_latestCommunityRelease.tag.isEmpty()
+        ? QStringLiteral("-")
+        : m_latestCommunityRelease.tag;
+
+    QSettings settings;
+    const QString lastSeenRelease = settings.value(CFG_COMMUNITY_SHADERS_LAST_SEEN_RELEASE).toString();
+    if (!m_latestCommunityRelease.tag.isEmpty() && m_latestCommunityRelease.tag != lastSeenRelease) {
+        ui->lblNewShadersAvailable->setText(tr("New Packs Available: %1").arg(latestRelease));
+        ui->lblNewShadersAvailable->setStyleSheet(QStringLiteral("color: #2e7d32; font-weight: 600;"));
+    } else {
+        ui->lblNewShadersAvailable->setText(tr("Latest Packs: %1").arg(latestRelease));
+        ui->lblNewShadersAvailable->setStyleSheet(QString());
+    }
+}
+
+void SetupWidget::openCommunityShadersDialog()
+{
+    if (!m_latestCommunityRelease.tag.isEmpty()) {
+        markCommunityShadersReleaseAsSeen(m_latestCommunityRelease.tag);
+    }
+
+    CommunityShadersDialog dialog(
+        ui->cboLanguage->currentData().toLocale(),
+        m_latestCommunityRelease,
+        [this](const CommunityShaderPack& pack) {
+            applyCommunityShaderPackToCurrentProfile(pack);
+        },
+        [this](const CommunityShaderPack& pack) {
+            createProfileFromCommunityShaderPack(pack);
+        },
+        [this](const QString& releaseTag) {
+            markCommunityShadersReleaseAsSeen(releaseTag);
+        },
+        this);
+    dialog.exec();
+}
+
+void SetupWidget::markCommunityShadersReleaseAsSeen(const QString& releaseTag)
+{
+    if (releaseTag.isEmpty()) {
+        return;
+    }
+
+    QSettings settings;
+    settings.setValue(CFG_COMMUNITY_SHADERS_LAST_SEEN_RELEASE, releaseTag);
+    m_latestCommunityRelease.tag = releaseTag;
+    updateCommunityShadersStatusLabel();
+}
+
+QString SetupWidget::promptForUniqueProfileName(const QString& title, const QString& suggestedName)
+{
+    bool ok = true;
+    QString profileName;
+    QStringList existingProfiles;
+
+    for (const ProfileData* pd : std::as_const(m_profiles)) {
+        existingProfiles << pd->profileName();
+    }
+
+    do {
+        profileName = QInputDialog::getText(this,
+                                            title,
+                                            tr("Profile name:"),
+                                            QLineEdit::Normal,
+                                            suggestedName,
+                                            &ok);
+
+        if (!ok) {
+            return QString();
+        }
+
+        if (existingProfiles.contains(profileName)) {
+            QMessageBox::critical(this,
+                                  tr("Profile already exists!"),
+                                  tr("A profile named '%1' already exists. Try a different name.").arg(profileName));
+        }
+    } while (existingProfiles.contains(profileName));
+
+    return profileName;
+}
+
+ProfileData* SetupWidget::createDefaultProfile(const QString& profileName) const
+{
+    ProfileData* profile = new ProfileData;
+    profile->setProfileName(profileName);
+    profile->setMaterialType(DEFAULT_MATERIAL_TYPE);
+    profile->setBaseColor(DEFAULT_COLORS_BASE);
+    profile->setBaseTexture(DEFAULT_BASE_TEXTURE);
+    profile->setAmbientColor(DEFAULT_COLORS_AMBIENT);
+    profile->setLightColor(DEFAULT_COLORS_LIGHT);
+    profile->setRoughness(DEFAULT_ROUGHNESS);
+    profile->setMetalness(DEFAULT_METALNESS);
+    profile->setIndexOfRefractionType(DEFAULT_REFRACTION_TYPE);
+    profile->setRefraction(DEFAULT_REFRACTION);
+    profile->setSpecularColor(DEFAULT_COLORS_SPECULAR);
+    profile->setGlossiness(DEFAULT_GLOSSINESS);
+    profile->setCustomVertexShader(DEFAULT_CUSTOM_VERT);
+    profile->setCustomFragmentShader(DEFAULT_CUSTOM_FRAG);
+    profile->setDecorationPath(DEFAULT_DECORATION_PATH);
+    profile->setLightBrightness(DEFAULT_LIGHT_BRIGHTNESS);
+    profile->setIteration(DEFAULT_ITERATION_TIME);
+    profile->setFont(DEFAULT_EMOJI_FONT);
+    return profile;
+}
+
+void SetupWidget::appendProfile(ProfileData* profile)
+{
+    if (!profile) {
+        return;
+    }
+
+    m_profiles.append(profile);
+    ui->cboProfile->addItem(profile->profileName());
+    ui->cboProfile->setCurrentIndex(ui->cboProfile->count() - 1);
+    m_deleteProfileAction->setEnabled(true);
+
+    m_shouldSave = true;
+    ui->btnSaveSettings->setEnabled(true);
+    runPreview();
+}
+
+void SetupWidget::applyCommunityShaderPackToCurrentProfile(const CommunityShaderPack& pack)
+{
+    ProfileData* profile = m_profiles[m_currentProfile];
+    profile->setMaterialType(MaterialType::Custom);
+    profile->setCustomVertexShader(pack.vertexShaderSource);
+    profile->setCustomFragmentShader(pack.fragmentShaderSource);
+
+    populateCurrentProfileControls();
+    ui->btnReloadShaders->setEnabled(false);
+
+    m_shouldSave = true;
+    ui->btnSaveSettings->setEnabled(true);
+    runPreview();
+}
+
+void SetupWidget::createProfileFromCommunityShaderPack(const CommunityShaderPack& pack)
+{
+    const QString profileName = promptForUniqueProfileName(tr("New Profile"), pack.name);
+    if (profileName.isEmpty()) {
+        return;
+    }
+
+    ProfileData* profile = createDefaultProfile(profileName);
+    profile->setMaterialType(MaterialType::Custom);
+    profile->setCustomVertexShader(pack.vertexShaderSource);
+    profile->setCustomFragmentShader(pack.fragmentShaderSource);
+    appendProfile(profile);
 }

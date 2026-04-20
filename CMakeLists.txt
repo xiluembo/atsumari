@@ -25,7 +25,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core Widgets Quick3D WebSockets Network NetworkAuth Gui LinguistTools Test)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Widgets Quick3D WebSockets Network NetworkAuth Gui LinguistTools Test)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Widgets Quick3D WebSockets Network NetworkAuth Gui LinguistTools Test CorePrivate)
 
 qt_standard_project_setup(I18N_TRANSLATED_LANGUAGES pt_BR)
 
@@ -34,6 +34,10 @@ set(PROJECT_SOURCES
         setupwidget.cpp
         setupwidget.h
         setupwidget.ui
+        communityshadersdialog.h
+        communityshadersdialog.cpp
+        communityshadersloader.h
+        communityshadersloader.cpp
 
         res.qrc
         shaders.qrc
@@ -80,6 +84,7 @@ target_link_libraries(atsumari PRIVATE
     Qt${QT_VERSION_MAJOR}::Network
     Qt${QT_VERSION_MAJOR}::NetworkAuth
     Qt${QT_VERSION_MAJOR}::Gui
+    Qt${QT_VERSION_MAJOR}::CorePrivate
 )
 
 target_compile_definitions(atsumari PRIVATE ATSUMARI_VERSION="${PROJECT_VERSION}")

@@ -812,6 +812,42 @@ Right click on each text box to use shader presets.</string>
                     </property>
                    </widget>
                   </item>
+                  <item row="1" column="0" colspan="2">
+                   <widget class="QGroupBox" name="grpCommunityShaders">
+                    <property name="title">
+                     <string>Community Shaders</string>
+                    </property>
+                    <layout class="QHBoxLayout" name="horizontalLayoutCommunityShaders">
+                     <item>
+                      <widget class="QLabel" name="lblNewShadersAvailable">
+                       <property name="text">
+                        <string>Latest Packs: -</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="btnOpenCommunityShaders">
+                       <property name="text">
+                        <string>Open Community Shaders...</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <spacer name="horizontalSpacerCommunityShaders">
+                       <property name="orientation">
+                        <enum>Qt::Orientation::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                    </layout>
+                   </widget>
+                  </item>
                   <item row="2" column="0">
                    <widget class="QLabel" name="lblVertexShader">
                     <property name="text">

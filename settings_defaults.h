@@ -57,6 +57,7 @@
 #define CFG_PROFILES "profiles"
 #define CFG_PROFILE_NAME "profile_name"
 #define CFG_CURRENT_PROFILE "current_profile"
+#define CFG_COMMUNITY_SHADERS_LAST_SEEN_RELEASE "community_shaders/last_seen_release"
 
 #define CFG_LOG_COLUMNS "log/columns"
 #define CFG_LOG_SOURCE_MIGRATED "log/source_migrated"

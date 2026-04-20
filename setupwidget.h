@@ -25,6 +25,7 @@
 #include <QQuickItem>
 #include <QTemporaryFile>
 
+#include "communityshadersloader.h"
 #include "profiledata.h"
 
 QT_BEGIN_NAMESPACE
@@ -66,6 +67,15 @@ private:
     void populateRefractionTypes();
     void setupPreview();
     void checkForUpdates();
+    void checkCommunityShadersRelease();
+    void updateCommunityShadersStatusLabel();
+    void openCommunityShadersDialog();
+    void markCommunityShadersReleaseAsSeen(const QString& releaseTag);
+    QString promptForUniqueProfileName(const QString& title, const QString& suggestedName);
+    ProfileData* createDefaultProfile(const QString& profileName) const;
+    void appendProfile(ProfileData* profile);
+    void applyCommunityShaderPackToCurrentProfile(const CommunityShaderPack& pack);
+    void createProfileFromCommunityShaderPack(const CommunityShaderPack& pack);
     void newProfile();
     void duplicateProfile();
     void renameProfile();
@@ -96,6 +106,8 @@ private:
     QAction* m_duplicateProfileAction;
     QAction* m_renameProfileAction;
     QAction* m_deleteProfileAction;
+    CommunityShadersLoader* m_communityReleaseLoader;
+    CommunityShaderReleaseInfo m_latestCommunityRelease;
 
     Ui::SetupWidget *ui;
 
