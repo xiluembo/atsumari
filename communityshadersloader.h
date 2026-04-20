@@ -45,6 +45,7 @@ struct CommunityShaderPack {
     QString authorName;
     QString authorEmail;
     QString authorWebsite;
+    QString licenseSpdx;
     QString vertexShaderPath;
     QString fragmentShaderPath;
     QString vertexShaderSource;

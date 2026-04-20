@@ -214,6 +214,7 @@ bool loadPackFromDirectory(const QFileInfo& dirInfo,
     pack->authorName = author.value(QStringLiteral("name")).toString().trimmed();
     pack->authorEmail = author.value(QStringLiteral("email")).toString().trimmed();
     pack->authorWebsite = websiteUrlFromString(author.value(QStringLiteral("website")).toString()).toString();
+    pack->licenseSpdx = metadata.value(QStringLiteral("license-spdx")).toString().trimmed();
     pack->vertexShaderPath = vertexFile.fileName();
     pack->fragmentShaderPath = fragmentFile.fileName();
     pack->vertexShaderSource = QString::fromUtf8(vertexFile.readAll());
@@ -223,6 +224,7 @@ bool loadPackFromDirectory(const QFileInfo& dirInfo,
     return !pack->name.isEmpty()
         && !pack->description.isEmpty()
         && !pack->authorName.isEmpty()
+        && !pack->licenseSpdx.isEmpty()
         && !pack->vertexShaderSource.isEmpty()
         && !pack->fragmentShaderSource.isEmpty();
 }

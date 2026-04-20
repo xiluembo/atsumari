@@ -47,7 +47,7 @@ QString contactLinksText(const CommunityShaderPack& pack)
         parts << QObject::tr("Email: <a href=\"mailto:%1\">%1</a>").arg(pack.authorEmail.toHtmlEscaped());
     }
     if (!pack.authorWebsite.isEmpty()) {
-        const QString displayText = QUrl(pack.authorWebsite).toDisplayString(QUrl::FullyDecoded).toHtmlEscaped();
+        const QString displayText = QUrl(pack.authorWebsite).toDisplayString().toHtmlEscaped();
         parts << QObject::tr("Website: <a href=\"%1\">%2</a>")
                      .arg(pack.authorWebsite.toHtmlEscaped(), displayText);
     }
@@ -84,6 +84,10 @@ public:
         auto* authorLabel = new QLabel(QObject::tr("Author: %1").arg(pack.authorName), this);
         authorLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
         textLayout->addWidget(authorLabel);
+
+        auto* licenseLabel = new QLabel(QObject::tr("License: %1").arg(pack.licenseSpdx), this);
+        licenseLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+        textLayout->addWidget(licenseLabel);
 
         const QString contactText = contactLinksText(pack);
         if (!contactText.isEmpty()) {
@@ -350,7 +354,7 @@ void CommunityShadersDialog::confirmAndOpenExternalLink(const QUrl& url)
         this,
         tr("Open External Link"),
         tr("This action will open an external link outside Atsumari.\n\n%1")
-            .arg(url.toDisplayString(QUrl::FullyDecoded)));
+            .arg(url.toDisplayString()));
 
     if (result == QMessageBox::Yes) {
         QDesktopServices::openUrl(url);
