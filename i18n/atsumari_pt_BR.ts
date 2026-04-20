@@ -273,10 +273,6 @@
         <translation>Aparência e Comportamento</translation>
     </message>
     <message>
-        <source>Shininess:</source>
-        <translation type="vanished">Brilho:</translation>
-    </message>
-    <message>
         <location filename="../setupwidget.ui" line="121"/>
         <location filename="../setupwidget.ui" line="408"/>
         <location filename="../setupwidget.ui" line="523"/>
@@ -314,21 +310,9 @@
         <translation>Selecionar arquivo...</translation>
     </message>
     <message>
-        <source>Sphere Rings:</source>
-        <translation type="vanished">Anéis da Esfera:</translation>
-    </message>
-    <message>
-        <source>Diffuse Color:</source>
-        <translation type="vanished">Cor Difusa:</translation>
-    </message>
-    <message>
         <location filename="../setupwidget.ui" line="440"/>
         <source>Time for each iteration:</source>
         <translation>Tempo para cada iteração:</translation>
-    </message>
-    <message>
-        <source>Light Intensity:</source>
-        <translation type="vanished">Intensidade da Luz:</translation>
     </message>
     <message>
         <location filename="../setupwidget.ui" line="167"/>
@@ -339,10 +323,6 @@
         <location filename="../setupwidget.ui" line="758"/>
         <source>Ambient Color:</source>
         <translation>Cor Ambiente:</translation>
-    </message>
-    <message>
-        <source>Sphere Slices:</source>
-        <translation type="vanished">Fatias da Esfera:</translation>
     </message>
     <message>
         <location filename="../setupwidget.ui" line="174"/>
@@ -393,6 +373,25 @@
         <location filename="../setupwidget.ui" line="622"/>
         <source>Base Color:</source>
         <translation>Cor Base:</translation>
+    </message>
+    <message>
+        <location filename="../setupwidget.ui" line="801"/>
+        <source>Refer to [https://doc.qt.io/qt-6/qtquick3d-custom.html]
+
+Custom properties available:
+ - **uTime**: ranges from 1 to 3600 over the period of 60 seconds
+ - **baseColor**: the *Base Color* you selected above
+ - **baseColorTexture**: the *Base Texture* you selected above
+ 
+Edit the shader code below and click *Reload shaders* to preview changes.</source>
+        <translation>Para referência, veja [https://doc.qt.io/qt-6/qtquick3d-custom.html]
+
+Propriedades customizadas disponíveis:
+ - **uTime**: varia de 1 a 3600 no período de 60 segundos
+ - **baseColor**: a *Cor Base* que você selecionou acima
+ - **baseColorTexture**: a *Textura Base* que você selecionou acima
+
+Edite o código shader abaixo e clique em *Recarregar shaders* para visualizar as alterações.</translation>
     </message>
     <message>
         <location filename="../setupwidget.ui" line="818"/>
@@ -450,44 +449,9 @@
         <translation>Recarregar shaders</translation>
     </message>
     <message>
-        <location filename="../setupwidget.ui" line="801"/>
-        <source>Refer to [https://doc.qt.io/qt-6/qtquick3d-custom.html]
-
-Custom properties available:
- - **uTime**: ranges from 1 to 3600 over the period of 60 seconds
- - **baseColor**: the *Base Color* you selected above
- - **baseColorTexture**: the *Base Texture* you selected above
-
-Right click on each text box to use shader presets.</source>
-        <translation>Para referência, veja [https://doc.qt.io/qt-6/qtquick3d-custom.html]
-
-Propriedades customizadas disponíveis:
- - **uTime**: varia de 1 a 3600 no período de 60 segundos
- - **baseColor**: a *Cor Base* que você selecionou acima
- - **baseColorTexture**: a *Textura Base* que você selecionou acima
-
-Clique com o botão direito em cada caixa de texto para utilizar as predefinições de shader.</translation>
-    </message>
-    <message>
         <location filename="../setupwidget.ui" line="962"/>
         <source>Preview</source>
         <translation>Prévia</translation>
-    </message>
-    <message>
-        <source>Directories</source>
-        <translation type="vanished">Diretórios</translation>
-    </message>
-    <message>
-        <source>Emoji directory:</source>
-        <translation type="vanished">Diretório de emoji:</translation>
-    </message>
-    <message>
-        <source>Select Directory...</source>
-        <translation type="vanished">Selecionar Diretório...</translation>
-    </message>
-    <message>
-        <source>Twitch emote directory:</source>
-        <translation type="vanished">Diretório de emote da Twitch:</translation>
     </message>
     <message>
         <location filename="../setupwidget.ui" line="973"/>
@@ -563,7 +527,7 @@ Clique com o botão direito em cada caixa de texto para utilizar as predefiniç�
     <message>
         <location filename="../setupwidget.ui" line="1172"/>
         <location filename="../setupwidget.ui" line="1223"/>
-        <location filename="../setupwidget.cpp" line="1289"/>
+        <location filename="../setupwidget.cpp" line="1251"/>
         <source>Command</source>
         <translation>Comando</translation>
     </message>
@@ -594,13 +558,13 @@ Clique com o botão direito em cada caixa de texto para utilizar as predefiniç�
     </message>
     <message>
         <location filename="../setupwidget.ui" line="1228"/>
-        <location filename="../setupwidget.cpp" line="1289"/>
+        <location filename="../setupwidget.cpp" line="1251"/>
         <source>Foreground</source>
         <translation>Frente</translation>
     </message>
     <message>
         <location filename="../setupwidget.ui" line="1233"/>
-        <location filename="../setupwidget.cpp" line="1289"/>
+        <location filename="../setupwidget.cpp" line="1251"/>
         <source>Background</source>
         <translation>Fundo</translation>
     </message>
@@ -650,358 +614,261 @@ Clique com o botão direito em cada caixa de texto para utilizar as predefiniç�
         <translation>Fechar este diálogo e executar</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="1134"/>
+        <location filename="../setupwidget.cpp" line="1096"/>
         <source>New Profile...</source>
         <translation>Novo Perfil...</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="1135"/>
+        <location filename="../setupwidget.cpp" line="1097"/>
         <source>Duplicate this profile...</source>
         <translation>Duplicar este perfil...</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="1136"/>
+        <location filename="../setupwidget.cpp" line="1098"/>
         <source>Rename this Profile</source>
         <translation>Renomear este perfil</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="1137"/>
+        <location filename="../setupwidget.cpp" line="1099"/>
         <source>Delete this Profile</source>
         <translation>Remover este perfil</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="594"/>
+        <location filename="../setupwidget.cpp" line="556"/>
         <source>Default</source>
         <translation>Padrão</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="308"/>
-        <source>Presets</source>
-        <translation>Predefinições</translation>
-    </message>
-    <message>
-        <location filename="../setupwidget.cpp" line="316"/>
-        <location filename="../setupwidget.cpp" line="324"/>
-        <source>Base</source>
-        <translation>Base</translation>
-    </message>
-    <message>
-        <location filename="../setupwidget.cpp" line="317"/>
-        <source>Ondulation</source>
-        <translation>Ondulação</translation>
-    </message>
-    <message>
-        <location filename="../setupwidget.cpp" line="318"/>
-        <source>Ondulation (XYZ axis)</source>
-        <translation>Ondulação (Eixo XYZ)</translation>
-    </message>
-    <message>
-        <location filename="../setupwidget.cpp" line="319"/>
-        <source>Cubed</source>
-        <translation>Em cubos</translation>
-    </message>
-    <message>
-        <location filename="../setupwidget.cpp" line="320"/>
-        <source>Cubed (with phasing)</source>
-        <translation>Em cubos (com faseamento)</translation>
-    </message>
-    <message>
-        <location filename="../setupwidget.cpp" line="321"/>
-        <source>Hexagons (with phasing)</source>
-        <translation>Hexágonos (com faseamento)</translation>
-    </message>
-    <message>
-        <location filename="../setupwidget.cpp" line="322"/>
-        <source>Wobbly (with phasing)</source>
-        <translation>Gelatinoso (com faseamento)</translation>
-    </message>
-    <message>
-        <location filename="../setupwidget.cpp" line="325"/>
-        <source>Dissolve</source>
-        <translation>Dissolver</translation>
-    </message>
-    <message>
-        <location filename="../setupwidget.cpp" line="326"/>
-        <source>Alternate</source>
-        <translation>Alternar</translation>
-    </message>
-    <message>
-        <location filename="../setupwidget.cpp" line="327"/>
-        <source>Stripes</source>
-        <translation>Listras</translation>
-    </message>
-    <message>
-        <location filename="../setupwidget.cpp" line="328"/>
-        <source>4-color cycle</source>
-        <translation>Ciclo de 4 cores</translation>
-    </message>
-    <message>
-        <location filename="../setupwidget.cpp" line="329"/>
-        <source>Dissolve with pulse</source>
-        <translation>Dissolver com pulso</translation>
-    </message>
-    <message>
-        <location filename="../setupwidget.cpp" line="330"/>
-        <source>Phasing</source>
-        <translation>Faseamento</translation>
-    </message>
-    <message>
-        <location filename="../setupwidget.cpp" line="331"/>
-        <source>Phasing with Jitter and Stripes</source>
-        <translation>Faseamento com Ruído e Listras</translation>
-    </message>
-    <message>
-        <location filename="../setupwidget.cpp" line="332"/>
-        <source>Toon Shading</source>
-        <translation>Efeito Cartoon</translation>
-    </message>
-    <message>
-        <location filename="../setupwidget.cpp" line="745"/>
+        <location filename="../setupwidget.cpp" line="707"/>
         <source>Changing default font</source>
         <translation>Alterando a fonte padrão</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="746"/>
+        <location filename="../setupwidget.cpp" line="708"/>
         <source>Changing default font is not advised. SVG Based fonts may not work correctly on Windows, and non-SVG Based fonts may also fail to render correctly on other platforms</source>
         <translation>Não é aconselhado alterar a fonte padrão. Fontes baseadas em SVG podem não funcionar corretamente no Windows, e fontes que não são baseadas em SVG também podem não ser exibidas corretamente em outras plataformas</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="762"/>
-        <location filename="../setupwidget.cpp" line="794"/>
+        <location filename="../setupwidget.cpp" line="724"/>
+        <location filename="../setupwidget.cpp" line="756"/>
         <source>Empty ClientId</source>
         <translation>ClientId vazio</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="762"/>
-        <location filename="../setupwidget.cpp" line="794"/>
+        <location filename="../setupwidget.cpp" line="724"/>
+        <location filename="../setupwidget.cpp" line="756"/>
         <source>Twitch Client Id is empty, you&apos;ll be not able to connect to your chat, use the Twitch Dev Console button to create a Client on Twitch.</source>
         <translation>O Client Id da Twitch está vazio, não será possível conectar ao seu chat, utilize o botão Console Dev da Twitch para criar um Client na Twitch.</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="771"/>
-        <location filename="../setupwidget.cpp" line="855"/>
+        <location filename="../setupwidget.cpp" line="733"/>
+        <location filename="../setupwidget.cpp" line="817"/>
         <source>Success</source>
         <translation>Sucesso</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="771"/>
+        <location filename="../setupwidget.cpp" line="733"/>
         <source>Settings saved successfully!</source>
         <translation>Configurações salvas com sucesso!</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="777"/>
-        <location filename="../setupwidget.cpp" line="1204"/>
+        <location filename="../setupwidget.cpp" line="739"/>
+        <location filename="../setupwidget.cpp" line="1166"/>
         <source>There are unsaved changes</source>
         <translation>Há alterações não salvas</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="778"/>
+        <location filename="../setupwidget.cpp" line="740"/>
         <source>Do you want to save changes before running?</source>
         <translation>Você deseja salvar as alterações antes de executar?</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="829"/>
+        <location filename="../setupwidget.cpp" line="791"/>
         <source>Select decoration file</source>
         <translation>Selecione o arquivo de decoração</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="945"/>
+        <location filename="../setupwidget.cpp" line="907"/>
         <source>Shader reload failed</source>
         <translation>Falha ao recarregar shader</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="1371"/>
+        <location filename="../setupwidget.cpp" line="1333"/>
         <source>Select auto-save directory</source>
         <translation>Selecione o diretório de salvamento automático</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="1450"/>
+        <location filename="../setupwidget.cpp" line="1412"/>
         <source>New release available</source>
         <translation>Nova versão disponível</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="1451"/>
+        <location filename="../setupwidget.cpp" line="1413"/>
         <source>Version %1 is available. Open download page?</source>
         <translation>A versão %1 está disponível. Deseja abrir a página de download?</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="1475"/>
+        <location filename="../setupwidget.cpp" line="1437"/>
         <source>New Packs Available: %1</source>
         <translation>Novos packs disponíveis: %1</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="1478"/>
+        <location filename="../setupwidget.cpp" line="1440"/>
         <source>Latest Packs: %1</source>
         <translation>Últimos Packs: %1</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="558"/>
-        <location filename="../setupwidget.cpp" line="829"/>
+        <location filename="../setupwidget.cpp" line="520"/>
+        <location filename="../setupwidget.cpp" line="791"/>
         <source>Image Files (*.svg *.png *.jpg *.bmp)</source>
         <translation>Arquivos de Imagem (*.svg *.png *.jpg *.bmp)</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="558"/>
+        <location filename="../setupwidget.cpp" line="520"/>
         <source>Select base texture file</source>
         <translation>Selecionar arquivo de textura base</translation>
     </message>
     <message>
-        <source>Image Files (*.png *.jpg *.bmp)</source>
-        <translation type="vanished">Arquivos de Imagem (*.png *.jpg *.bmp)</translation>
-    </message>
-    <message>
-        <source>Select emotes directory</source>
-        <translation type="vanished">Selecionar o diretório de emotes</translation>
-    </message>
-    <message>
-        <source>Select emojis directory</source>
-        <translation type="vanished">Selecionar o diretório de emojis</translation>
-    </message>
-    <message>
-        <location filename="../setupwidget.cpp" line="855"/>
+        <location filename="../setupwidget.cpp" line="817"/>
         <source>Authentication token has been reset! Twitch login will be required on next startup.</source>
         <translation>O token de autenticação foi redefinido! Será necessário logar na Twitch na próxima inicialização.</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="919"/>
+        <location filename="../setupwidget.cpp" line="881"/>
         <source>Principled Material</source>
         <translation>Material Principled</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="920"/>
+        <location filename="../setupwidget.cpp" line="882"/>
         <source>Specular Glossy Material</source>
         <translation>Material Especular Polido</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="921"/>
+        <location filename="../setupwidget.cpp" line="883"/>
         <source>Custom Material</source>
         <translation>Material Personalizado</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="927"/>
+        <location filename="../setupwidget.cpp" line="889"/>
         <source>Custom</source>
         <translation>Personalizado</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="928"/>
+        <location filename="../setupwidget.cpp" line="890"/>
         <source>Air</source>
         <translation>Ar</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="929"/>
+        <location filename="../setupwidget.cpp" line="891"/>
         <source>Water</source>
         <translation>Água</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="930"/>
+        <location filename="../setupwidget.cpp" line="892"/>
         <source>Glass</source>
         <translation>Vidro</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="931"/>
+        <location filename="../setupwidget.cpp" line="893"/>
         <source>Sapphire</source>
         <translation>Safira</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="932"/>
+        <location filename="../setupwidget.cpp" line="894"/>
         <source>Diamond</source>
         <translation>Diamante</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="986"/>
-        <location filename="../setupwidget.cpp" line="1606"/>
+        <location filename="../setupwidget.cpp" line="948"/>
+        <location filename="../setupwidget.cpp" line="1568"/>
         <source>New Profile</source>
         <translation>Novo Perfil</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="1009"/>
-        <location filename="../setupwidget.cpp" line="1048"/>
-        <location filename="../setupwidget.cpp" line="1530"/>
+        <location filename="../setupwidget.cpp" line="971"/>
+        <location filename="../setupwidget.cpp" line="1010"/>
+        <location filename="../setupwidget.cpp" line="1492"/>
         <source>Profile name:</source>
         <translation>Nome do Perfil:</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="986"/>
+        <location filename="../setupwidget.cpp" line="948"/>
         <source>Profile</source>
         <translation>Perfil</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="1017"/>
-        <location filename="../setupwidget.cpp" line="1056"/>
-        <location filename="../setupwidget.cpp" line="1541"/>
+        <location filename="../setupwidget.cpp" line="979"/>
+        <location filename="../setupwidget.cpp" line="1018"/>
+        <location filename="../setupwidget.cpp" line="1503"/>
         <source>Profile already exists!</source>
         <translation>O perfil já existe!</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="1017"/>
-        <location filename="../setupwidget.cpp" line="1056"/>
-        <location filename="../setupwidget.cpp" line="1542"/>
+        <location filename="../setupwidget.cpp" line="979"/>
+        <location filename="../setupwidget.cpp" line="1018"/>
+        <location filename="../setupwidget.cpp" line="1504"/>
         <source>A profile named &apos;%1&apos; already exists. Try a different name.</source>
         <translation>Um perfil chamado &apos;%1&apos; já existe. Tente um nome diferente.</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="1008"/>
+        <location filename="../setupwidget.cpp" line="970"/>
         <source>Duplicate Profile</source>
         <extracomment>Note to translators: this refers to the action of copying/duplicating a profile</extracomment>
         <translation>Duplicar Perfil</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="1010"/>
+        <location filename="../setupwidget.cpp" line="972"/>
         <source>Copy of %1</source>
         <translation>Cópia de %1</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="1047"/>
+        <location filename="../setupwidget.cpp" line="1009"/>
         <source>Rename Profile</source>
         <translation>Renomear Perfil</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="1079"/>
+        <location filename="../setupwidget.cpp" line="1041"/>
         <source>Cannot delete profile</source>
         <translation>Não é possível remover o perfil</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="1080"/>
+        <location filename="../setupwidget.cpp" line="1042"/>
         <source>Cannot delete the only remaining profile.</source>
         <translation>Não é possível remover o único perfil restante.</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="1087"/>
+        <location filename="../setupwidget.cpp" line="1049"/>
         <source>Delete Profile</source>
         <translation>Remover Perfil</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="1088"/>
+        <location filename="../setupwidget.cpp" line="1050"/>
         <source>Are you sure you want to delete profile &apos;%1&apos;?</source>
         <translation>Você tem certeza de que deseja remover o perfil &apos;%1&apos;?</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="1205"/>
+        <location filename="../setupwidget.cpp" line="1167"/>
         <source>Do you want to save changes before closing?</source>
         <translation>Você deseja salvar as alterações antes de fechar?</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="1225"/>
+        <location filename="../setupwidget.cpp" line="1187"/>
         <source>About Qt</source>
         <translation>Sobre o Qt</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="1289"/>
+        <location filename="../setupwidget.cpp" line="1251"/>
         <source>Show</source>
         <translation>Exibir</translation>
     </message>
     <message>
-        <location filename="../setupwidget.cpp" line="1329"/>
+        <location filename="../setupwidget.cpp" line="1291"/>
         <source>Select color</source>
         <translation>Selecionar cor</translation>
     </message>
 </context>
 <context>
     <name>TwitchAuthFlow</name>
-    <message>
-        <source>Twitch Authorization</source>
-        <translation type="vanished">Autorização na Twitch</translation>
-    </message>
     <message>
         <location filename="../twitchauthflow.cpp" line="243"/>
         <location filename="../twitchauthflow.cpp" line="301"/>
