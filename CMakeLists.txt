@@ -40,7 +40,6 @@ set(PROJECT_SOURCES
         communityshadersloader.cpp
 
         res.qrc
-        shaders.qrc
         twitchchatreader.h twitchchatreader.cpp
         twitchauthflow.h twitchauthflow.cpp
         emotewriter.h emotewriter.cpp
