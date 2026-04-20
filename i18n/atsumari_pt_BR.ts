@@ -54,62 +54,62 @@
 <context>
     <name>CommunityShadersDialog</name>
     <message>
-        <location filename="../communityshadersdialog.cpp" line="184"/>
+        <location filename="../communityshadersdialog.cpp" line="188"/>
         <source>Community Shaders</source>
         <translation>Shaders da Comunidade</translation>
     </message>
     <message>
-        <location filename="../communityshadersdialog.cpp" line="190"/>
+        <location filename="../communityshadersdialog.cpp" line="194"/>
         <source>Filter packs by name, description or author</source>
         <translation>Filtrar packs por nome, descrição ou autor</translation>
     </message>
     <message>
-        <location filename="../communityshadersdialog.cpp" line="199"/>
+        <location filename="../communityshadersdialog.cpp" line="203"/>
         <source>Reload</source>
         <translation>Recarregar</translation>
     </message>
     <message>
-        <location filename="../communityshadersdialog.cpp" line="210"/>
+        <location filename="../communityshadersdialog.cpp" line="214"/>
         <source>No community shader packs match the current filter.</source>
         <translation>O filtro atual não corresponde a nenhum pack de shader da comunidade.</translation>
     </message>
     <message>
-        <location filename="../communityshadersdialog.cpp" line="236"/>
+        <location filename="../communityshadersdialog.cpp" line="240"/>
         <source>Want to contribute your shaders? Submit them via &lt;a href=&quot;https://docs.google.com/forms/d/e/1FAIpQLScu85yV-Pz6F_oTNxM37AiPFI3cXKWr9EvXlD3dHs3IVsIG1g/viewform?usp=publish-editor&quot;&gt;Google Forms&lt;/a&gt; or open a &lt;a href=&quot;https://github.com/xiluembo/atsumari-communityshaders/pulls&quot;&gt;Pull Request&lt;/a&gt;.</source>
         <translation>Deseja contribuir com os seus shaders? Envie-os via &lt;a href=&quot;https://docs.google.com/forms/d/e/1FAIpQLScu85yV-Pz6F_oTNxM37AiPFI3cXKWr9EvXlD3dHs3IVsIG1g/viewform?usp=publish-editor&quot;&gt;Google Forms&lt;/a&gt; ou abra um &lt;a href=&quot;https://github.com/xiluembo/atsumari-communityshaders/pulls&quot;&gt;Pull Request&lt;/a&gt;.</translation>
     </message>
     <message>
-        <location filename="../communityshadersdialog.cpp" line="254"/>
+        <location filename="../communityshadersdialog.cpp" line="258"/>
         <source>Checking the latest community shader release...</source>
         <translation>Verificando a última release de shaders da comunidade...</translation>
     </message>
     <message>
-        <location filename="../communityshadersdialog.cpp" line="322"/>
+        <location filename="../communityshadersdialog.cpp" line="326"/>
         <source>Apply Community Shader Pack</source>
         <translation>Aplicar Pack de Shader da Comunidade</translation>
     </message>
     <message>
-        <location filename="../communityshadersdialog.cpp" line="323"/>
+        <location filename="../communityshadersdialog.cpp" line="327"/>
         <source>How do you want to apply &apos;%1&apos;?</source>
         <translation>Como você gostaria de aplicar &apos;%1&apos;?</translation>
     </message>
     <message>
-        <location filename="../communityshadersdialog.cpp" line="325"/>
+        <location filename="../communityshadersdialog.cpp" line="329"/>
         <source>Overwrite Current Profile</source>
         <translation>Sobrescrever o Perfil atual</translation>
     </message>
     <message>
-        <location filename="../communityshadersdialog.cpp" line="326"/>
+        <location filename="../communityshadersdialog.cpp" line="330"/>
         <source>Create New Profile</source>
         <translation>Criar Novo Perfil</translation>
     </message>
     <message>
-        <location filename="../communityshadersdialog.cpp" line="351"/>
+        <location filename="../communityshadersdialog.cpp" line="355"/>
         <source>Open External Link</source>
         <translation>Abrir Link Externo</translation>
     </message>
     <message>
-        <location filename="../communityshadersdialog.cpp" line="352"/>
+        <location filename="../communityshadersdialog.cpp" line="356"/>
         <source>This action will open an external link outside Atsumari.
 
 %1</source>
@@ -121,63 +121,63 @@
 <context>
     <name>CommunityShadersLoader</name>
     <message>
-        <location filename="../communityshadersloader.cpp" line="328"/>
+        <location filename="../communityshadersloader.cpp" line="330"/>
         <source>Unable to check the latest community shader release: %1</source>
         <translation>Não foi possível verificar a última release de shaders da comunidade: %1</translation>
     </message>
     <message>
-        <location filename="../communityshadersloader.cpp" line="338"/>
+        <location filename="../communityshadersloader.cpp" line="340"/>
         <source>The latest community shader release does not contain a valid zip archive.</source>
         <translation>A última release de shaders da comunidade não contém um arquivo zip válido.</translation>
     </message>
     <message>
-        <location filename="../communityshadersloader.cpp" line="352"/>
+        <location filename="../communityshadersloader.cpp" line="354"/>
         <source>Downloading community shader packs...</source>
         <translation>Baixando packs de shaders da comunidade...</translation>
     </message>
     <message>
-        <location filename="../communityshadersloader.cpp" line="389"/>
+        <location filename="../communityshadersloader.cpp" line="391"/>
         <source>Unable to download community shader packs: %1</source>
         <translation>Não foi possível baixar os packs de shaders da comunidade: %1</translation>
     </message>
     <message>
-        <location filename="../communityshadersloader.cpp" line="394"/>
+        <location filename="../communityshadersloader.cpp" line="396"/>
         <source>Unable to create a temporary directory for community shader packs.</source>
         <translation>Não foi possível criar um diretório temporário para os packs de shaders da comunidade.</translation>
     </message>
     <message>
-        <location filename="../communityshadersloader.cpp" line="401"/>
-        <location filename="../communityshadersloader.cpp" line="407"/>
+        <location filename="../communityshadersloader.cpp" line="403"/>
+        <location filename="../communityshadersloader.cpp" line="409"/>
         <source>Unable to save the downloaded community shader archive.</source>
         <translation>Não foi possível salvar o arquivo baixado de shaders da comunidade.</translation>
     </message>
     <message>
-        <location filename="../communityshadersloader.cpp" line="417"/>
+        <location filename="../communityshadersloader.cpp" line="419"/>
         <source>Extracting community shader packs...</source>
         <translation>Extraindo os packs de shaders da comunidade...</translation>
     </message>
     <message>
-        <location filename="../communityshadersloader.cpp" line="422"/>
+        <location filename="../communityshadersloader.cpp" line="424"/>
         <source>Unable to prepare the extraction directory for community shader packs.</source>
         <translation>Não foi possível preparar o diretório de extração para os packs de shaders da comunidade.</translation>
     </message>
     <message>
-        <location filename="../communityshadersloader.cpp" line="428"/>
+        <location filename="../communityshadersloader.cpp" line="430"/>
         <source>Unable to read the downloaded community shader archive.</source>
         <translation>Não foi possível ler o arquivo baixado de shaders da comunidade.</translation>
     </message>
     <message>
-        <location filename="../communityshadersloader.cpp" line="455"/>
+        <location filename="../communityshadersloader.cpp" line="457"/>
         <source>Loading community shader packs...</source>
         <translation>Carregando os packs de shaders da comunidade...</translation>
     </message>
     <message>
-        <location filename="../communityshadersloader.cpp" line="479"/>
+        <location filename="../communityshadersloader.cpp" line="481"/>
         <source>No valid community shader packs were found in the downloaded release.</source>
         <translation>Não foi encontrado nenhum pack válido de shaders da comunidade no arquivo de release baixado.</translation>
     </message>
     <message>
-        <location filename="../communityshadersloader.cpp" line="484"/>
+        <location filename="../communityshadersloader.cpp" line="486"/>
         <source>Loaded %1 community shader packs from %2.</source>
         <translation>Carregado(s) %1 pacote(s) de shaders da comunidade de %2.</translation>
     </message>
@@ -228,12 +228,17 @@
         <translation>Autor: %1</translation>
     </message>
     <message>
-        <location filename="../communityshadersdialog.cpp" line="102"/>
+        <location filename="../communityshadersdialog.cpp" line="88"/>
+        <source>License: %1</source>
+        <translation>Licença: %1</translation>
+    </message>
+    <message>
+        <location filename="../communityshadersdialog.cpp" line="106"/>
         <source>Apply Shader Pack...</source>
         <translation>Aplicar Pack de Shaders...</translation>
     </message>
     <message>
-        <location filename="../communityshadersdialog.cpp" line="108"/>
+        <location filename="../communityshadersdialog.cpp" line="112"/>
         <source>Loading preview...</source>
         <translation>Carregando prévia...</translation>
     </message>
