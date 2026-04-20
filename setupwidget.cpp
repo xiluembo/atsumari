@@ -52,6 +52,7 @@
 #include <QJsonObject>
 #include <QVersionNumber>
 #include <QTimer>
+#include <QCoreApplication>
 #include <QPointer>
 #include <QMetaObject>
 #include <QMutex>
@@ -536,6 +537,25 @@ void SetupWidget::loadSettings()
 {
     QSettings settings;
 
+    const int savedSettingsVersion = settings.value(CFG_VERSION, CURRENT_PROFILES_VERSION).toInt();
+    if (savedSettingsVersion > CURRENT_PROFILES_VERSION) {
+        const QMessageBox::StandardButton choice = QMessageBox::warning(
+            this,
+            tr("Newer settings version detected"),
+            tr("This installation has settings created by a newer version of Atsumari. "
+               "Some data may be incompatible with this version. Do you want to continue anyway?"),
+            QMessageBox::Yes | QMessageBox::No,
+            QMessageBox::No
+        );
+
+        if (choice == QMessageBox::No) {
+            QTimer::singleShot(0, []() {
+                QCoreApplication::quit();
+            });
+            return;
+        }
+    }
+
     // Appearance & Behavior
     QLocale defaultLocale = settings.value(CFG_LANGUAGE, LocaleHelper::findBestLocale()).toLocale();
     int langIndex = ui->cboLanguage->findData(defaultLocale);
@@ -663,6 +683,7 @@ void SetupWidget::saveSettings()
 {
     bool fontWarn = false;
     QSettings settings;
+    settings.setValue(CFG_VERSION, CURRENT_PROFILES_VERSION);
     settings.setValue(CFG_LANGUAGE, ui->cboLanguage->currentData());
     settings.setValue(CFG_CURRENT_PROFILE, m_currentProfile);
     settings.setValue(CFG_PROFILES_VERSION, CURRENT_PROFILES_VERSION);
