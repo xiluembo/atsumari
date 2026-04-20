@@ -76,6 +76,7 @@ private:
     QProgressBar* m_progressBar;
     QPushButton* m_reloadButton;
     QLabel* m_emptyStateLabel;
+    QLabel* m_contributeLabel;
     QScrollArea* m_scrollArea;
     QWidget* m_cardsContainer;
     QVBoxLayout* m_cardsLayout;

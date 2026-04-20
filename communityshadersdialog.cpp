@@ -136,6 +136,7 @@ CommunityShadersDialog::CommunityShadersDialog(const QLocale& locale,
     , m_progressBar(nullptr)
     , m_reloadButton(nullptr)
     , m_emptyStateLabel(nullptr)
+    , m_contributeLabel(nullptr)
     , m_scrollArea(nullptr)
     , m_cardsContainer(nullptr)
     , m_cardsLayout(nullptr)
@@ -225,6 +226,21 @@ void CommunityShadersDialog::buildUi()
         startPreviewRendering();
     });
     mainLayout->addWidget(m_scrollArea, 1);
+
+    m_contributeLabel = new QLabel(this);
+    m_contributeLabel->setWordWrap(true);
+    m_contributeLabel->setTextFormat(Qt::RichText);
+    m_contributeLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    m_contributeLabel->setOpenExternalLinks(false);
+    m_contributeLabel->setText(
+        tr("Want to contribute your shaders? Submit them via "
+           "<a href=\"https://docs.google.com/forms/d/e/1FAIpQLScu85yV-Pz6F_oTNxM37AiPFI3cXKWr9EvXlD3dHs3IVsIG1g/viewform?usp=publish-editor\">Google Forms</a> "
+           "or open a "
+           "<a href=\"https://github.com/xiluembo/atsumari-communityshaders/pulls\">Pull Request</a>."));
+    connect(m_contributeLabel, &QLabel::linkActivated, this, [this](const QString& link) {
+        confirmAndOpenExternalLink(QUrl(link));
+    });
+    mainLayout->addWidget(m_contributeLabel);
 
     auto* buttonBox = new QDialogButtonBox(QDialogButtonBox::Close, this);
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
