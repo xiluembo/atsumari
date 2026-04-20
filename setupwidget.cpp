@@ -537,8 +537,8 @@ void SetupWidget::loadSettings()
 {
     QSettings settings;
 
-    const int savedSettingsVersion = settings.value(CFG_VERSION, CURRENT_PROFILES_VERSION).toInt();
-    if (savedSettingsVersion > CURRENT_PROFILES_VERSION) {
+    const int savedSettingsVersion = settings.value(CFG_VERSION, CURRENT_SETTINGS_VERSION).toInt();
+    if (savedSettingsVersion > CURRENT_SETTINGS_VERSION) {
         const QMessageBox::StandardButton choice = QMessageBox::warning(
             this,
             tr("Newer settings version detected"),
@@ -683,7 +683,7 @@ void SetupWidget::saveSettings()
 {
     bool fontWarn = false;
     QSettings settings;
-    settings.setValue(CFG_VERSION, CURRENT_PROFILES_VERSION);
+    settings.setValue(CFG_VERSION, CURRENT_SETTINGS_VERSION);
     settings.setValue(CFG_LANGUAGE, ui->cboLanguage->currentData());
     settings.setValue(CFG_CURRENT_PROFILE, m_currentProfile);
     settings.setValue(CFG_PROFILES_VERSION, CURRENT_PROFILES_VERSION);
