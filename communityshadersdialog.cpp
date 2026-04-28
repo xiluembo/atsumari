@@ -146,6 +146,7 @@ CommunityShadersDialog::CommunityShadersDialog(const QLocale& locale,
     , m_cardsLayout(nullptr)
     , m_previewRenderWindow(nullptr)
     , m_previewRenderIndex(0)
+    , m_previewRenderGeneration(0)
 {
     buildUi();
 
@@ -378,15 +379,24 @@ void CommunityShadersDialog::markReleaseAsSeenIfNeeded()
 
 void CommunityShadersDialog::startPreviewRendering()
 {
+    ++m_previewRenderGeneration;
     m_previewRenderIndex = 0;
+    QObject::disconnect(m_previewFrameConnection);
     if (m_previewRenderWindow) {
         m_previewRenderWindow->hide();
     }
-    QTimer::singleShot(0, this, &CommunityShadersDialog::renderNextPreview);
+    const int generation = m_previewRenderGeneration;
+    QTimer::singleShot(0, this, [this, generation]() {
+        renderNextPreview(generation);
+    });
 }
 
-void CommunityShadersDialog::renderNextPreview()
+void CommunityShadersDialog::renderNextPreview(int generation)
 {
+    if (generation != m_previewRenderGeneration) {
+        return;
+    }
+
     if (m_previewRenderIndex >= m_packs.size()) {
         if (m_previewRenderWindow) {
             m_previewRenderWindow->hide();
@@ -394,18 +404,23 @@ void CommunityShadersDialog::renderNextPreview()
         return;
     }
 
-    QLabel* previewLabel = previewLabelForCard(m_previewRenderIndex);
+    const int previewIndex = m_previewRenderIndex;
+    QLabel* previewLabel = previewLabelForCard(previewIndex);
     if (!previewLabel
         || !previewLabel->isVisible()
         || !previewLabel->pixmap(Qt::ReturnByValue).isNull()) {
         ++m_previewRenderIndex;
-        QTimer::singleShot(0, this, &CommunityShadersDialog::renderNextPreview);
+        QTimer::singleShot(0, this, [this, generation]() {
+            renderNextPreview(generation);
+        });
         return;
     }
 
     QWidget* topLevelWidget = window();
     if (!topLevelWidget || !topLevelWidget->windowHandle()) {
-        QTimer::singleShot(50, this, &CommunityShadersDialog::renderNextPreview);
+        QTimer::singleShot(50, this, [this, generation]() {
+            renderNextPreview(generation);
+        });
         return;
     }
 
@@ -423,7 +438,7 @@ void CommunityShadersDialog::renderNextPreview()
 
     QObject::disconnect(m_previewFrameConnection);
     if (QQuickItem* previewRoot = m_previewRenderWindow->rootObject()) {
-        const CommunityShaderPack& pack = m_packs.at(m_previewRenderIndex);
+        const CommunityShaderPack& pack = m_packs.at(previewIndex);
         previewRoot->setProperty("baseColor", QColor(QStringLiteral(DEFAULT_COLORS_BASE)));
         previewRoot->setProperty("ambientColor", QColor(QStringLiteral(DEFAULT_COLORS_AMBIENT)));
         previewRoot->setProperty("lightColor", QColor(QStringLiteral(DEFAULT_COLORS_LIGHT)));
@@ -435,10 +450,20 @@ void CommunityShadersDialog::renderNextPreview()
         previewRoot->setProperty("fragmentShaderPath", QUrl::fromLocalFile(pack.fragmentShaderPath).toString());
     }
 
-    m_previewFrameConnection = connect(m_previewRenderWindow, &QQuickWindow::frameSwapped, this, [this]() {
+    m_previewFrameConnection = connect(m_previewRenderWindow, &QQuickWindow::frameSwapped, this, [this, generation, previewIndex, remainingWarmupFrames = 1]() mutable {
+        if (generation != m_previewRenderGeneration || !m_previewRenderWindow) {
+            return;
+        }
+
+        if (remainingWarmupFrames > 0) {
+            --remainingWarmupFrames;
+            m_previewRenderWindow->requestUpdate();
+            return;
+        }
+
         QObject::disconnect(m_previewFrameConnection);
 
-        QLabel* currentPreviewLabel = previewLabelForCard(m_previewRenderIndex);
+        QLabel* currentPreviewLabel = previewLabelForCard(previewIndex);
         if (currentPreviewLabel && m_previewRenderWindow) {
             const QImage image = m_previewRenderWindow->grabWindow();
             currentPreviewLabel->setPixmap(QPixmap::fromImage(image).scaled(
@@ -448,8 +473,12 @@ void CommunityShadersDialog::renderNextPreview()
             currentPreviewLabel->setText(QString());
         }
 
-        ++m_previewRenderIndex;
-        QTimer::singleShot(0, this, &CommunityShadersDialog::renderNextPreview);
+        if (m_previewRenderIndex == previewIndex) {
+            ++m_previewRenderIndex;
+        }
+        QTimer::singleShot(0, this, [this, generation]() {
+            renderNextPreview(generation);
+        });
     });
 
     m_previewRenderWindow->show();

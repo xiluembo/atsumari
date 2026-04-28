@@ -61,7 +61,7 @@ private:
     void confirmAndOpenExternalLink(const QUrl& url);
     void markReleaseAsSeenIfNeeded();
     void startPreviewRendering();
-    void renderNextPreview();
+    void renderNextPreview(int generation);
     QLabel* previewLabelForCard(int index) const;
 
     QLocale m_locale;
@@ -85,6 +85,7 @@ private:
     QQuickView* m_previewRenderWindow;
     QMetaObject::Connection m_previewFrameConnection;
     int m_previewRenderIndex;
+    int m_previewRenderGeneration;
 };
 
 #endif // COMMUNITYSHADERSDIALOG_H
