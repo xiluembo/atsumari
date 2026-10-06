@@ -37,11 +37,12 @@
 #include "settings_defaults.h"
 #include "materialtype.h"
 #include "twitchlogmodel.h"
+#include "gamerfychatreader.h"
 
 
 AtsumariLauncher::AtsumariLauncher(QObject *parent)
     : QObject(parent)
-    , m_twFlow(new TwitchAuthFlow(this))
+    , m_twFlow(nullptr)
     , m_emw(new EmoteWriter())
     , m_tReader(nullptr)
     , m_mw(new QMainWindow)
@@ -49,8 +50,6 @@ AtsumariLauncher::AtsumariLauncher(QObject *parent)
     , m_tray(nullptr)
     , m_logDialog(new LogViewDialog)
 {
-    QObject::connect(m_twFlow, &TwitchAuthFlow::authSuccessNotification, this,
-                     &AtsumariLauncher::showDesktopNotification);
 }
 
 AtsumariLauncher::~AtsumariLauncher()
@@ -67,10 +66,18 @@ void AtsumariLauncher::launch()
 {
     QSettings settings;
 
-    QTimer *tokenMaintenanceTimer = new QTimer(this);
-    tokenMaintenanceTimer->setInterval(60000);
-    connect(tokenMaintenanceTimer, &QTimer::timeout, m_twFlow, &TwitchAuthFlow::ensureValidToken);
-    tokenMaintenanceTimer->start();
+    const QString provider = settings.value(CFG_CHAT_PROVIDER, "twitch").toString();
+    const bool twitch = provider != "gamerfy";
+    const bool gamerfy = provider == "gamerfy" || provider == "both";
+    if (twitch) {
+        m_twFlow = new TwitchAuthFlow(this);
+        connect(m_twFlow, &TwitchAuthFlow::authSuccessNotification, this,
+                &AtsumariLauncher::showDesktopNotification);
+        QTimer *tokenMaintenanceTimer = new QTimer(this);
+        tokenMaintenanceTimer->setInterval(60000);
+        connect(tokenMaintenanceTimer, &QTimer::timeout, m_twFlow, &TwitchAuthFlow::ensureValidToken);
+        tokenMaintenanceTimer->start();
+    }
 
     int currentProfile = settings.value(CFG_CURRENT_PROFILE, DEFAULT_CURRENT_PROFILE).toInt();
     settings.beginReadArray(CFG_PROFILES);
@@ -180,59 +187,86 @@ void AtsumariLauncher::launch()
     // Add initial emotes using QML function
     QMetaObject::invokeMethod(rootItem, "addEmoteAtIcosahedronVertex", Qt::QueuedConnection);
     
-    // Setup Twitch chat connections
-    QObject::connect(m_twFlow, &TwitchAuthFlow::tokenUpdated, this, [this](const QString &token) {
-        if (m_tReader)
-            m_tReader->setAccessToken(token);
-    });
-
-    QObject::connect(m_twFlow, &TwitchAuthFlow::loginFetched, this, [this](const QString& a, const QString& userId) {
-        if (m_tReader && a == m_twitchLogin && userId == m_twitchUserId) {
-            m_tReader->setAccessToken(m_twFlow->token());
-            return;
-        }
-
-        if (m_tReader) {
-            delete m_tReader;
-            m_tReader = nullptr;
-        }
-
-        m_twitchLogin = a;
-        m_twitchUserId = userId;
-        m_tReader = new TwitchChatReader("wss://irc-ws.chat.twitch.tv:443/",
-                                         m_twFlow->token(),
-                                         a,
-                                         userId,
-                                         userId,
-                                         m_emw,
-                                         this);
-        TwitchLogModel::instance()->setConnectionStartedAt(QDateTime::currentDateTime());
-
-        QObject::connect(m_tReader, &TwitchChatReader::connected, this, [this]() {
-            showDesktopNotification(tr("Success"), tr("Connected to Twitch chat successfully!"));
+    if (twitch) {
+        // Setup Twitch chat connections
+        QObject::connect(m_twFlow, &TwitchAuthFlow::tokenUpdated, this, [this](const QString &token) {
+            if (m_tReader)
+                m_tReader->setAccessToken(token);
         });
 
-        QObject::connect(m_tReader, &TwitchChatReader::emoteSent, m_emw, [=](const QString& id, const QString& emoName) {
-            Q_UNUSED(emoName);
-            m_emw->saveEmote(id);
+        QObject::connect(m_twFlow, &TwitchAuthFlow::loginFetched, this, [this](const QString& a, const QString& userId) {
+            if (m_tReader && a == m_twitchLogin && userId == m_twitchUserId) {
+                m_tReader->setAccessToken(m_twFlow->token());
+                return;
+            }
+
+            if (m_tReader) {
+                delete m_tReader;
+                m_tReader = nullptr;
+            }
+
+            m_twitchLogin = a;
+            m_twitchUserId = userId;
+            m_tReader = new TwitchChatReader("wss://irc-ws.chat.twitch.tv:443/",
+                                             m_twFlow->token(),
+                                             a,
+                                             userId,
+                                             userId,
+                                             m_emw,
+                                             this);
+            TwitchLogModel::instance()->setConnectionStartedAt(QDateTime::currentDateTime());
+
+            QObject::connect(m_tReader, &TwitchChatReader::connected, this, [this]() {
+                showDesktopNotification(tr("Success"), tr("Connected to Twitch chat successfully!"));
+            });
+
+            QObject::connect(m_tReader, &TwitchChatReader::emoteSent, m_emw, [=](const QString& id, const QString& emoName) {
+                Q_UNUSED(emoName);
+                m_emw->saveEmote(id);
+            });
+
+            QObject::connect(m_tReader, &TwitchChatReader::bigEmoteSent, m_emw, [=](const QString& id, const QString& emoName) {
+                Q_UNUSED(emoName);
+                m_emw->saveBigEmote(id);
+            });
+
+            QObject::connect(m_tReader, &TwitchChatReader::emojiSent, m_emw,
+                             [=](const QString &slug, const QString &emoji) {
+                QSettings settings;
+                int profile = settings.value(CFG_CURRENT_PROFILE, 0).toInt();
+                settings.beginReadArray(CFG_PROFILES);
+                settings.setArrayIndex(profile);
+                QString font = settings.value(CFG_EMOJI_FONT, DEFAULT_EMOJI_FONT).toString();
+                settings.endArray();
+                m_emw->saveEmoji(slug, emoji, font);
+            });
         });
 
-        QObject::connect(m_tReader, &TwitchChatReader::bigEmoteSent, m_emw, [=](const QString& id, const QString& emoName) {
-            Q_UNUSED(emoName);
-            m_emw->saveBigEmote(id);
+    }
+    if (gamerfy) {
+        auto *reader = new GamerfyChatReader(QSettings().value(CFG_GAMERFY_OVERLAY_KEY).toString(), this);
+        connect(reader, &GamerfyChatReader::connected, this, [this] {
+            TwitchLogModel::instance()->setConnectionStartedAt(QDateTime::currentDateTime());
+            showDesktopNotification(tr("Success"), tr("Connected to Gamerfy chat successfully!"));
         });
-
-        QObject::connect(m_tReader, &TwitchChatReader::emojiSent, m_emw,
-                         [=](const QString &slug, const QString &emoji) {
+        connect(reader, &GamerfyChatReader::errorOccurred, this, [this](const QString &message) {
+            TwitchLogModel::instance()->addEntry(TwitchLogModel::Received, "GAMERFY", QString(), message, QString(), false, false);
+            showDesktopNotification(tr("Gamerfy"), message);
+        });
+        connect(reader, &GamerfyChatReader::chatMessage, this, [](const QString &sender, const QString &text) {
+            TwitchLogModel::instance()->addEntry(TwitchLogModel::Received, "PRIVMSG", sender, text, "Gamerfy", false, false);
+        });
+        connect(reader, &GamerfyChatReader::emojiSent, m_emw, [this](const QString &slug, const QString &emoji) {
             QSettings settings;
-            int profile = settings.value(CFG_CURRENT_PROFILE, 0).toInt();
+            const int profile = settings.value(CFG_CURRENT_PROFILE, DEFAULT_CURRENT_PROFILE).toInt();
             settings.beginReadArray(CFG_PROFILES);
             settings.setArrayIndex(profile);
-            QString font = settings.value(CFG_EMOJI_FONT, DEFAULT_EMOJI_FONT).toString();
+            const QString font = settings.value(CFG_EMOJI_FONT, DEFAULT_EMOJI_FONT).toString();
             settings.endArray();
             m_emw->saveEmoji(slug, emoji, font);
         });
-    });
+        QTimer::singleShot(0, reader, &GamerfyChatReader::start);
+    }
 
     // Connect emote writer to add emotes to QML scene
     QObject::connect(m_emw, &EmoteWriter::emoteReady,

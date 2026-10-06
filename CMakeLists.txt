@@ -41,6 +41,7 @@ set(PROJECT_SOURCES
 
         res.qrc
         twitchchatreader.h twitchchatreader.cpp
+        gamerfychatreader.h gamerfychatreader.cpp
         twitchauthflow.h twitchauthflow.cpp
         emotewriter.h emotewriter.cpp
         emojimapper.h emojimapper.cpp
@@ -139,3 +140,15 @@ target_link_libraries(emotewriter_tests PRIVATE
     Qt${QT_VERSION_MAJOR}::Test)
 
 add_test(NAME emotewriter_tests COMMAND emotewriter_tests)
+
+qt_add_executable(gamerfychatreader_tests
+    tests/gamerfychatreader_tests.cpp
+    gamerfychatreader.cpp gamerfychatreader.h
+    emojimapper.cpp emojimapper.h
+)
+target_link_libraries(gamerfychatreader_tests PRIVATE
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Network
+    Qt${QT_VERSION_MAJOR}::WebSockets
+    Qt${QT_VERSION_MAJOR}::Test)
+add_test(NAME gamerfychatreader_tests COMMAND gamerfychatreader_tests)

@@ -50,6 +50,36 @@ After configuring your preferences and hitting the "Close this Dialog and Run" b
 
 You can then add the Atsumari window as a source to your broadcasting software (like OBS Studio). It is recommended to use a "Color Key" filter with the source, specifying the color black, in order to remove the black background.
 
+## Gamerfy chat
+
+In the **Chat** tab, select **Gamerfy** or **Twitch + Gamerfy** and paste your overlay key from
+Gamerfy's **Live → Overlays** area. Save the settings and run Atsumari.
+Use the key itself (`gfo_…`), not an overlay URL or an app/bot token.
+Gamerfy-only mode requires no Twitch client ID or Gamerfy client secret.
+For **Twitch + Gamerfy**, also configure the Twitch client ID and authorize Twitch
+as usual. Both connections run independently and feed the same sphere; a failure
+on one platform does not disconnect the other. The exclusion list applies to
+matching account logins on both platforms.
+Existing installations continue to use Twitch by default.
+
+The key is masked in the dialog but stored in local QSettings, without encryption,
+just like the existing Twitch credentials. Keep it private. To revoke access,
+rotate the key in Gamerfy; then save the replacement key and restart Atsumari.
+
+The integration receives new chat messages over Gamerfy's documented
+[event gateway](https://api.gamerfy.gg/#description/introduction), renders Unicode
+emojis using the selected profile font, and respects the account exclusion list.
+System messages, edits and the initial snapshot are not rendered as new chat.
+The documented chat payload contains text, but no custom-emote image metadata;
+Gamerfy custom emotes, gifts and OAuth app authorization are not implemented.
+
+Connections send heartbeats, reconnect with backoff, resume from the last cursor,
+and discard repeated event IDs. Invalid/revoked keys and connection-limit errors
+stop reconnection and appear in the log. Replace the key or close excess
+connections as appropriate, then restart Atsumari.
+
+Protocol tests are included in `gamerfychatreader_tests` and run through CTest.
+
 ## Contributing:
 
 ### Translations:
@@ -67,8 +97,3 @@ cmake --build . --target=update_translations
 ```
 
 A file named after the language identifier will be placed under the i18n folder. This file can be edited using Qt Linguist. After all strings are updated and validated, you can build the project once again and verify the new language is displayed correctly. Then, submit a pull request to have the language file added to the project.
-
-
-
-
-

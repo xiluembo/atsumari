@@ -48,6 +48,8 @@
 #define CFG_ITERATION_TIME "iteration_time"
 #define CFG_EXCLUDE_CHAT "exclude_chat"
 #define CFG_DECORATION_PATH "decoration"
+#define CFG_CHAT_PROVIDER "chat_provider"
+#define CFG_GAMERFY_OVERLAY_KEY "gamerfy/overlay_key"
 #define CFG_CLIENT_ID "client_id"
 #define CFG_TOKEN "token"
 #define CFG_REFRESH_TOKEN "refresh_token"

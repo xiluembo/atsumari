@@ -50,6 +50,14 @@
         <source>Connected to Twitch chat successfully!</source>
         <translation>Conectado ao chat da Twitch com sucesso!</translation>
     </message>
+    <message>
+        <source>Gamerfy</source>
+        <translation>Gamerfy</translation>
+    </message>
+    <message>
+        <source>Connected to Gamerfy chat successfully!</source>
+        <translation>Conectado ao chat da Gamerfy com sucesso!</translation>
+    </message>
 </context>
 <context>
     <name>CommunityShadersDialog</name>
@@ -881,6 +889,46 @@ Edite o código shader abaixo e clique em *Recarregar shaders* para visualizar a
         <source>Select color</source>
         <translation>Selecionar cor</translation>
     </message>
+    <message>
+        <source>Chat</source>
+        <translation>Chat</translation>
+    </message>
+    <message>
+        <source>Chat platform</source>
+        <translation>Plataforma de chat</translation>
+    </message>
+    <message>
+        <source>Platform:</source>
+        <translation>Plataforma:</translation>
+    </message>
+    <message>
+        <source>Gamerfy</source>
+        <translation>Gamerfy</translation>
+    </message>
+    <message>
+        <source>Gamerfy overlay key:</source>
+        <translation>Chave de overlay da Gamerfy:</translation>
+    </message>
+    <message>
+        <source>gfo_…</source>
+        <translation>gfo_…</translation>
+    </message>
+    <message>
+        <source>Gamerfy: copy your overlay key from Live → Overlays. Unicode emojis are supported. The key is saved in local settings; keep it private. The account exceptions below apply to either platform.</source>
+        <translation>Gamerfy: copie sua chave de overlay em Live → Overlays. Há suporte a emojis Unicode. A chave é salva nas configurações locais; mantenha-a privada. As exceções de contas abaixo se aplicam às duas plataformas.</translation>
+    </message>
+    <message>
+        <source>Gamerfy overlay key</source>
+        <translation>Chave de overlay da Gamerfy</translation>
+    </message>
+    <message>
+        <source>Enter your Gamerfy overlay key (gfo_…) from Live → Overlays and save the settings.</source>
+        <translation>Insira sua chave de overlay da Gamerfy (gfo_…) disponível em Live → Overlays e salve as configurações.</translation>
+    </message>
+    <message>
+        <source>Twitch + Gamerfy</source>
+        <translation>Twitch + Gamerfy</translation>
+    </message>
 </context>
 <context>
     <name>TwitchAuthFlow</name>
@@ -1015,6 +1063,25 @@ Clique em &apos;Sim&apos; para continuar tentando ou &apos;Não&apos; para tenta
         <location filename="../twitchlogmodel.cpp" line="103"/>
         <source>Emotes</source>
         <translation>Emotes</translation>
+    </message>
+</context>
+<context>
+    <name>GamerfyChatReader</name>
+    <message>
+        <source>Could not connect to Gamerfy. Retrying.</source>
+        <translation>Não foi possível conectar à Gamerfy. Tentando novamente.</translation>
+    </message>
+    <message>
+        <source>Enter a valid Gamerfy overlay key (gfo_…).</source>
+        <translation>Insira uma chave de overlay válida da Gamerfy (gfo_…).</translation>
+    </message>
+    <message>
+        <source>Gamerfy disconnected (code %1). Check your overlay key and active connections, then restart Atsumari.</source>
+        <translation>A Gamerfy desconectou (código %1). Verifique sua chave de overlay e as conexões ativas, depois reinicie a Atsumari.</translation>
+    </message>
+    <message>
+        <source>Unsupported Gamerfy gateway handshake.</source>
+        <translation>A negociação de conexão do gateway da Gamerfy não é compatível.</translation>
     </message>
 </context>
 </TS>
