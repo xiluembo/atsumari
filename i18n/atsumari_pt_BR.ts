@@ -894,12 +894,8 @@ Edite o código shader abaixo e clique em *Recarregar shaders* para visualizar a
         <translation>Chat</translation>
     </message>
     <message>
-        <source>Chat platform</source>
-        <translation>Plataforma de chat</translation>
-    </message>
-    <message>
-        <source>Platform:</source>
-        <translation>Plataforma:</translation>
+        <source>Chat platforms</source>
+        <translation>Plataformas de chat</translation>
     </message>
     <message>
         <source>Gamerfy</source>
@@ -924,10 +920,6 @@ Edite o código shader abaixo e clique em *Recarregar shaders* para visualizar a
     <message>
         <source>Enter your Gamerfy overlay key (gfo_…) from Live → Overlays and save the settings.</source>
         <translation>Insira sua chave de overlay da Gamerfy (gfo_…) disponível em Live → Overlays e salve as configurações.</translation>
-    </message>
-    <message>
-        <source>Twitch + Gamerfy</source>
-        <translation>Twitch + Gamerfy</translation>
     </message>
 </context>
 <context>

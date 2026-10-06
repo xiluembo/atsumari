@@ -50,6 +50,7 @@ set(PROJECT_SOURCES
         pixmapsequencedelegate.h pixmapsequencedelegate.cpp
 
         settings_defaults.h
+        chatplatformsettings.h
         atsumarilauncher.h atsumarilauncher.cpp
         localehelper.h localehelper.cpp
         profiledata.h profiledata.cpp

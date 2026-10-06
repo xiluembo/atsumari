@@ -38,6 +38,7 @@
 #include "materialtype.h"
 #include "twitchlogmodel.h"
 #include "gamerfychatreader.h"
+#include "chatplatformsettings.h"
 
 
 AtsumariLauncher::AtsumariLauncher(QObject *parent)
@@ -66,9 +67,9 @@ void AtsumariLauncher::launch()
 {
     QSettings settings;
 
-    const QString provider = settings.value(CFG_CHAT_PROVIDER, "twitch").toString();
-    const bool twitch = provider != "gamerfy";
-    const bool gamerfy = provider == "gamerfy" || provider == "both";
+    const QStringList platforms = enabledChatPlatforms(settings);
+    const bool twitch = platforms.contains("twitch");
+    const bool gamerfy = platforms.contains("gamerfy");
     if (twitch) {
         m_twFlow = new TwitchAuthFlow(this);
         connect(m_twFlow, &TwitchAuthFlow::authSuccessNotification, this,

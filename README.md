@@ -52,15 +52,17 @@ You can then add the Atsumari window as a source to your broadcasting software (
 
 ## Gamerfy chat
 
-In the **Chat** tab, select **Gamerfy** or **Twitch + Gamerfy** and paste your overlay key from
+In the **Chat** tab, check **Gamerfy** and paste your overlay key from
 Gamerfy's **Live → Overlays** area. Save the settings and run Atsumari.
 Use the key itself (`gfo_…`), not an overlay URL or an app/bot token.
 Gamerfy-only mode requires no Twitch client ID or Gamerfy client secret.
-For **Twitch + Gamerfy**, also configure the Twitch client ID and authorize Twitch
-as usual. Both connections run independently and feed the same sphere; a failure
+To use both platforms simultaneously, also check **Twitch**, configure its client
+ID and authorize Twitch as usual. Both connections run independently and feed the same sphere; a failure
 on one platform does not disconnect the other. The exclusion list applies to
 matching account logins on both platforms.
-Existing installations continue to use Twitch by default.
+Each platform has an independent checkbox. Uncheck both to run without chat.
+Existing installations continue to use Twitch by default, and previously saved
+platform selections are preserved.
 
 The key is masked in the dialog but stored in local QSettings, without encryption,
 just like the existing Twitch credentials. Keep it private. To revoke access,
