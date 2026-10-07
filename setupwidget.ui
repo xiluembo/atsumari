@@ -1176,6 +1176,13 @@ Edit the shader code below and click *Reload shaders* to preview changes.</strin
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_cols">
               <item>
+               <widget class="QCheckBox" name="chkPlatform">
+                <property name="text">
+                 <string>Platform</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QCheckBox" name="chkDirection">
                 <property name="text">
                  <string>Direction</string>
@@ -1545,6 +1552,7 @@ Edit the shader code below and click *Reload shaders* to preview changes.</strin
   <tabstop>edtClientId</tabstop>
   <tabstop>btnDevConsole</tabstop>
   <tabstop>btnForceAuth</tabstop>
+  <tabstop>chkPlatform</tabstop>
   <tabstop>chkDirection</tabstop>
   <tabstop>chkSource</tabstop>
   <tabstop>chkTimestamp</tabstop>

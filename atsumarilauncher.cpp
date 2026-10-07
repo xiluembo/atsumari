@@ -251,11 +251,11 @@ void AtsumariLauncher::launch()
             showDesktopNotification(tr("Success"), tr("Connected to Gamerfy chat successfully!"));
         });
         connect(reader, &GamerfyChatReader::errorOccurred, this, [this](const QString &message) {
-            TwitchLogModel::instance()->addEntry(TwitchLogModel::Received, "GAMERFY", QString(), message, QString(), false, false);
+            TwitchLogModel::instance()->addEntry(LogPlatform::Gamerfy, TwitchLogModel::Received, "GAMERFY", QString(), message, QString(), false, false);
             showDesktopNotification(tr("Gamerfy"), message);
         });
         connect(reader, &GamerfyChatReader::chatMessage, this, [](const QString &sender, const QString &text) {
-            TwitchLogModel::instance()->addEntry(TwitchLogModel::Received, "PRIVMSG", sender, text, "Gamerfy", false, false);
+            TwitchLogModel::instance()->addEntry(LogPlatform::Gamerfy, TwitchLogModel::Received, "PRIVMSG", sender, text, "Gamerfy", false, false);
         });
         connect(reader, &GamerfyChatReader::emojiSent, m_emw, [this](const QString &slug, const QString &emoji) {
             QSettings settings;

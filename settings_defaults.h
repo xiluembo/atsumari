@@ -63,13 +63,15 @@
 #define CFG_COMMUNITY_SHADERS_LAST_SEEN_RELEASE "community_shaders/last_seen_release"
 
 #define CFG_LOG_COLUMNS "log/columns"
+#define CFG_LOG_COLUMNS_VERSION "log/columns_version"
+#define CURRENT_LOG_COLUMNS_VERSION 1
 #define CFG_LOG_SOURCE_MIGRATED "log/source_migrated"
 #define CFG_LOG_COLOR_PREFIX "log/colors/"
 #define CFG_LOG_HIDE_CMDS "log/hide"
 #define CFG_LOG_AUTOSAVE_ENABLED "log/autosave/enabled"
 #define CFG_LOG_AUTOSAVE_DIRECTORY "log/autosave/directory"
 #define CFG_LOG_AUTOSAVE_NAME_PATTERN "log/autosave/name_pattern"
-#define DEFAULT_LOG_COLUMNS (QStringList() << "Direction" << "Source" << "Timestamp" << "Command" << "Sender" << "Message" << "Tags" << "Emotes")
+#define DEFAULT_LOG_COLUMNS (QStringList() << "Platform" << "Direction" << "Source" << "Timestamp" << "Command" << "Sender" << "Message" << "Tags" << "Emotes")
 #define DEFAULT_LOG_AUTOSAVE_ENABLED false
 #define DEFAULT_LOG_AUTOSAVE_NAME_PATTERN "atsumari_${timestamp}.txt"
 
@@ -84,7 +86,8 @@ inline QString defaultLogAutosaveDirectory()
                                        << "USERNOTICE" << "USERSTATE")
 #define DEFAULT_LOG_HIDE_CMDS (QStringList() << "PING" << "PONG")
 
-#define CURRENT_SETTINGS_VERSION 3 // Global app settings version
+#define CURRENT_SETTINGS_VERSION 4 // Global app settings version
+#define TWITCH_AUTH_SETTINGS_VERSION 3 // Last settings version requiring new Twitch scopes
 
 #define CFG_PROFILES_VERSION "profiles/version"
 #define DEFAULT_PROFILES_VERSION 1 // Profiles settings version default, so we can migrate from v1

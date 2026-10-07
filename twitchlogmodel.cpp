@@ -4,9 +4,46 @@
 #include <QFile>
 #include <QTextStream>
 #include <QDir>
+#include <QPainter>
 
 #include "settings_defaults.h"
+#include "logsettings.h"
 #include "logcommandcolors.h"
+
+namespace {
+QString platformName(LogPlatform platform)
+{
+    switch (platform) {
+    case LogPlatform::Twitch: return QStringLiteral("Twitch");
+    case LogPlatform::Gamerfy: return QStringLiteral("Gamerfy");
+    }
+    return QString();
+}
+
+QPixmap normalizedPlatformLogo(const QString &path)
+{
+    const QPixmap source(path);
+    if (source.isNull())
+        return QPixmap();
+    const QPixmap scaled = source.scaled(32, 32, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap canvas(32, 32);
+    canvas.fill(Qt::transparent);
+    QPainter painter(&canvas);
+    painter.drawPixmap((32 - scaled.width()) / 2, (32 - scaled.height()) / 2, scaled);
+    return canvas;
+}
+
+QPixmap platformLogo(LogPlatform platform)
+{
+    static const QPixmap twitch = normalizedPlatformLogo(QStringLiteral(":/platformicons/twitch.png"));
+    static const QPixmap gamerfy = normalizedPlatformLogo(QStringLiteral(":/platformicons/gamerfy.png"));
+    switch (platform) {
+    case LogPlatform::Twitch: return twitch;
+    case LogPlatform::Gamerfy: return gamerfy;
+    }
+    return QPixmap();
+}
+}
 
 static TwitchLogModel* s_instance = nullptr;
 
@@ -22,6 +59,8 @@ TwitchLogModel::TwitchLogModel(QObject *parent)
     : QAbstractTableModel(parent)
     , m_connectionStartedAt(QDateTime::currentDateTime())
 {
+    QSettings settings;
+    migrateLogColumns(settings);
     loadColors();
 }
 
@@ -44,6 +83,15 @@ QVariant TwitchLogModel::data(const QModelIndex &index, int role) const
 
     const Entry &e = m_entries.at(index.row());
 
+    if (index.column() == Platform) {
+        if (role == Qt::DecorationRole)
+            return platformLogo(e.platform);
+        if (role == Qt::ToolTipRole || role == Qt::AccessibleTextRole)
+            return platformName(e.platform);
+        if (role == Qt::SizeHintRole)
+            return QSize(36, 36);
+    }
+
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
         case Direction:
@@ -53,7 +101,7 @@ QVariant TwitchLogModel::data(const QModelIndex &index, int role) const
                 return QStringLiteral("📝🧩");
             if (e.fromEventSub)
                 return QStringLiteral("🧩");
-            return QStringLiteral("📝");
+            return e.fromIrc ? QStringLiteral("📝") : QString();
         case Timestamp:
             return e.timestamp.toString(Qt::ISODate);
         case Command:
@@ -75,7 +123,7 @@ QVariant TwitchLogModel::data(const QModelIndex &index, int role) const
                 return tr("Origin: IRC and EventSub");
             if (e.fromEventSub)
                 return tr("Origin: EventSub");
-            return tr("Origin: IRC");
+            return e.fromIrc ? tr("Origin: IRC") : QString();
         }
     } else if (role == Qt::ForegroundRole) {
         auto it = m_fgColors.find(e.command);
@@ -93,6 +141,7 @@ QVariant TwitchLogModel::headerData(int section, Qt::Orientation orientation, in
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
+        case Platform: return tr("Platform");
         case Direction: return tr("Direction");
         case Source: return tr("Source");
         case Timestamp: return tr("Timestamp");
@@ -106,7 +155,8 @@ QVariant TwitchLogModel::headerData(int section, Qt::Orientation orientation, in
     return QVariant();
 }
 
-void TwitchLogModel::addEntry(MsgDirection direction,
+void TwitchLogModel::addEntry(LogPlatform platform,
+                              MsgDirection direction,
                               const QString &command,
                               const QString &sender,
                               const QString &message,
@@ -122,6 +172,7 @@ void TwitchLogModel::addEntry(MsgDirection direction,
         return;
     beginInsertRows(QModelIndex(), m_entries.size(), m_entries.size());
     Entry e;
+    e.platform = platform;
     e.direction = direction;
     e.timestamp = QDateTime::currentDateTime();
     e.command = command;
@@ -145,8 +196,9 @@ bool TwitchLogModel::exportToFile(const QString &fileName) const
         return false;
     QTextStream ts(&f);
     for (const Entry &e : m_entries) {
-        ts << (e.direction == Sent ? QStringLiteral("➡️") : QStringLiteral("⬅️")) << '\t'
-           << (e.fromIrc && e.fromEventSub ? QStringLiteral("📝🧩") : (e.fromEventSub ? QStringLiteral("🧩") : QStringLiteral("📝"))) << '\t'
+        ts << platformName(e.platform) << '\t'
+           << (e.direction == Sent ? QStringLiteral("➡️") : QStringLiteral("⬅️")) << '\t'
+           << (e.fromIrc && e.fromEventSub ? QStringLiteral("📝🧩") : (e.fromEventSub ? QStringLiteral("🧩") : (e.fromIrc ? QStringLiteral("📝") : QString()))) << '\t'
            << e.timestamp.toString(Qt::ISODate) << '\t'
            << e.command << '\t'
            << e.sender << '\t'

@@ -921,6 +921,10 @@ Edite o código shader abaixo e clique em *Recarregar shaders* para visualizar a
         <source>Enter your Gamerfy overlay key (gfo_…) from Live → Overlays and save the settings.</source>
         <translation>Insira sua chave de overlay da Gamerfy (gfo_…) disponível em Live → Overlays e salve as configurações.</translation>
     </message>
+    <message>
+        <source>Platform</source>
+        <translation>Plataforma</translation>
+    </message>
 </context>
 <context>
     <name>TwitchAuthFlow</name>
@@ -1055,6 +1059,10 @@ Clique em &apos;Sim&apos; para continuar tentando ou &apos;Não&apos; para tenta
         <location filename="../twitchlogmodel.cpp" line="103"/>
         <source>Emotes</source>
         <translation>Emotes</translation>
+    </message>
+    <message>
+        <source>Platform</source>
+        <translation>Plataforma</translation>
     </message>
 </context>
 <context>

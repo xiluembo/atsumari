@@ -61,6 +61,7 @@
 #include <QMutexLocker>
 
 #include "settings_defaults.h"
+#include "logsettings.h"
 #include "logcommandcolors.h"
 #include "materialtype.h"
 #include "atsumarilauncher.h"
@@ -1278,14 +1279,9 @@ void SetupWidget::removeFromExcludeList()
 void SetupWidget::loadLogSettings()
 {
     QSettings settings;
-    QStringList cols = settings.value(CFG_LOG_COLUMNS, DEFAULT_LOG_COLUMNS).toStringList();
-    if (!settings.value(CFG_LOG_SOURCE_MIGRATED, false).toBool()) {
-        if (!cols.contains("Source"))
-            cols << "Source";
-        settings.setValue(CFG_LOG_COLUMNS, cols);
-        settings.setValue(CFG_LOG_SOURCE_MIGRATED, true);
-    }
+    const QStringList cols = migrateLogColumns(settings);
 
+    ui->chkPlatform->setChecked(cols.contains("Platform"));
     ui->chkDirection->setChecked(cols.contains("Direction"));
     ui->chkSource->setChecked(cols.contains("Source"));
     ui->chkTimestamp->setChecked(cols.contains("Timestamp"));
@@ -1373,6 +1369,7 @@ void SetupWidget::loadLogSettings()
             markDirty();
     });
 
+    connect(ui->chkPlatform, &QCheckBox::checkStateChanged, this, markDirty);
     connect(ui->chkDirection, &QCheckBox::checkStateChanged, this, markDirty);
     connect(ui->chkSource, &QCheckBox::checkStateChanged, this, markDirty);
     connect(ui->chkTimestamp, &QCheckBox::checkStateChanged, this, markDirty);
@@ -1417,6 +1414,7 @@ void SetupWidget::saveLogSettings()
 {
     QSettings settings;
     QStringList cols;
+    if (ui->chkPlatform->isChecked()) cols << "Platform";
     if (ui->chkDirection->isChecked()) cols << "Direction";
     if (ui->chkSource->isChecked()) cols << "Source";
     if (ui->chkTimestamp->isChecked()) cols << "Timestamp";
