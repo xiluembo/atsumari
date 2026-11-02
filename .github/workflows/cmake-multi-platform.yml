@@ -31,7 +31,7 @@ jobs:
             compiler_type: cl
             c_compiler: cl
             cpp_compiler: cl
-            generator: "Visual Studio 17 2022"
+            generator: "Visual Studio 18 2026"
             is_mingw: no
           - os: windows-latest
             compiler_type: gcc
