@@ -970,9 +970,39 @@ Edit the shader code below and click *Reload shaders* to preview changes.</strin
      </widget>
      <widget class="QWidget" name="tabTwitch">
       <attribute name="title">
-       <string>Twitch</string>
+       <string>Chat</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QGroupBox" name="grpChatPlatforms">
+         <property name="title">
+          <string>Chat platforms</string>
+         </property>
+         <layout class="QFormLayout" name="chatPlatformsLayout">
+          <item row="0" column="0" colspan="2">
+           <layout class="QHBoxLayout" name="chatPlatformsCheckboxLayout">
+            <item>
+             <widget class="QCheckBox" name="chkTwitchEnabled">
+              <property name="text">
+               <string>Twitch</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="chkGamerfyEnabled">
+              <property name="text">
+               <string>Gamerfy</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="0"><widget class="QLabel" name="lblGamerfyKey"><property name="text"><string>Gamerfy overlay key:</string></property><property name="buddy"><cstring>edtGamerfyKey</cstring></property></widget></item>
+          <item row="1" column="1"><widget class="QLineEdit" name="edtGamerfyKey"><property name="echoMode"><enum>QLineEdit::Password</enum></property><property name="placeholderText"><string>gfo_…</string></property></widget></item>
+          <item row="2" column="0" colspan="2"><widget class="QLabel" name="lblGamerfyHelp"><property name="wordWrap"><bool>true</bool></property><property name="text"><string>Gamerfy: copy your overlay key from Live → Overlays. Unicode emojis are supported. The key is saved in local settings; keep it private. The account exceptions below apply to either platform.</string></property></widget></item>
+         </layout>
+        </widget>
+       </item>
        <item>
         <widget class="QGroupBox" name="grpTwitch">
          <property name="locale">
@@ -1145,6 +1175,13 @@ Edit the shader code below and click *Reload shaders* to preview changes.</strin
               <string>Columns</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_cols">
+              <item>
+               <widget class="QCheckBox" name="chkPlatform">
+                <property name="text">
+                 <string>Platform</string>
+                </property>
+               </widget>
+              </item>
               <item>
                <widget class="QCheckBox" name="chkDirection">
                 <property name="text">
@@ -1515,6 +1552,7 @@ Edit the shader code below and click *Reload shaders* to preview changes.</strin
   <tabstop>edtClientId</tabstop>
   <tabstop>btnDevConsole</tabstop>
   <tabstop>btnForceAuth</tabstop>
+  <tabstop>chkPlatform</tabstop>
   <tabstop>chkDirection</tabstop>
   <tabstop>chkSource</tabstop>
   <tabstop>chkTimestamp</tabstop>

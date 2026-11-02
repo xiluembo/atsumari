@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>platformicons/twitch.png</file>
+        <file>platformicons/gamerfy.png</file>
+    </qresource>
+</RCC>

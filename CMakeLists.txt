@@ -40,7 +40,9 @@ set(PROJECT_SOURCES
         communityshadersloader.cpp
 
         res.qrc
+        platformicons.qrc
         twitchchatreader.h twitchchatreader.cpp
+        gamerfychatreader.h gamerfychatreader.cpp
         twitchauthflow.h twitchauthflow.cpp
         emotewriter.h emotewriter.cpp
         emojimapper.h emojimapper.cpp
@@ -48,7 +50,8 @@ set(PROJECT_SOURCES
         logviewdialog.h logviewdialog.cpp logviewdialog.ui
         pixmapsequencedelegate.h pixmapsequencedelegate.cpp
 
-        settings_defaults.h
+        settings_defaults.h logsettings.h
+        chatplatformsettings.h
         atsumarilauncher.h atsumarilauncher.cpp
         localehelper.h localehelper.cpp
         profiledata.h profiledata.cpp
@@ -139,3 +142,28 @@ target_link_libraries(emotewriter_tests PRIVATE
     Qt${QT_VERSION_MAJOR}::Test)
 
 add_test(NAME emotewriter_tests COMMAND emotewriter_tests)
+
+qt_add_executable(gamerfychatreader_tests
+    tests/gamerfychatreader_tests.cpp
+    gamerfychatreader.cpp gamerfychatreader.h
+    emojimapper.cpp emojimapper.h
+)
+target_link_libraries(gamerfychatreader_tests PRIVATE
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Network
+    Qt${QT_VERSION_MAJOR}::WebSockets
+    Qt${QT_VERSION_MAJOR}::Test)
+add_test(NAME gamerfychatreader_tests COMMAND gamerfychatreader_tests)
+
+qt_add_executable(twitchlogmodel_tests
+    tests/twitchlogmodel_tests.cpp
+    twitchlogmodel.cpp twitchlogmodel.h
+    logsettings.h settings_defaults.h logcommandcolors.h
+    platformicons.qrc
+)
+target_link_libraries(twitchlogmodel_tests PRIVATE
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Gui
+    Qt${QT_VERSION_MAJOR}::Test)
+add_test(NAME twitchlogmodel_tests COMMAND twitchlogmodel_tests)
+set_tests_properties(twitchlogmodel_tests PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")

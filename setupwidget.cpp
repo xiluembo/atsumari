@@ -16,6 +16,8 @@
  */
 
 #include "setupwidget.h"
+#include "gamerfychatreader.h"
+#include "chatplatformsettings.h"
 #include "communityshadersdialog.h"
 #include <QQuickItem>
 #include "./ui_setupwidget.h"
@@ -59,6 +61,7 @@
 #include <QMutexLocker>
 
 #include "settings_defaults.h"
+#include "logsettings.h"
 #include "logcommandcolors.h"
 #include "materialtype.h"
 #include "atsumarilauncher.h"
@@ -338,6 +341,27 @@ SetupWidget::SetupWidget(QWidget *parent)
     runPreview();
     updateCommunityShadersStatusLabel();
     checkCommunityShadersRelease();
+
+    const auto updateChatPlatforms = [this] {
+        const bool gamerfy = ui->chkGamerfyEnabled->isChecked();
+        const bool twitch = ui->chkTwitchEnabled->isChecked();
+        ui->edtGamerfyKey->setEnabled(gamerfy);
+        ui->edtClientId->setEnabled(twitch);
+        ui->btnDevConsole->setEnabled(twitch);
+        ui->btnForceAuth->setEnabled(twitch);
+    };
+    updateChatPlatforms();
+    for (QCheckBox *checkbox : {ui->chkTwitchEnabled, ui->chkGamerfyEnabled}) {
+        connect(checkbox, &QCheckBox::toggled, this, [this, updateChatPlatforms] {
+            updateChatPlatforms();
+            m_shouldSave = true;
+            ui->btnSaveSettings->setEnabled(true);
+        });
+    }
+    connect(ui->edtGamerfyKey, &QLineEdit::textChanged, this, [this] {
+        m_shouldSave = true;
+        ui->btnSaveSettings->setEnabled(true);
+    });
 
     // Twitch Tab
     connect(ui->btnAddExcludeChat, &QPushButton::clicked, this, &SetupWidget::addToExcludeList);
@@ -676,6 +700,10 @@ void SetupWidget::loadSettings()
     ui->lstExcludeChat->addItems(excludeChatList);
     ui->edtClientId->setText(settings.value(CFG_CLIENT_ID, DEFAULT_CLIENT_ID).toString());
 
+    const QStringList platforms = enabledChatPlatforms(settings);
+    ui->chkTwitchEnabled->setChecked(platforms.contains("twitch"));
+    ui->chkGamerfyEnabled->setChecked(platforms.contains("gamerfy"));
+    ui->edtGamerfyKey->setText(settings.value(CFG_GAMERFY_OVERLAY_KEY).toString());
     loadLogSettings();
 }
 
@@ -741,11 +769,19 @@ void SetupWidget::saveSettings()
     settings.setValue(CFG_EXCLUDE_CHAT, excludeChat);
 
     QString clientId = ui->edtClientId->text();
-    if (clientId.isEmpty()) {
+    if (ui->chkTwitchEnabled->isChecked() && clientId.isEmpty()) {
         QMessageBox::warning(this, tr("Empty ClientId"), tr("Twitch Client Id is empty, you'll be not able to connect to your chat, use the Twitch Dev Console button to create a Client on Twitch."));
     }
     settings.setValue(CFG_CLIENT_ID, ui->edtClientId->text());
 
+    QStringList platforms;
+    if (ui->chkTwitchEnabled->isChecked())
+        platforms.append("twitch");
+    if (ui->chkGamerfyEnabled->isChecked())
+        platforms.append("gamerfy");
+    settings.setValue(CFG_CHAT_PLATFORMS, platforms);
+    settings.remove(CFG_CHAT_PROVIDER);
+    settings.setValue(CFG_GAMERFY_OVERLAY_KEY, ui->edtGamerfyKey->text().trimmed());
     saveLogSettings();
 
     ui->btnSaveSettings->setEnabled(false);
@@ -773,7 +809,13 @@ void SetupWidget::checkClose()
 
     QString clientId = settings.value(CFG_CLIENT_ID, DEFAULT_CLIENT_ID).toString();
 
-    if (clientId.isEmpty()) {
+    const QStringList platforms = enabledChatPlatforms(settings);
+    const bool gamerfy = platforms.contains("gamerfy");
+    if (gamerfy && !GamerfyChatReader::isValidOverlayToken(settings.value(CFG_GAMERFY_OVERLAY_KEY).toString())) {
+        QMessageBox::critical(this, tr("Gamerfy overlay key"), tr("Enter your Gamerfy overlay key (gfo_…) from Live → Overlays and save the settings."));
+        return;
+    }
+    if (platforms.contains("twitch") && clientId.isEmpty()) {
         QMessageBox::critical(this, tr("Empty ClientId"), tr("Twitch Client Id is empty, you'll be not able to connect to your chat, use the Twitch Dev Console button to create a Client on Twitch."));
         return;
     }
@@ -1237,14 +1279,9 @@ void SetupWidget::removeFromExcludeList()
 void SetupWidget::loadLogSettings()
 {
     QSettings settings;
-    QStringList cols = settings.value(CFG_LOG_COLUMNS, DEFAULT_LOG_COLUMNS).toStringList();
-    if (!settings.value(CFG_LOG_SOURCE_MIGRATED, false).toBool()) {
-        if (!cols.contains("Source"))
-            cols << "Source";
-        settings.setValue(CFG_LOG_COLUMNS, cols);
-        settings.setValue(CFG_LOG_SOURCE_MIGRATED, true);
-    }
+    const QStringList cols = migrateLogColumns(settings);
 
+    ui->chkPlatform->setChecked(cols.contains("Platform"));
     ui->chkDirection->setChecked(cols.contains("Direction"));
     ui->chkSource->setChecked(cols.contains("Source"));
     ui->chkTimestamp->setChecked(cols.contains("Timestamp"));
@@ -1332,6 +1369,7 @@ void SetupWidget::loadLogSettings()
             markDirty();
     });
 
+    connect(ui->chkPlatform, &QCheckBox::checkStateChanged, this, markDirty);
     connect(ui->chkDirection, &QCheckBox::checkStateChanged, this, markDirty);
     connect(ui->chkSource, &QCheckBox::checkStateChanged, this, markDirty);
     connect(ui->chkTimestamp, &QCheckBox::checkStateChanged, this, markDirty);
@@ -1376,6 +1414,7 @@ void SetupWidget::saveLogSettings()
 {
     QSettings settings;
     QStringList cols;
+    if (ui->chkPlatform->isChecked()) cols << "Platform";
     if (ui->chkDirection->isChecked()) cols << "Direction";
     if (ui->chkSource->isChecked()) cols << "Source";
     if (ui->chkTimestamp->isChecked()) cols << "Timestamp";

@@ -16,6 +16,7 @@
  */
 
 #include "twitchauthflow.h"
+#include "logsettings.h"
 
 #include <QUrl>
 #include <QUrlQuery>
@@ -51,13 +52,14 @@ TwitchAuthFlow::TwitchAuthFlow(QObject *parent)
     QSettings settings(this);
 
     const int settingsVersion = settings.value(CFG_VERSION, 0).toInt();
-    // IMPORTANT: Update this migration whenever Twitch scopes change and require token invalidation.
-    if (settingsVersion < CURRENT_SETTINGS_VERSION) {
+    // Bump TWITCH_AUTH_SETTINGS_VERSION only when Twitch scopes require new tokens.
+    if (settingsVersion < TWITCH_AUTH_SETTINGS_VERSION) {
         settings.setValue(CFG_TOKEN, QString());
         settings.setValue(CFG_REFRESH_TOKEN, QString());
         settings.remove(CFG_EXPIRY_TOKEN);
     }
 
+    migrateLogColumns(settings);
     settings.setValue(CFG_VERSION, CURRENT_SETTINGS_VERSION);
     settings.sync();
 

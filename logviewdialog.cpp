@@ -13,6 +13,7 @@
 
 #include "twitchlogmodel.h"
 #include "settings_defaults.h"
+#include "logsettings.h"
 #include "pixmapsequencedelegate.h"
 
 LogViewDialog::LogViewDialog(QWidget *parent)
@@ -23,8 +24,9 @@ LogViewDialog::LogViewDialog(QWidget *parent)
     m_table = ui.tblLogs;
     m_exportButton = ui.btnExport;
     m_table->setModel(TwitchLogModel::instance());
-    int size = m_table->verticalHeader()->defaultSectionSize();
-    m_table->setIconSize(QSize(size, size));
+    m_table->setIconSize(QSize(32, 32));
+    m_table->verticalHeader()->setMinimumSectionSize(36);
+    m_table->verticalHeader()->setDefaultSectionSize(qMax(36, m_table->verticalHeader()->defaultSectionSize()));
     m_table->setItemDelegateForColumn(TwitchLogModel::Emotes, new PixmapSequenceDelegate(m_table));
     connect(m_exportButton, &QPushButton::clicked, this, [=]() {
         QString fn = QFileDialog::getSaveFileName(this, tr("Export logs"), QString(), tr("Text Files (*.txt)"));
@@ -45,13 +47,7 @@ LogViewDialog::LogViewDialog(QWidget *parent)
 void LogViewDialog::applyColumnVisibility()
 {
     QSettings settings;
-    QStringList cols = settings.value(CFG_LOG_COLUMNS, DEFAULT_LOG_COLUMNS).toStringList();
-    if (!settings.value(CFG_LOG_SOURCE_MIGRATED, false).toBool()) {
-        if (!cols.contains(QStringLiteral("Source")))
-            cols << QStringLiteral("Source");
-        settings.setValue(CFG_LOG_COLUMNS, cols);
-        settings.setValue(CFG_LOG_SOURCE_MIGRATED, true);
-    }
+    const QStringList cols = migrateLogColumns(settings);
 
     QStringList translated;
     for (const QString &c : cols)
