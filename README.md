@@ -8,7 +8,7 @@ Atsumari is a stream overlay application designed to interact with Twitch chat a
 
 Designed to be used with:
 <img src="https://img.shields.io/badge/Twitch-9146FF?logo=twitch&logoColor=white"/>
-<a href="https://gamerfy.gg"><img src="https://img.shields.io/badge/Gamerfy-893DFA?logo=gamerfy&logoColor=white"/></a>
+<a href="https://gamerfy.gg"><img src="https://img.shields.io/badge/Gamerfy-893DFA"/></a>
 <img src="https://img.shields.io/badge/OBS_Studio-302E31?logo=obsstudio"/>
 
 ## Building Atsumari
