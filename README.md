@@ -7,9 +7,9 @@
 Atsumari is a stream overlay application designed to interact with Twitch chat and its services. The application dynamically reads emojis and emotes from the chat and renders them in real-time on the surface of a rotating sphere, providing a visually engaging and interactive experience for stream viewers.
 
 Designed to be used with:
-<img src="https://img.shields.io/badge/Twitch-9146FF?logo=twitch&logoColor=white"/>
+<a href="https://www.twitch.tv"><img src="https://img.shields.io/badge/Twitch-9146FF?logo=twitch&logoColor=white"/></a>
 <a href="https://gamerfy.gg"><img src="https://img.shields.io/badge/Gamerfy-893DFA"/></a>
-<img src="https://img.shields.io/badge/OBS_Studio-302E31?logo=obsstudio"/>
+<a href="https://obsproject.com"><img src="https://img.shields.io/badge/OBS_Studio-302E31?logo=obsstudio"/></a>
 
 ## Building Atsumari
 
