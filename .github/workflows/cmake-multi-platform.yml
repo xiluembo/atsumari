@@ -134,3 +134,145 @@ jobs:
           ${{ steps.strings.outputs.build-output-dir }}/${{ matrix.build_type }}/atsumari.exe
         if-no-files-found: error
         retention-days: 30
+
+  build-llvm-mingw:
+    name: Windows ${{ matrix.arch }} (LLVM-MinGW)
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: windows-latest
+            msystem: CLANG64
+            artifact: atsumari-windows-latest-llvm-mingw-Release
+          - arch: ARM64
+            runner: windows-11-arm
+            msystem: CLANGARM64
+            artifact: atsumari-windows-arm64-llvm-mingw-Release
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install LLVM and Qt
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: ${{ matrix.msystem }}
+        update: true
+        pacboy: >-
+          clang:p
+          lld:p
+          llvm:p
+          cmake:p
+          ninja:p
+          qt6-base:p
+          qt6-declarative:p
+          qt6-networkauth:p
+          qt6-quick3d:p
+          qt6-shadertools:p
+          qt6-tools:p
+          qt6-websockets:p
+
+    - name: Configure CMake
+      run: >
+        cmake -S . -B build -G Ninja
+        -DCMAKE_BUILD_TYPE=Release
+        -DCMAKE_CXX_COMPILER=clang++
+        -DCMAKE_RC_COMPILER=llvm-windres
+
+    - name: Build
+      run: cmake --build build
+
+    - name: Test
+      run: ctest --test-dir build --output-on-failure
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact }}
+        path: build/atsumari.exe
+        if-no-files-found: error
+        retention-days: 30
+
+  build-macos-arm64:
+    name: macOS ARM64 (Apple Clang)
+    runs-on: macos-15
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.9.0'
+        arch: clang_64
+        modules: 'qtquick3d qtwebsockets qtnetworkauth qtshadertools'
+
+    - name: Configure CMake
+      run: >
+        cmake -S . -B build -G Ninja
+        -DCMAKE_BUILD_TYPE=Release
+        -DCMAKE_OSX_ARCHITECTURES=arm64
+
+    - name: Build
+      run: cmake --build build
+
+    - name: Test
+      run: ctest --test-dir build --output-on-failure
+
+    - name: Archive the application bundle
+      run: tar -czf atsumari-macos-arm64-Release.tar.gz -C build atsumari.app
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: atsumari-macos-arm64-Release
+        path: atsumari-macos-arm64-Release.tar.gz
+        if-no-files-found: error
+        retention-days: 30
+
+  build-linux-arm64:
+    name: Linux ARM64 (GCC)
+    runs-on: ubuntu-24.04-arm
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install OpenGL development packages
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgl-dev libegl-dev
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        host: linux_arm64
+        version: '6.9.0'
+        arch: linux_gcc_arm64
+        modules: 'qtquick3d qtwebsockets qtnetworkauth qtshadertools'
+
+    - name: Configure CMake
+      run: >
+        cmake -S . -B build -G Ninja
+        -DCMAKE_BUILD_TYPE=Release
+        -DCMAKE_CXX_COMPILER=g++
+
+    - name: Build
+      run: cmake --build build
+
+    - name: Test
+      run: ctest --test-dir build --output-on-failure
+
+    - name: Archive the executable
+      run: tar -czf atsumari-linux-arm64-Release.tar.gz -C build atsumari
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: atsumari-linux-arm64-Release
+        path: atsumari-linux-arm64-Release.tar.gz
+        if-no-files-found: error
+        retention-days: 30
