@@ -134,3 +134,53 @@ jobs:
           ${{ steps.strings.outputs.build-output-dir }}/${{ matrix.build_type }}/atsumari.exe
         if-no-files-found: error
         retention-days: 30
+
+  build-llvm-mingw:
+    name: Windows x64 (LLVM-MinGW)
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install LLVM and Qt for CLANG64
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: CLANG64
+        update: true
+        pacboy: >-
+          clang:p
+          lld:p
+          llvm:p
+          cmake:p
+          ninja:p
+          qt6-base:p
+          qt6-declarative:p
+          qt6-networkauth:p
+          qt6-quick3d:p
+          qt6-shadertools:p
+          qt6-tools:p
+          qt6-websockets:p
+
+    - name: Configure CMake
+      run: >
+        cmake -S . -B build -G Ninja
+        -DCMAKE_BUILD_TYPE=Release
+        -DCMAKE_CXX_COMPILER=clang++
+        -DCMAKE_RC_COMPILER=llvm-windres
+
+    - name: Build
+      run: cmake --build build
+
+    - name: Test
+      run: ctest --test-dir build --output-on-failure
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: atsumari-windows-latest-llvm-mingw-Release
+        path: build/atsumari.exe
+        if-no-files-found: error
+        retention-days: 30
