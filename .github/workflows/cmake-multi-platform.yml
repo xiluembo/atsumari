@@ -233,3 +233,46 @@ jobs:
         path: atsumari-macos-arm64-Release.tar.gz
         if-no-files-found: error
         retention-days: 30
+
+  build-linux-arm64:
+    name: Linux ARM64 (GCC)
+    runs-on: ubuntu-24.04-arm
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install OpenGL development packages
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgl-dev libegl-dev
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        host: linux_arm64
+        version: '6.9.0'
+        arch: linux_gcc_arm64
+        modules: 'qtquick3d qtwebsockets qtnetworkauth qtshadertools'
+
+    - name: Configure CMake
+      run: >
+        cmake -S . -B build -G Ninja
+        -DCMAKE_BUILD_TYPE=Release
+        -DCMAKE_CXX_COMPILER=g++
+
+    - name: Build
+      run: cmake --build build
+
+    - name: Test
+      run: ctest --test-dir build --output-on-failure
+
+    - name: Archive the executable
+      run: tar -czf atsumari-linux-arm64-Release.tar.gz -C build atsumari
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: atsumari-linux-arm64-Release
+        path: atsumari-linux-arm64-Release.tar.gz
+        if-no-files-found: error
+        retention-days: 30
